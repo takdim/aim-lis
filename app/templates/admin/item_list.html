@@ -1,0 +1,405 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Daftar Eksemplar</div>
+    <div class="page-sub">{{ total_count }} eksemplar ditemukan</div>
+  </div>
+</div>
+
+<form class="search-bar" method="get" id="search-form">
+  <div class="search-input">
+    <span class="icon">🔎</span>
+    <input type="text" name="q" value="{{ q or '' }}" placeholder="Cari kode, judul, no. panggil..." />
+  </div>
+  <button class="btn" type="submit">Cari</button>
+</form>
+
+<form class="bulk-actions" id="delete-form">
+  <button class="btn danger hidden" type="button" id="delete-btn">Hapus Terpilih</button>
+</form>
+
+<div class="table items-list-table">
+  <div class="table-head">
+    <div class="th checkbox"></div>
+    <div class="th">Kode Eksemplar</div>
+    <div class="th">Judul</div>
+    <div class="th">Tipe Koleksi</div>
+    <div class="th">Lokasi</div>
+    <div class="th">No. Panggil</div>
+    <div class="th">Terakhir Diubah</div>
+  </div>
+
+  <div id="table-body">
+    {% if rows %}
+      {% for row in rows %}
+      <div class="table-row item-row"
+        data-item-id="{{ row.id }}"
+        data-call-number="{{ row.call_number }}"
+        data-inventory-code="{{ row.inventory_code }}"
+        data-location-id="{{ row.location_id }}"
+        data-site="{{ row.site }}"
+        data-coll-type-id="{{ row.coll_type_id }}"
+        data-item-status-id="{{ row.item_status_id }}"
+        data-order-no="{{ row.order_no }}"
+        data-received-date="{{ row.received_date }}"
+        data-supplier-id="{{ row.supplier_id }}"
+        data-source="{{ row.source }}"
+        data-invoice="{{ row.invoice }}"
+        data-invoice-date="{{ row.invoice_date }}"
+        data-price="{{ row.price }}"
+      >
+        <div class="td checkbox">
+          <input type="checkbox" class="row-check" value="{{ row.id }}" />
+          <button class="icon-btn btn-edit-item" type="button" title="Edit">✏️</button>
+        </div>
+        <div class="td"><span class="pill">{{ row.code }}</span></div>
+        <div class="td">{{ row.title }}</div>
+        <div class="td">{{ row.coll_type }}</div>
+        <div class="td">{{ row.location }}</div>
+        <div class="td">{{ row.call_number }}</div>
+        <div class="td">{{ row.updated }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="table-row">
+        <div class="td full">Tidak ada data eksemplar.</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="pagination" id="pagination">
+  <div class="page-info" id="page-info">Halaman {{ page }} dari {{ total_pages }}</div>
+  <div class="page-actions">
+    <button class="btn ghost {% if page <= 1 %}disabled{% endif %}" type="button" id="prev-page">Sebelumnya</button>
+    <button class="btn ghost {% if page >= total_pages %}disabled{% endif %}" type="button" id="next-page">Berikutnya</button>
+  </div>
+</div>
+
+<div class="modal" id="item-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Edit Eksemplar</div>
+        <div class="modal-sub" id="modal-title"></div>
+      </div>
+      <button class="btn ghost" type="button" id="close-item">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>No. Panggil</span>
+          <input type="text" id="item-call-number" />
+        </label>
+        <label class="field">
+          <span>Kode Inventaris</span>
+          <input type="text" id="item-inventory" />
+        </label>
+        <label class="field">
+          <span>Lokasi</span>
+          <input type="text" id="item-location" />
+        </label>
+        <label class="field">
+          <span>Lokasi Fisik</span>
+          <input type="text" id="item-site" />
+        </label>
+        <label class="field">
+          <span>Tipe Koleksi</span>
+          <select id="item-coll-type">
+            <option value="">-</option>
+            {% for ct in coll_types %}
+            <option value="{{ ct.coll_type_id }}">{{ ct.coll_type_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field">
+          <span>Status Eksemplar</span>
+          <select id="item-status">
+            <option value="">-</option>
+            {% for st in item_statuses %}
+            <option value="{{ st.item_status_id }}">{{ st.item_status_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field">
+          <span>No. Pemesanan</span>
+          <input type="text" id="item-order-no" />
+        </label>
+        <label class="field">
+          <span>Tanggal Penerimaan</span>
+          <input type="date" id="item-received-date" />
+        </label>
+        <label class="field">
+          <span>Agen/Suplier</span>
+          <select id="item-supplier">
+            <option value="">-</option>
+            {% for sp in suppliers %}
+            <option value="{{ sp.supplier_id }}">{{ sp.supplier_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <div class="field">
+          <span>Sumber Peroleh</span>
+          <div class="radio-row">
+            <label><input type="radio" name="item-source" value="1" checked /> Beli</label>
+            <label><input type="radio" name="item-source" value="2" /> Hadiah/Hibah</label>
+          </div>
+        </div>
+        <label class="field">
+          <span>No. Faktur</span>
+          <input type="text" id="item-invoice" />
+        </label>
+        <label class="field">
+          <span>Tanggal Faktur</span>
+          <input type="date" id="item-invoice-date" />
+        </label>
+        <label class="field">
+          <span>Harga</span>
+          <input type="number" id="item-price" min="0" />
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn primary" type="button" id="save-item">Simpan</button>
+      <button class="btn ghost" type="button" id="cancel-item">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const searchForm = document.getElementById("search-form");
+  const searchInput = searchForm.querySelector("input[name='q']");
+  const tableBody = document.getElementById("table-body");
+  const pageInfo = document.getElementById("page-info");
+  const prevBtn = document.getElementById("prev-page");
+  const nextBtn = document.getElementById("next-page");
+  const totalCountEl = document.querySelector(".page-sub");
+  const deleteBtn = document.getElementById("delete-btn");
+
+  const modal = document.getElementById("item-modal");
+  const closeBtn = document.getElementById("close-item");
+  const cancelBtn = document.getElementById("cancel-item");
+  const saveBtn = document.getElementById("save-item");
+  const modalTitle = document.getElementById("modal-title");
+
+  let currentPage = {{ page }};
+  let totalPages = {{ total_pages }};
+  let editingItemId = null;
+
+  function renderRows(rows) {
+    if (!rows.length) {
+      return '<div class="table-row"><div class="td full">Tidak ada data eksemplar.</div></div>';
+    }
+    return rows
+      .map(
+        (row) => `
+          <div class="table-row item-row"
+            data-item-id="${row.id}"
+            data-call-number="${row.call_number || ''}"
+            data-inventory-code="${row.inventory_code || ''}"
+            data-location-id="${row.location_id || ''}"
+            data-site="${row.site || ''}"
+            data-coll-type-id="${row.coll_type_id || ''}"
+            data-item-status-id="${row.item_status_id || ''}"
+            data-order-no="${row.order_no || ''}"
+            data-received-date="${row.received_date || ''}"
+            data-supplier-id="${row.supplier_id || ''}"
+            data-source="${row.source || 0}"
+            data-invoice="${row.invoice || ''}"
+            data-invoice-date="${row.invoice_date || ''}"
+            data-price="${row.price || ''}"
+          >
+            <div class="td checkbox">
+              <input type="checkbox" class="row-check" value="${row.id}" />
+              <button class="icon-btn btn-edit-item" type="button" title="Edit">✏️</button>
+            </div>
+            <div class="td"><span class="pill">${row.code}</span></div>
+            <div class="td">${row.title}</div>
+            <div class="td">${row.coll_type}</div>
+            <div class="td">${row.location}</div>
+            <div class="td">${row.call_number}</div>
+            <div class="td">${row.updated}</div>
+          </div>`
+      )
+      .join("");
+  }
+
+  function updateDeleteState() {
+    const checked = Array.from(document.querySelectorAll(".row-check:checked"));
+    deleteBtn.classList.toggle("hidden", checked.length === 0);
+  }
+
+  async function fetchData(page = 1) {
+    const params = new URLSearchParams();
+    const q = searchInput.value.trim();
+    if (q) params.set("q", q);
+    params.set("page", page);
+    params.set("format", "json");
+
+    const res = await fetch(`{{ url_for('main.admin_items') }}?${params.toString()}`);
+    const data = await res.json();
+
+    tableBody.innerHTML = renderRows(data.rows || []);
+    totalCountEl.textContent = `${data.total_count} eksemplar ditemukan`;
+
+    currentPage = data.page;
+    totalPages = data.total_pages;
+    pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+
+    prevBtn.classList.toggle("disabled", currentPage <= 1);
+    nextBtn.classList.toggle("disabled", currentPage >= totalPages);
+    updateDeleteState();
+  }
+
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+  }
+
+  function closeModal() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  function setModalValues(data) {
+    document.getElementById("item-call-number").value = data.call_number || "";
+    document.getElementById("item-inventory").value = data.inventory_code || "";
+    document.getElementById("item-location").value = data.location_id || "";
+    document.getElementById("item-site").value = data.site || "";
+    document.getElementById("item-coll-type").value = data.coll_type_id || "";
+    document.getElementById("item-status").value = data.item_status_id || "";
+    document.getElementById("item-order-no").value = data.order_no || "";
+    document.getElementById("item-received-date").value = data.received_date || "";
+    document.getElementById("item-supplier").value = data.supplier_id || "";
+    const source = data.source ? String(data.source) : "1";
+    document.querySelector(`input[name='item-source'][value='${source}']`).checked = true;
+    document.getElementById("item-invoice").value = data.invoice || "";
+    document.getElementById("item-invoice-date").value = data.invoice_date || "";
+    document.getElementById("item-price").value = data.price || "";
+  }
+
+  async function saveExistingItem() {
+    const data = {
+      call_number: document.getElementById("item-call-number").value,
+      inventory_code: document.getElementById("item-inventory").value,
+      location_id: document.getElementById("item-location").value,
+      site: document.getElementById("item-site").value,
+      coll_type_id: document.getElementById("item-coll-type").value,
+      item_status_id: document.getElementById("item-status").value,
+      order_no: document.getElementById("item-order-no").value,
+      received_date: document.getElementById("item-received-date").value,
+      supplier_id: document.getElementById("item-supplier").value,
+      source: document.querySelector("input[name='item-source']:checked").value,
+      invoice: document.getElementById("item-invoice").value,
+      invoice_date: document.getElementById("item-invoice-date").value,
+      price: document.getElementById("item-price").value,
+    };
+
+    const res = await fetch(`{{ url_for('main.admin_item_update', item_id=0) }}`.replace("0", editingItemId), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const payload = await res.json();
+    if (!res.ok) {
+      alert(payload.error || "Gagal menyimpan eksemplar.");
+      return;
+    }
+
+    const row = document.querySelector(`.item-row[data-item-id='${editingItemId}']`);
+    if (row) {
+      row.dataset.callNumber = data.call_number || "";
+      row.dataset.inventoryCode = data.inventory_code || "";
+      row.dataset.locationId = data.location_id || "";
+      row.dataset.site = data.site || "";
+      row.dataset.collTypeId = data.coll_type_id || "";
+      row.dataset.itemStatusId = data.item_status_id || "";
+      row.dataset.orderNo = data.order_no || "";
+      row.dataset.receivedDate = data.received_date || "";
+      row.dataset.supplierId = data.supplier_id || "";
+      row.dataset.source = data.source || "1";
+      row.dataset.invoice = data.invoice || "";
+      row.dataset.invoiceDate = data.invoice_date || "";
+      row.dataset.price = data.price || "";
+
+      row.children[1].querySelector(".pill").textContent = data.inventory_code || row.children[1].textContent;
+      row.children[4].textContent = data.location_id || "-";
+      row.children[5].textContent = data.call_number || "-";
+      row.children[3].textContent = document.getElementById("item-coll-type").selectedOptions[0]?.text || "-";
+    }
+
+    closeModal();
+  }
+
+  async function deleteSelected() {
+    const checked = Array.from(document.querySelectorAll(".row-check:checked"));
+    const ids = checked.map((el) => Number(el.value));
+    if (!ids.length) return;
+    if (!confirm("Hapus eksemplar terpilih?")) return;
+
+    const res = await fetch("{{ url_for('main.admin_items_delete') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    });
+    if (!res.ok) {
+      alert("Gagal menghapus eksemplar.");
+      return;
+    }
+    fetchData(currentPage);
+  }
+
+  searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    fetchData(1);
+  });
+
+  prevBtn.addEventListener("click", () => {
+    if (currentPage > 1) fetchData(currentPage - 1);
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (currentPage < totalPages) fetchData(currentPage + 1);
+  });
+
+  deleteBtn.addEventListener("click", deleteSelected);
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+  saveBtn.addEventListener("click", saveExistingItem);
+
+  document.addEventListener("change", (event) => {
+    if (event.target.classList.contains("row-check")) {
+      updateDeleteState();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target.classList.contains("btn-edit-item")) {
+      const row = event.target.closest(".item-row");
+      if (!row) return;
+      editingItemId = row.dataset.itemId;
+      modalTitle.textContent = row.querySelector(".pill")?.textContent || "";
+      setModalValues({
+        call_number: row.dataset.callNumber,
+        inventory_code: row.dataset.inventoryCode,
+        location_id: row.dataset.locationId,
+        site: row.dataset.site,
+        coll_type_id: row.dataset.collTypeId,
+        item_status_id: row.dataset.itemStatusId,
+        order_no: row.dataset.orderNo,
+        received_date: row.dataset.receivedDate,
+        supplier_id: row.dataset.supplierId,
+        source: row.dataset.source,
+        invoice: row.dataset.invoice,
+        invoice_date: row.dataset.invoiceDate,
+        price: row.dataset.price,
+      });
+      openModal();
+    }
+  });
+
+  updateDeleteState();
+</script>
+{% endblock %}

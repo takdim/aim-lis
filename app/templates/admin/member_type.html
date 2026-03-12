@@ -1,0 +1,246 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Tipe Keanggotaan</div>
+    <div class="page-sub">Kelola tipe/kategori keanggotaan perpustakaan</div>
+  </div>
+  <button class="btn primary" id="toggle-form">+ Tambah Tipe</button>
+</div>
+
+<div class="panel form-panel hidden" id="type-form">
+  <div class="panel-body">
+    <div class="form-title">Tipe Baru</div>
+    <form class="form" method="post">
+      <label class="field">
+        <span>Nama Tipe <span class="req">*</span></span>
+        <input type="text" name="member_type_name" placeholder="Nama tipe keanggotaan" required />
+      </label>
+
+      <div class="form-grid">
+        <label class="field">
+          <span>Batas Pinjam</span>
+          <input type="number" name="loan_limit" value="3" />
+        </label>
+        <label class="field">
+          <span>Durasi Pinjam (hari)</span>
+          <input type="number" name="loan_periode" value="14" />
+        </label>
+        <label class="field">
+          <span>Batas Perpanjang</span>
+          <input type="number" name="loan_extend" value="3" />
+        </label>
+        <label class="field">
+          <span>Masa Tenggang (hari)</span>
+          <input type="number" name="grace_days" value="1" />
+        </label>
+        <label class="field">
+          <span>Batas Reservasi</span>
+          <input type="number" name="reserve_limit" value="0" />
+        </label>
+        <label class="field">
+          <span>Denda/Hari (Rp)</span>
+          <input type="number" name="fine_each_day" value="1000" />
+        </label>
+        <label class="field">
+          <span>Masa Keanggotaan (bln)</span>
+          <input type="number" name="member_periode" value="12" />
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn ghost" type="button" id="cancel-form">Batal</button>
+        <button class="btn primary" type="submit">Simpan Tipe</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table member-type-table">
+  <div class="table-head">
+    <div class="th">Nama Tipe</div>
+    <div class="th">Batas Pinjam</div>
+    <div class="th">Durasi (hari)</div>
+    <div class="th">Perpanjang</div>
+    <div class="th">Denda/Hari</div>
+    <div class="th">Batas Reservasi</div>
+    <div class="th"></div>
+  </div>
+
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row member-row"
+      data-id="{{ row.member_type_id }}"
+      data-name="{{ row.member_type_name }}"
+      data-loan-limit="{{ row.loan_limit }}"
+      data-loan-periode="{{ row.loan_periode }}"
+      data-fine-each-day="{{ row.fine_each_day }}"
+      data-member-periode="0"
+      data-loan-extend="{{ row.loan_extend }}"
+      data-reserve-limit="{{ row.reserve_limit }}"
+    >
+      <div class="td">{{ row.member_type_name }}</div>
+      <div class="td">{{ row.loan_limit }}</div>
+      <div class="td">{{ row.loan_periode }}</div>
+      <div class="td">{{ row.loan_extend }}x</div>
+      <div class="td">Rp {{ row.fine_each_day }}</div>
+      <div class="td">{{ row.reserve_limit }}</div>
+      <div class="td actions">
+        <button class="icon-btn btn-edit-type" type="button" title="Edit">✏️</button>
+        <button class="icon-btn danger btn-delete-type" type="button" title="Hapus">🗑️</button>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada tipe keanggotaan.</div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal" id="type-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Edit Tipe Keanggotaan</div>
+      </div>
+      <button class="btn ghost" type="button" id="close-modal">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>Nama Tipe</span>
+          <input type="text" id="edit-name" />
+        </label>
+        <label class="field">
+          <span>Batas Pinjam</span>
+          <input type="number" id="edit-loan-limit" />
+        </label>
+        <label class="field">
+          <span>Durasi Pinjam (hari)</span>
+          <input type="number" id="edit-loan-periode" />
+        </label>
+        <label class="field">
+          <span>Batas Perpanjang</span>
+          <input type="number" id="edit-loan-extend" />
+        </label>
+        <label class="field">
+          <span>Denda/Hari (Rp)</span>
+          <input type="number" id="edit-fine" />
+        </label>
+        <label class="field">
+          <span>Batas Reservasi</span>
+          <input type="number" id="edit-reserve" />
+        </label>
+        <label class="field">
+          <span>Masa Keanggotaan (bln)</span>
+          <input type="number" id="edit-member-periode" />
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-modal">Batal</button>
+      <button class="btn primary" type="button" id="save-modal">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const formPanel = document.getElementById("type-form");
+  const toggleBtn = document.getElementById("toggle-form");
+  const cancelBtn = document.getElementById("cancel-form");
+
+  const modal = document.getElementById("type-modal");
+  const closeModal = document.getElementById("close-modal");
+  const cancelModal = document.getElementById("cancel-modal");
+  const saveModal = document.getElementById("save-modal");
+
+  let editingId = null;
+
+  toggleBtn.addEventListener("click", () => {
+    formPanel.classList.toggle("hidden");
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    formPanel.classList.add("hidden");
+  });
+
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+  }
+
+  function closeModalFn() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  document.addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".btn-edit-type");
+    if (editBtn) {
+      const row = editBtn.closest(".member-row");
+      if (!row) return;
+      editingId = row.dataset.id;
+      document.getElementById("edit-name").value = row.dataset.name || "";
+      document.getElementById("edit-loan-limit").value = row.dataset.loanLimit || 0;
+      document.getElementById("edit-loan-periode").value = row.dataset.loanPeriode || 0;
+      document.getElementById("edit-loan-extend").value = row.dataset.loanExtend || 0;
+      document.getElementById("edit-fine").value = row.dataset.fineEachDay || 0;
+      document.getElementById("edit-reserve").value = row.dataset.reserveLimit || 0;
+      document.getElementById("edit-member-periode").value = row.dataset.memberPeriode || 0;
+      openModal();
+    }
+
+    const delBtn = event.target.closest(".btn-delete-type");
+    if (delBtn) {
+      const row = delBtn.closest(".member-row");
+      if (!row) return;
+      const id = row.dataset.id;
+      if (!confirm("Hapus tipe keanggotaan ini?")) return;
+      fetch(`/admin/tipe-keanggotaan/${id}/delete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }).then((res) => {
+        if (res.ok) {
+          row.remove();
+        }
+      });
+    }
+  });
+
+  saveModal.addEventListener("click", () => {
+    const payload = {
+      member_type_name: document.getElementById("edit-name").value,
+      loan_limit: document.getElementById("edit-loan-limit").value,
+      loan_periode: document.getElementById("edit-loan-periode").value,
+      fine_each_day: document.getElementById("edit-fine").value,
+      member_periode: document.getElementById("edit-member-periode").value,
+    };
+
+    fetch(`/admin/tipe-keanggotaan/${editingId}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).then((res) => res.json()).then((data) => {
+      if (!data.ok) return;
+      const row = document.querySelector(`.member-row[data-id='${editingId}']`);
+      if (row) {
+        row.dataset.name = payload.member_type_name;
+        row.dataset.loanLimit = payload.loan_limit;
+        row.dataset.loanPeriode = payload.loan_periode;
+        row.dataset.fineEachDay = payload.fine_each_day;
+        row.dataset.memberPeriode = payload.member_periode;
+        row.children[0].textContent = payload.member_type_name;
+        row.children[1].textContent = payload.loan_limit;
+        row.children[2].textContent = payload.loan_periode;
+        row.children[4].textContent = `Rp ${payload.fine_each_day}`;
+      }
+      closeModalFn();
+    });
+  });
+
+  closeModal.addEventListener("click", closeModalFn);
+  cancelModal.addEventListener("click", closeModalFn);
+</script>
+{% endblock %}

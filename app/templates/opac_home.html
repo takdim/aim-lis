@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Perpustakaan Digital</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/opac.css') }}" />
+  </head>
+  <body>
+    <header class="opac-header">
+      <div class="brand">
+        <div class="logo">📘</div>
+        <div>
+          <div class="brand-title">Perpustakaan Digital</div>
+          <div class="brand-sub">Online Public Access Catalogue</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="opac-main">
+      <section class="hero">
+        <h1>Selamat Datang di OPAC</h1>
+        <p>Temukan koleksi buku dan referensi perpustakaan kami secara online</p>
+
+        <form class="hero-search" id="opac-search">
+          <div class="search-input">
+            <span class="icon">🔍</span>
+            <input type="text" id="opac-q" placeholder="Cari judul, pengarang, ISBN, atau no. panggil..." />
+          </div>
+          <button class="btn primary" type="submit">Cari</button>
+        </form>
+
+        <div class="hero-meta">
+          <span>📘 Koleksi Terbaru</span>
+          <span>👥 Terbuka untuk Umum</span>
+        </div>
+      </section>
+
+      <section class="search-result hidden" id="search-section" style="display:none;">
+        <div class="result-header">
+          <div id="search-title">Hasil pencarian</div>
+          <button class="close" id="close-search">✕ Tutup</button>
+        </div>
+        <div class="book-grid" id="search-grid"></div>
+        <div class="pagination">
+          <div class="page-info" id="search-page"></div>
+          <div class="page-actions">
+            <button class="btn ghost" id="prev-page">Sebelumnya</button>
+            <button class="btn ghost" id="next-page">Berikutnya</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="split" id="default-section">
+        <div>
+          <h2>10 Koleksi Terbaru</h2>
+          <div class="list">
+            {% for row in latest_rows %}
+            <button class="book-row" data-biblio="{{ row.biblio_id }}">
+              <div class="book-icon">📘</div>
+              <div>
+                <div class="book-title">{{ row.title }}</div>
+                <div class="book-author">{{ row.author }}</div>
+                <div class="book-meta">
+                  <span class="tag">{{ row.gmd }}</span>
+                  <span>{{ row.year }}</span>
+                  <span>👁 {{ row.views }}</span>
+                </div>
+              </div>
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+        <div>
+          <h2>10 Terbanyak Dipinjam</h2>
+          <div class="list">
+            {% for row in popular_rows %}
+            <button class="book-row" data-biblio="{{ row.biblio_id }}">
+              <div class="book-icon">📘</div>
+              <div>
+                <div class="book-title">{{ row.title }}</div>
+                <div class="book-author">{{ row.author }}</div>
+                <div class="book-meta">
+                  <span class="tag">{{ row.gmd }}</span>
+                  <span>{{ row.year }}</span>
+                  <span>👁 {{ row.views }}</span>
+                </div>
+              </div>
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal" id="book-modal" aria-hidden="true">
+      <div class="modal-card opac-modal">
+        <div class="modal-header">
+          <div class="modal-title" id="modal-title"></div>
+          <button class="icon-btn" id="close-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-info">
+            <div class="book-icon large">📘</div>
+            <div>
+              <div class="info-row"><span>Pengarang:</span> <b id="modal-author"></b></div>
+              <div class="info-row"><span>Tahun:</span> <b id="modal-year"></b></div>
+              <div class="info-row"><span>ISBN/ISSN:</span> <b id="modal-isbn"></b></div>
+              <div class="info-row"><span>No. Panggil:</span> <b id="modal-call"></b></div>
+              <div class="info-row"><span>Eksemplar:</span> <b id="modal-copies"></b></div>
+              <div class="info-row"><span>Dikunjungi:</span> <b id="modal-views"></b></div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="items">
+            <h3>Daftar Eksemplar</h3>
+            <div class="item-table" id="modal-items"></div>
+          </div>
+          <div class="foot">Ditambahkan <span id="modal-date"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const modal = document.getElementById("book-modal");
+      const closeModal = document.getElementById("close-modal");
+      const modalTitle = document.getElementById("modal-title");
+      const modalAuthor = document.getElementById("modal-author");
+      const modalYear = document.getElementById("modal-year");
+      const modalIsbn = document.getElementById("modal-isbn");
+      const modalCall = document.getElementById("modal-call");
+      const modalCopies = document.getElementById("modal-copies");
+      const modalViews = document.getElementById("modal-views");
+      const modalItems = document.getElementById("modal-items");
+      const modalDate = document.getElementById("modal-date");
+
+      function openModal() {
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function hideModal() {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      async function loadDetail(id) {
+        const res = await fetch(`/opac/biblio/${id}`);
+        const data = await res.json();
+        modalTitle.textContent = data.title;
+        modalAuthor.textContent = data.author;
+        modalYear.textContent = data.year;
+        modalIsbn.textContent = data.isbn;
+        modalCall.textContent = data.call_number;
+        modalCopies.textContent = `${data.copies} kopi`;
+        modalViews.textContent = `${data.views}x`;
+        modalDate.textContent = data.input_date;
+        modalItems.innerHTML = `
+          <div class="item-head">
+            <div>Kode Item</div><div>No. Panggil</div><div>Lokasi</div><div>Status</div><div>Tgl. Kembali</div>
+          </div>
+          ${data.items
+            .map(
+              (item) => `
+              <div class="item-row">
+                <div>${item.item_code}</div>
+                <div>${item.call_number}</div>
+                <div>${item.location}</div>
+                <div><span class="status ${item.status === 'Tersedia' ? 'ok' : 'warn'}">${item.status}</span></div>
+                <div>${item.due_date}</div>
+              </div>`
+            )
+            .join("")}
+        `;
+        openModal();
+      }
+
+      document.addEventListener("click", (event) => {
+        const card = event.target.closest("[data-biblio]");
+        if (card) {
+          loadDetail(card.dataset.biblio);
+        }
+      });
+      closeModal.addEventListener("click", hideModal);
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) hideModal();
+      });
+
+      const searchForm = document.getElementById("opac-search");
+      const searchInput = document.getElementById("opac-q");
+      const searchSection = document.getElementById("search-section");
+      const defaultSection = document.getElementById("default-section");
+      const searchGrid = document.getElementById("search-grid");
+      const searchTitle = document.getElementById("search-title");
+      const searchPage = document.getElementById("search-page");
+      const prevBtn = document.getElementById("prev-page");
+      const nextBtn = document.getElementById("next-page");
+      const closeSearch = document.getElementById("close-search");
+
+      let currentPage = 1;
+      let totalPages = 1;
+
+      function renderSearch(rows) {
+        if (!rows.length) {
+          searchGrid.innerHTML = "<div>Tidak ada hasil.</div>";
+          return;
+        }
+        searchGrid.innerHTML = rows
+          .map(
+            (row) => `
+            <button class="book-card" data-biblio="${row.biblio_id}">
+              <div class="book-icon">📘</div>
+              <div class="book-title">${row.title}</div>
+              <div class="book-author">${row.author}</div>
+              <div class="book-meta">
+                <span class="tag">${row.gmd}</span>
+                <span>${row.year}</span>
+                <span>👁 ${row.views}</span>
+              </div>
+            </button>`
+          )
+          .join("");
+      }
+
+      async function doSearch(page = 1) {
+        const q = searchInput.value.trim();
+        if (!q) return;
+        const res = await fetch("/opac/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ q, page }),
+        });
+        const data = await res.json();
+        currentPage = data.page;
+        totalPages = data.total_pages;
+        searchTitle.innerHTML = `Hasil pencarian "${data.q}" <span>(${data.total} ditemukan)</span>`;
+        searchPage.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+        renderSearch(data.rows || []);
+        searchSection.classList.remove("hidden");
+        searchSection.style.display = "block";
+        defaultSection.classList.add("hidden");
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = currentPage >= totalPages;
+      }
+
+      searchForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        doSearch(1);
+      });
+
+      prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) doSearch(currentPage - 1);
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (currentPage < totalPages) doSearch(currentPage + 1);
+      });
+
+      closeSearch.addEventListener("click", () => {
+        searchSection.classList.add("hidden");
+        searchSection.style.display = "none";
+        defaultSection.classList.remove("hidden");
+        searchInput.value = "";
+      });
+    </script>
+  </body>
+</html>

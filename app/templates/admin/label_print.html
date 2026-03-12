@@ -1,0 +1,238 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Pencetakan Label dan Barcode</div>
+    <div class="page-sub">Pilih eksemplar untuk dicetak labelnya</div>
+  </div>
+  <button class="btn primary" id="print-btn">Cetak Label (0)</button>
+</div>
+
+<form class="search-bar" method="get" id="search-form">
+  <div class="search-input">
+    <span class="icon">🔎</span>
+    <input type="text" name="q" value="{{ q or '' }}" placeholder="Cari kode, judul, no. panggil..." />
+  </div>
+  <button class="btn" type="submit">Cari</button>
+</form>
+
+<div class="preview-panel print-area">
+  <div class="preview-title">Preview Label (<span id="selected-count">0</span> dipilih):</div>
+  <div class="preview-grid" id="preview-grid"></div>
+</div>
+
+<div class="table label-table">
+  <div class="table-head">
+    <div class="th checkbox"></div>
+    <div class="th">Judul</div>
+    <div class="th">No. Panggil</div>
+    <div class="th">Kode Eksemplar</div>
+  </div>
+
+  <div id="table-body">
+    {% if rows %}
+      {% for row in rows %}
+      <div class="table-row item-row" data-item-id="{{ row.id }}">
+        <div class="td checkbox">
+          <input type="checkbox" class="row-check" value="{{ row.id }}" />
+        </div>
+        <div class="td">{{ row.title }}</div>
+        <div class="td">{{ row.call_number }}</div>
+        <div class="td"><span class="pill">{{ row.code }}</span></div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="table-row">
+        <div class="td full">Tidak ada data eksemplar.</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="pagination" id="pagination">
+  <div class="page-info" id="page-info">Halaman {{ page }} dari {{ total_pages }}</div>
+  <div class="page-actions">
+    <button class="btn ghost {% if page <= 1 %}disabled{% endif %}" type="button" id="prev-page">Sebelumnya</button>
+    <button class="btn ghost {% if page >= total_pages %}disabled{% endif %}" type="button" id="next-page">Berikutnya</button>
+  </div>
+</div>
+
+<template id="label-template">
+  <div class="label-card">
+    <div class="label-top">PERPUSTAKAAN</div>
+    <div class="label-title"></div>
+    <div class="label-call"></div>
+    <div class="label-call-small"></div>
+    <div class="label-call-small"></div>
+    <div class="label-barcode"></div>
+    <div class="label-code"></div>
+  </div>
+</template>
+
+<script src="{{ url_for('static', filename='js/JsBarcode.all.min.js') }}"></script>
+<script>
+  const searchForm = document.getElementById("search-form");
+  const searchInput = searchForm.querySelector("input[name='q']");
+  const tableBody = document.getElementById("table-body");
+  const pageInfo = document.getElementById("page-info");
+  const prevBtn = document.getElementById("prev-page");
+  const nextBtn = document.getElementById("next-page");
+  const printBtn = document.getElementById("print-btn");
+  const selectedCountEl = document.getElementById("selected-count");
+  const previewGrid = document.getElementById("preview-grid");
+  const totalCountEl = document.querySelector(".page-sub");
+
+  let currentPage = {{ page }};
+  let totalPages = {{ total_pages }};
+  let cache = new Map();
+
+  function updateSelectedCount() {
+    const checked = Array.from(document.querySelectorAll(".row-check:checked"));
+    selectedCountEl.textContent = checked.length;
+    printBtn.textContent = `Cetak Label (${checked.length})`;
+  }
+
+  function renderPreview(items) {
+      previewGrid.innerHTML = ""; // Bersihkan grid utama
+      
+      items.forEach((item) => {
+          const tpl = document.getElementById("label-template").content.cloneNode(true);
+          const card = tpl.querySelector(".label-card");
+          
+          // Seleksi elemen
+          const titleEl = tpl.querySelector(".label-title");
+          const callEl = tpl.querySelector(".label-call");
+          const callSmall = tpl.querySelectorAll(".label-call-small");
+          const barcodeContainer = tpl.querySelector(".label-barcode"); // Container SVG
+          const codeTextEl = tpl.querySelector(".label-code");
+
+          // Isi konten teks
+          titleEl.textContent = item.title || "TANPA JUDUL";
+          const call = (item.call_number || "-").split(/\s+/).filter(Boolean);
+          callEl.textContent = call[0] || "-";
+          if (callSmall.length >= 2) {
+              callSmall[0].textContent = call[1] || "";
+              callSmall[1].textContent = call[2] || "";
+          }
+
+          const code = String(item.code || "").trim();
+          codeTextEl.textContent = code;
+
+          // Validasi Barcode
+          if (!code) {
+              barcodeContainer.textContent = "KODE KOSONG";
+          } else if (!window.JsBarcode) {
+              barcodeContainer.textContent = "JSBARCODE ERROR";
+          } else {
+              try {
+                  // Buat elemen SVG baru
+                  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                  JsBarcode(svg, code, {
+                      displayValue: false, // Karena kita sudah punya codeTextEl
+                      height: 40,
+                      width: 2,
+                      margin: 0,
+                  });
+                  barcodeContainer.innerHTML = ""; // Bersihkan placeholder
+                  barcodeContainer.appendChild(svg);
+              } catch (err) {
+                  console.error("JsBarcode error", code, err);
+                  barcodeContainer.textContent = "FORMAT ERROR";
+              }
+          }
+
+          previewGrid.appendChild(tpl); // Gunakan tpl (DocumentFragment) lebih efisien
+      });
+  }
+async function fetchItems(ids) {
+    if (!ids.length) return [];
+    const missing = ids.filter((id) => !cache.has(id));
+    if (missing.length) {
+      const res = await fetch(`{{ url_for('main.admin_items_label_data') }}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: missing }),
+      });
+      const data = await res.json();
+      data.items.forEach((item) => cache.set(item.id, item));
+    }
+    return ids.map((id) => cache.get(id)).filter(Boolean);
+  }
+
+  async function updatePreview() {
+    const checked = Array.from(document.querySelectorAll(".row-check:checked"));
+    const ids = checked.map((el) => Number(el.value));
+    const items = await fetchItems(ids);
+    renderPreview(items);
+    updateSelectedCount();
+  }
+
+  function renderRows(rows) {
+    if (!rows.length) {
+      return '<div class="table-row"><div class="td full">Tidak ada data eksemplar.</div></div>';
+    }
+    return rows
+      .map(
+        (row) => `
+          <div class="table-row item-row" data-item-id="${row.id}">
+            <div class="td checkbox">
+              <input type="checkbox" class="row-check" value="${row.id}" />
+            </div>
+            <div class="td">${row.title}</div>
+            <div class="td">${row.call_number}</div>
+            <div class="td"><span class="pill">${row.code}</span></div>
+          </div>`
+      )
+      .join("");
+  }
+
+  async function fetchData(page = 1) {
+    const params = new URLSearchParams();
+    const q = searchInput.value.trim();
+    if (q) params.set("q", q);
+    params.set("page", page);
+    params.set("format", "json");
+
+    const res = await fetch(`{{ url_for('main.admin_labels') }}?${params.toString()}`);
+    const data = await res.json();
+
+    tableBody.innerHTML = renderRows(data.rows || []);
+    totalCountEl.textContent = `${data.total_count} eksemplar ditemukan`;
+
+    currentPage = data.page;
+    totalPages = data.total_pages;
+    pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+
+    prevBtn.classList.toggle("disabled", currentPage <= 1);
+    nextBtn.classList.toggle("disabled", currentPage >= totalPages);
+    previewGrid.innerHTML = "";
+    updateSelectedCount();
+  }
+
+  searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    fetchData(1);
+  });
+
+  prevBtn.addEventListener("click", () => {
+    if (currentPage > 1) fetchData(currentPage - 1);
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (currentPage < totalPages) fetchData(currentPage + 1);
+  });
+
+  document.addEventListener("change", (event) => {
+    if (event.target.classList.contains("row-check")) {
+      updatePreview();
+    }
+  });
+
+  printBtn.addEventListener("click", () => {
+    window.print();
+  });
+
+  updateSelectedCount();
+</script>
+{% endblock %}

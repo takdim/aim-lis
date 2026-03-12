@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - SLiMS Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+  </head>
+  <body class="login-body">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-icon">S</div>
+        <div>
+          <div class="brand-title">SLiMS Admin</div>
+          <div class="brand-sub">Perpustakaan</div>
+        </div>
+      </div>
+
+      {% if message %}
+      <div class="alert">{{ message }}</div>
+      {% endif %}
+
+      <form class="login-form" method="post">
+        <label>
+          <span>Username</span>
+          <input type="text" name="username" placeholder="admin" required />
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" placeholder="••••••••" required />
+        </label>
+        <button class="btn primary full" type="submit">Masuk</button>
+        <div class="login-help">Gunakan akun admin untuk mengelola katalog.</div>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header center">
+  <div>
+    <div class="page-title">Pengembalian Kilat</div>
+    <div class="page-sub">Scan atau masukkan kode eksemplar untuk pengembalian cepat</div>
+  </div>
+</div>
+
+<div class="return-card">
+  <div class="return-title">↩︎ Kembalikan Buku</div>
+  <div class="return-form">
+    <input type="text" id="return-code" placeholder="Masukkan kode eksemplar..." />
+    <button class="btn primary" id="return-btn" type="button">Kembalikan</button>
+  </div>
+  <div class="return-hint">Tekan Enter untuk mempercepat proses pengembalian</div>
+  <div class="return-result" id="return-result"></div>
+</div>
+
+<script>
+  const codeInput = document.getElementById("return-code");
+  const returnBtn = document.getElementById("return-btn");
+  const resultEl = document.getElementById("return-result");
+
+  async function doReturn() {
+    const code = codeInput.value.trim();
+    if (!code) return;
+    const res = await fetch("/admin/pengembalian-kilat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ item_code: code }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      resultEl.innerHTML = `<div class="alert">${data.error || "Gagal mengembalikan."}</div>`;
+      return;
+    }
+    resultEl.innerHTML = `
+      <div class="success">
+        <div><b>${data.member_name}</b> (${data.member_id})</div>
+        <div>Buku <b>${data.item_code}</b> berhasil dikembalikan.</div>
+      </div>
+    `;
+    codeInput.value = "";
+  }
+
+  returnBtn.addEventListener("click", doReturn);
+  codeInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      doReturn();
+    }
+  });
+</script>
+{% endblock %}

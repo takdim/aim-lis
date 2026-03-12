@@ -1,0 +1,63 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub">Ringkasan aktivitas perpustakaan</div>
+  </div>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="card-label">Total Bibliografi</div>
+    <div class="card-value">24.048</div>
+    <div class="card-meta">+120 minggu ini</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Eksemplar Tersedia</div>
+    <div class="card-value">18.932</div>
+    <div class="card-meta">Stok sehat</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Peminjaman Aktif</div>
+    <div class="card-value">214</div>
+    <div class="card-meta">Perlu ditindak 6</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Anggota Baru</div>
+    <div class="card-value">38</div>
+    <div class="card-meta">7 hari terakhir</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">Aktivitas Terbaru</div>
+    <button class="btn">Lihat Semua</button>
+  </div>
+  <div class="panel-body">
+    <div class="activity">
+      <div class="dot"></div>
+      <div>
+        <div class="activity-title">Pengembalian buku: Hukum kontrak & perancangan kontrak</div>
+        <div class="activity-meta">2 menit lalu · Eksemplar #B-1293</div>
+      </div>
+    </div>
+    <div class="activity">
+      <div class="dot"></div>
+      <div>
+        <div class="activity-title">Anggota baru terdaftar: Rani P.</div>
+        <div class="activity-meta">15 menit lalu · Tipe Keanggotaan Mahasiswa</div>
+      </div>
+    </div>
+    <div class="activity">
+      <div class="dot"></div>
+      <div>
+        <div class="activity-title">Penambahan bibliografi: Undang-undang no. 1 tahun 2026</div>
+        <div class="activity-meta">1 jam lalu · Koleksi Hukum Pidana</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

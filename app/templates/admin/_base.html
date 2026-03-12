@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title or "SLiMS Admin" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-icon">S</div>
+          <div class="brand-text">
+            <div class="brand-title">SLiMS Admin</div>
+            <div class="brand-sub">Perpustakaan</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <div class="nav-section">Bibliografi</div>
+          <a class="nav-item {{ 'active' if active == 'biblio' else '' }}" href="{{ url_for('main.admin_biblio') }}">
+            Daftar Bibliografi
+          </a>
+          <a class="nav-item {{ 'active' if active == 'items' else '' }}" href="{{ url_for('main.admin_items') }}">Daftar Eksemplar</a>
+          <a class="nav-item" href="#">Eksemplar Keluar</a>
+          <a class="nav-item {{ 'active' if active == 'labels' else '' }}" href="{{ url_for('main.admin_labels') }}">Cetak Label & Barcode</a>
+
+          <div class="nav-section">Sirkulasi</div>
+          <a class="nav-item {{ 'active' if active == 'transaction' else '' }}" href="{{ url_for('main.admin_transaksi') }}">Mulai Transaksi</a>
+          <a class="nav-item {{ 'active' if active == 'quick_return' else '' }}" href="{{ url_for('main.admin_quick_return') }}">Pengembalian Kilat</a>
+          <a class="nav-item {{ 'active' if active == 'loan_rules' else '' }}" href="{{ url_for('main.admin_loan_rules') }}">Aturan Peminjaman</a>
+
+          <div class="nav-section">Keanggotaan</div>
+          <a class="nav-item {{ 'active' if active == 'members' else '' }}" href="{{ url_for('main.admin_members') }}">Daftar Anggota</a>
+          <a class="nav-item {{ 'active' if active == 'member_type' else '' }}" href="{{ url_for('main.admin_member_types') }}">Tipe Keanggotaan</a>
+          <a class="nav-item {{ 'active' if active == 'guestbook' else '' }}" href="{{ url_for('main.admin_guestbook') }}">Buku Tamu</a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-card">
+            <div class="user-name">Administrator</div>
+            <div class="user-role">admin</div>
+          </div>
+          <div class="footer-actions">
+            <a class="btn ghost" href="{{ url_for('main.logout') }}">Keluar</a>
+          </div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <div class="crumbs">{{ crumbs or "" }}</div>
+        </div>
+
+        <div class="page">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

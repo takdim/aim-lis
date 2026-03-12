@@ -1,0 +1,311 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Daftar Anggota</div>
+    <div class="page-sub">{{ total_count }} anggota ditemukan</div>
+  </div>
+  <button class="btn primary" id="open-add">+ Tambah Anggota</button>
+</div>
+
+<form class="search-bar" method="get" id="search-form">
+  <div class="search-input">
+    <span class="icon">🔎</span>
+    <input type="text" name="q" value="{{ q or '' }}" placeholder="Cari nama atau ID anggota..." />
+  </div>
+  <button class="btn" type="submit">Cari</button>
+  <button class="btn danger hidden" type="button" id="delete-btn">Hapus</button>
+</form>
+
+<div class="table member-list-table">
+  <div class="table-head">
+    <div class="th checkbox"></div>
+    <div class="th">Nama Anggota</div>
+    <div class="th">ID Anggota</div>
+    <div class="th">Tipe</div>
+    <div class="th">Berlaku Hingga</div>
+    <div class="th">Instansi</div>
+  </div>
+
+  <div id="table-body">
+    {% if rows %}
+      {% for row in rows %}
+      <div class="table-row member-row"
+        data-id="{{ row.member_id }}"
+        data-name="{{ row.member_name }}"
+        data-type-id="{{ row.member_type_id }}"
+        data-expire-date="{{ row.expire_date }}"
+        data-inst="{{ row.inst_name }}"
+        data-status="{{ row.status }}"
+      >
+        <div class="td checkbox">
+          <input type="checkbox" class="row-check" value="{{ row.member_id }}" />
+          <button class="icon-btn btn-edit-member" type="button" title="Edit">✏️</button>
+        </div>
+        <div class="td">{{ row.member_name }}</div>
+        <div class="td">{{ row.member_id }}</div>
+        <div class="td"><span class="pill">{{ row.member_type_name }}</span></div>
+        <div class="td">{{ row.expire_date_display }}</div>
+        <div class="td">{{ row.inst_name }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="table-row">
+        <div class="td full">Belum ada anggota.</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="pagination" id="pagination">
+  <div class="page-info" id="page-info">Halaman {{ page }} dari {{ total_pages }}</div>
+  <div class="page-actions">
+    <button class="btn ghost {% if page <= 1 %}disabled{% endif %}" type="button" id="prev-page">Sebelumnya</button>
+    <button class="btn ghost {% if page >= total_pages %}disabled{% endif %}" type="button" id="next-page">Berikutnya</button>
+  </div>
+</div>
+
+<div class="modal" id="member-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Tambah Anggota</div>
+      </div>
+      <button class="btn ghost" type="button" id="close-modal">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>Nama Anggota</span>
+          <input type="text" id="member-name" />
+        </label>
+        <label class="field">
+          <span>ID Anggota</span>
+          <input type="text" id="member-id" />
+        </label>
+        <label class="field">
+          <span>Tipe</span>
+          <select id="member-type">
+            {% for t in member_types %}
+            <option value="{{ t.member_type_id }}">{{ t.member_type_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field">
+          <span>Berlaku Hingga</span>
+          <input type="date" id="member-expire" required />
+        </label>
+        <label class="field">
+          <span>Instansi</span>
+          <input type="text" id="member-inst" />
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select id="member-status">
+            <option value="active">Aktif</option>
+            <option value="inactive">Tidak Aktif</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-modal">Batal</button>
+      <button class="btn primary" type="button" id="save-modal">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const searchForm = document.getElementById("search-form");
+  const searchInput = searchForm.querySelector("input[name='q']");
+  const tableBody = document.getElementById("table-body");
+  const pageInfo = document.getElementById("page-info");
+  const prevBtn = document.getElementById("prev-page");
+  const nextBtn = document.getElementById("next-page");
+  const deleteBtn = document.getElementById("delete-btn");
+  const totalCountEl = document.querySelector(".page-sub");
+
+  const modal = document.getElementById("member-modal");
+  const modalTitle = document.getElementById("modal-title");
+  const openAdd = document.getElementById("open-add");
+  const closeModal = document.getElementById("close-modal");
+  const cancelModal = document.getElementById("cancel-modal");
+  const saveModal = document.getElementById("save-modal");
+
+  let currentPage = {{ page }};
+  let totalPages = {{ total_pages }};
+  let editingId = null;
+
+  function updateDeleteState() {
+    const checked = Array.from(document.querySelectorAll(".row-check:checked"));
+    deleteBtn.classList.toggle("hidden", checked.length === 0);
+  }
+
+  function renderRows(rows) {
+    if (!rows.length) {
+      return '<div class="table-row"><div class="td full">Belum ada anggota.</div></div>';
+    }
+    return rows
+      .map(
+        (row) => `
+          <div class="table-row member-row"
+            data-id="${row.member_id}"
+            data-name="${row.member_name}"
+            data-type-id="${row.member_type_id}"
+            data-expire-date="${row.expire_date}"
+            data-inst="${row.inst_name}"
+            data-status="${row.status}"
+          >
+            <div class="td checkbox">
+              <input type="checkbox" class="row-check" value="${row.member_id}" />
+              <button class="icon-btn btn-edit-member" type="button" title="Edit">✏️</button>
+            </div>
+            <div class="td">${row.member_name}</div>
+            <div class="td">${row.member_id}</div>
+            <div class="td"><span class="pill">${row.member_type_name}</span></div>
+            <div class="td">${row.expire_date_display}</div>
+            <div class="td">${row.inst_name || "-"}</div>
+          </div>`
+      )
+      .join("");
+  }
+
+  async function fetchData(page = 1) {
+    const params = new URLSearchParams();
+    const q = searchInput.value.trim();
+    if (q) params.set("q", q);
+    params.set("page", page);
+    params.set("format", "json");
+
+    const res = await fetch(`{{ url_for('main.admin_members') }}?${params.toString()}`);
+    const data = await res.json();
+
+    tableBody.innerHTML = renderRows(data.rows || []);
+    totalCountEl.textContent = `${data.total_count} anggota ditemukan`;
+
+    currentPage = data.page;
+    totalPages = data.total_pages;
+    pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+
+    prevBtn.classList.toggle("disabled", currentPage <= 1);
+    nextBtn.classList.toggle("disabled", currentPage >= totalPages);
+    updateDeleteState();
+  }
+
+  function openModal(mode, row) {
+    modalTitle.textContent = mode === "edit" ? "Edit Anggota" : "Tambah Anggota";
+    document.getElementById("member-id").disabled = mode === "edit";
+    if (mode === "edit" && row) {
+      document.getElementById("member-name").value = row.dataset.name || "";
+      document.getElementById("member-id").value = row.dataset.id || "";
+      document.getElementById("member-type").value = row.dataset.typeId || "";
+      document.getElementById("member-expire").value = row.dataset.expireDate || "";
+      document.getElementById("member-inst").value = row.dataset.inst || "";
+      document.getElementById("member-status").value = row.dataset.status || "active";
+      editingId = row.dataset.id;
+    } else {
+      document.getElementById("member-name").value = "";
+      document.getElementById("member-id").value = "";
+      document.getElementById("member-type").value = "";
+      document.getElementById("member-expire").value = "";
+      document.getElementById("member-inst").value = "";
+      document.getElementById("member-status").value = "active";
+      editingId = null;
+    }
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+  }
+
+  function closeModalFn() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  async function saveMember() {
+    const payload = {
+      member_id: document.getElementById("member-id").value.trim(),
+      member_name: document.getElementById("member-name").value.trim(),
+      member_type_id: document.getElementById("member-type").value,
+      expire_date: document.getElementById("member-expire").value,
+      inst_name: document.getElementById("member-inst").value.trim(),
+      status: document.getElementById("member-status").value,
+    };
+    if (!payload.expire_date) {
+      alert("Tanggal Berlaku Hingga wajib diisi.");
+      return;
+    }
+
+    const url = editingId
+      ? `/admin/anggota/${editingId}/update`
+      : `/admin/anggota/create`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "Gagal menyimpan anggota.");
+      return;
+    }
+    closeModalFn();
+    fetchData(currentPage);
+  }
+
+  async function deleteSelected() {
+    const checked = Array.from(document.querySelectorAll(".row-check:checked"));
+    const ids = checked.map((el) => el.value);
+    if (!ids.length) return;
+    if (!confirm("Hapus anggota terpilih?")) return;
+
+    const res = await fetch(`/admin/anggota/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    });
+    if (!res.ok) {
+      alert("Gagal menghapus anggota.");
+      return;
+    }
+    fetchData(currentPage);
+  }
+
+  openAdd.addEventListener("click", () => openModal("new"));
+  closeModal.addEventListener("click", closeModalFn);
+  cancelModal.addEventListener("click", closeModalFn);
+  saveModal.addEventListener("click", saveMember);
+  deleteBtn.addEventListener("click", deleteSelected);
+
+  searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    fetchData(1);
+  });
+
+  prevBtn.addEventListener("click", () => {
+    if (currentPage > 1) fetchData(currentPage - 1);
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (currentPage < totalPages) fetchData(currentPage + 1);
+  });
+
+  document.addEventListener("change", (event) => {
+    if (event.target.classList.contains("row-check")) {
+      updateDeleteState();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".btn-edit-member");
+    if (editBtn) {
+      const row = editBtn.closest(".member-row");
+      if (row) openModal("edit", row);
+    }
+  });
+
+  updateDeleteState();
+</script>
+{% endblock %}

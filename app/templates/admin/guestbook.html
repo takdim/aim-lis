@@ -1,0 +1,58 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Buku Tamu</div>
+    <div class="page-sub">Daftar kunjungan anggota dan tamu perpustakaan</div>
+  </div>
+</div>
+
+<form class="search-bar" method="get">
+  <div class="search-input">
+    <span class="icon">🔎</span>
+    <input type="text" name="q" value="{{ q or '' }}" placeholder="Cari nama, ID, atau instansi..." />
+  </div>
+  <button class="btn" type="submit">Cari</button>
+</form>
+
+<div class="table guestbook-table">
+  <div class="table-head">
+    <div class="th">Tanggal</div>
+    <div class="th">Nama</div>
+    <div class="th">ID Anggota</div>
+    <div class="th">Instansi</div>
+  </div>
+
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row">
+      <div class="td">{{ row.checkin_date }}</div>
+      <div class="td">{{ row.member_name }}</div>
+      <div class="td">{{ row.member_id }}</div>
+      <div class="td">{{ row.institution }}</div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada data buku tamu.</div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="pagination">
+  <div class="page-info">Halaman {{ page }} dari {{ total_pages }}</div>
+  <div class="page-actions">
+    {% if page > 1 %}
+      <a class="btn ghost" href="?q={{ q }}&page={{ page - 1 }}">Sebelumnya</a>
+    {% else %}
+      <span class="btn ghost disabled">Sebelumnya</span>
+    {% endif %}
+    {% if page < total_pages %}
+      <a class="btn ghost" href="?q={{ q }}&page={{ page + 1 }}">Berikutnya</a>
+    {% else %}
+      <span class="btn ghost disabled">Berikutnya</span>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

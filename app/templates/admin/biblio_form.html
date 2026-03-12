@@ -1,0 +1,535 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Tambah Bibliografi</div>
+    <div class="page-sub">Masukkan data bibliografi dan eksemplar</div>
+  </div>
+  <a class="btn ghost" href="{{ url_for('main.admin_biblio') }}">Kembali</a>
+</div>
+
+{% if message %}
+<div class="alert">{{ message }}</div>
+{% endif %}
+
+<form class="form" method="post">
+  <div class="form-grid">
+    <label class="field">
+      <span>Judul</span>
+      <input type="text" name="title" value="{{ form.title or '' }}" required />
+    </label>
+    <label class="field">
+      <span>Pengarang</span>
+      <input type="text" name="author" value="{{ form.author or '' }}" />
+    </label>
+    <label class="field">
+      <span>Subjek/Topik</span>
+      <input type="text" name="topic" value="{{ form.topic or '' }}" />
+    </label>
+    <label class="field">
+      <span>Pernyataan Tanggung Jawab</span>
+      <input type="text" name="sor" value="{{ form.sor or '' }}" />
+    </label>
+    <label class="field">
+      <span>Edisi</span>
+      <input type="text" name="edition" value="{{ form.edition or '' }}" />
+    </label>
+    <label class="field">
+      <span>Info Detail Spesifik</span>
+      <input type="text" name="spec_detail_info" value="{{ form.spec_detail_info or '' }}" />
+    </label>
+    <label class="field">
+      <span>GMD</span>
+      <select name="gmd_id">
+        <option value="">-</option>
+        {% for gmd in gmds %}
+        <option value="{{ gmd.gmd_id }}" {% if form.gmd_id == gmd.gmd_id|string %}selected{% endif %}>{{ gmd.gmd_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      <span>Kala Terbit</span>
+      <select name="frequency_id">
+        <option value="">-</option>
+        {% for freq in frequencies %}
+        <option value="{{ freq.frequency_id }}" {% if form.frequency_id == freq.frequency_id|string %}selected{% endif %}>{{ freq.frequency }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      <span>ISBN/ISSN</span>
+      <input type="text" name="isbn_issn" value="{{ form.isbn_issn or '' }}" />
+    </label>
+    <label class="field">
+      <span>Penerbit</span>
+      <select name="publisher_id">
+        <option value="">-</option>
+        {% for pub in publishers %}
+        <option value="{{ pub.publisher_id }}" {% if form.publisher_id == pub.publisher_id|string %}selected{% endif %}>{{ pub.publisher_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      <span>Tahun Terbit</span>
+      <input type="text" name="publish_year" value="{{ form.publish_year or '' }}" />
+    </label>
+    <label class="field">
+      <span>Tempat Terbit</span>
+      <select name="publish_place_id">
+        <option value="">-</option>
+        {% for place in places %}
+        <option value="{{ place.place_id }}" {% if form.publish_place_id == place.place_id|string %}selected{% endif %}>{{ place.place_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      <span>Deskripsi Fisik</span>
+      <input type="text" name="collation" value="{{ form.collation or '' }}" />
+    </label>
+    <label class="field">
+      <span>Judul Seri</span>
+      <input type="text" name="series_title" value="{{ form.series_title or '' }}" />
+    </label>
+    <label class="field">
+      <span>Klasifikasi</span>
+      <input type="text" name="classification" value="{{ form.classification or '' }}" />
+    </label>
+    <label class="field">
+      <span>No. Panggil</span>
+      <input type="text" name="call_number" value="{{ form.call_number or '' }}" />
+    </label>
+    <label class="field">
+      <span>Bahasa</span>
+      <select name="language_id">
+        {% for lang in languages %}
+        <option value="{{ lang.language_id }}" {% if form.language_id == lang.language_id %}selected{% endif %}>{{ lang.language_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      <span>Abstrak/Catatan</span>
+      <textarea name="notes" rows="3">{{ form.notes or '' }}</textarea>
+    </label>
+    <label class="field">
+      <span>Gambar Sampul (URL)</span>
+      <input type="text" name="image" value="{{ form.image or '' }}" />
+    </label>
+    <div class="field">
+      <span>Sembunyikan dari OPAC</span>
+      <div class="radio-row">
+        <label><input type="radio" name="opac_hide" value="0" {% if form.opac_hide != '1' %}checked{% endif %} /> Tampilkan</label>
+        <label><input type="radio" name="opac_hide" value="1" {% if form.opac_hide == '1' %}checked{% endif %} /> Sembunyikan</label>
+      </div>
+    </div>
+    <div class="field">
+      <span>Promosikan ke Beranda</span>
+      <div class="radio-row">
+        <label><input type="radio" name="promoted" value="0" {% if form.promoted != '1' %}checked{% endif %} /> Jangan</label>
+        <label><input type="radio" name="promoted" value="1" {% if form.promoted == '1' %}checked{% endif %} /> Promosikan</label>
+      </div>
+    </div>
+    <div class="field">
+      <span>Label</span>
+      <div class="checkbox-row">
+        <label><input type="checkbox" name="labels" value="newtitle" {% if labels_set and 'newtitle' in labels_set %}checked{% endif %} /> New Title</label>
+        <label><input type="checkbox" name="labels" value="favorite" {% if labels_set and 'favorite' in labels_set %}checked{% endif %} /> Favorite</label>
+        <label><input type="checkbox" name="labels" value="multimedia" {% if labels_set and 'multimedia' in labels_set %}checked{% endif %} /> Multimedia</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Data Koleksi (Eksemplar)</div>
+        <div class="section-sub">Tambahkan eksemplar untuk bibliografi ini</div>
+      </div>
+      <button class="btn" type="button" id="open-item">+ Tambah Eksemplar</button>
+    </div>
+
+    <div class="table items-table" id="items-table">
+      <div class="table-head">
+        <div class="th">No. Panggil</div>
+        <div class="th">Kode Inventaris</div>
+        <div class="th">Lokasi</div>
+        <div class="th">Tipe Koleksi</div>
+        <div class="th center">Aksi</div>
+      </div>
+      <div id="items-body">
+        {% if items_existing %}
+          {% for item in items_existing %}
+          <div
+            class="table-row item-row"
+            data-item-id="{{ item.item_id }}"
+            data-call-number="{{ item.call_number or '' }}"
+            data-inventory-code="{{ item.inventory_code or item.item_code or '' }}"
+            data-location-id="{{ item.location_id or '' }}"
+            data-site="{{ item.site or '' }}"
+            data-coll-type-id="{{ item.coll_type_id or '' }}"
+            data-item-status-id="{{ item.item_status_id or '' }}"
+            data-order-no="{{ item.order_no or '' }}"
+            data-received-date="{{ item.received_date.strftime('%Y-%m-%d') if item.received_date else '' }}"
+            data-supplier-id="{{ item.supplier_id or '' }}"
+            data-source="{{ item.source or 0 }}"
+            data-invoice="{{ item.invoice or '' }}"
+            data-invoice-date="{{ item.invoice_date.strftime('%Y-%m-%d') if item.invoice_date else '' }}"
+            data-price="{{ item.price or '' }}"
+          >
+            <div class="td">{{ item.call_number or '-' }}</div>
+            <div class="td">{{ item.inventory_code or item.item_code or '-' }}</div>
+            <div class="td">{{ item.location_id or '-' }}</div>
+            <div class="td">{{ item.coll_type_id or '-' }}</div>
+            <div class="td center">
+              <button class="icon-btn btn-edit-item" type="button" title="Edit">✏️</button>
+              <button class="icon-btn btn-delete-item" type="button" title="Hapus">✖</button>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="table-row">
+            <div class="td full">Belum ada eksemplar.</div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn primary" type="submit">Simpan</button>
+    <a class="btn ghost" href="{{ url_for('main.admin_biblio') }}">Batal</a>
+  </div>
+</form>
+
+<div class="modal" id="item-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Tambah Eksemplar</div>
+        <div class="modal-sub" id="modal-title"></div>
+      </div>
+      <button class="btn ghost" type="button" id="close-item">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>No. Panggil</span>
+          <input type="text" id="item-call-number" />
+        </label>
+        <label class="field">
+          <span>Kode Inventaris</span>
+          <input type="text" id="item-inventory" />
+        </label>
+        <label class="field">
+          <span>Lokasi</span>
+          <input type="text" id="item-location" />
+        </label>
+        <label class="field">
+          <span>Lokasi Fisik</span>
+          <input type="text" id="item-site" />
+        </label>
+        <label class="field">
+          <span>Tipe Koleksi</span>
+          <select id="item-coll-type">
+            <option value="">-</option>
+            {% for ct in coll_types %}
+            <option value="{{ ct.coll_type_id }}">{{ ct.coll_type_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field">
+          <span>Status Eksemplar</span>
+          <select id="item-status">
+            <option value="">-</option>
+            {% for st in item_statuses %}
+            <option value="{{ st.item_status_id }}">{{ st.item_status_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field">
+          <span>No. Pemesanan</span>
+          <input type="text" id="item-order-no" />
+        </label>
+        <label class="field">
+          <span>Tanggal Penerimaan</span>
+          <input type="date" id="item-received-date" />
+        </label>
+        <label class="field">
+          <span>Agen/Suplier</span>
+          <select id="item-supplier">
+            <option value="">-</option>
+            {% for sp in suppliers %}
+            <option value="{{ sp.supplier_id }}">{{ sp.supplier_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <div class="field">
+          <span>Sumber Peroleh</span>
+          <div class="radio-row">
+            <label><input type="radio" name="item-source" value="1" checked /> Beli</label>
+            <label><input type="radio" name="item-source" value="2" /> Hadiah/Hibah</label>
+          </div>
+        </div>
+        <label class="field">
+          <span>No. Faktur</span>
+          <input type="text" id="item-invoice" />
+        </label>
+        <label class="field">
+          <span>Tanggal Faktur</span>
+          <input type="date" id="item-invoice-date" />
+        </label>
+        <label class="field">
+          <span>Harga</span>
+          <input type="number" id="item-price" min="0" />
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn primary" type="button" id="save-item">Simpan</button>
+      <button class="btn ghost" type="button" id="cancel-item">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById("item-modal");
+  const openBtn = document.getElementById("open-item");
+  const closeBtn = document.getElementById("close-item");
+  const cancelBtn = document.getElementById("cancel-item");
+  const saveBtn = document.getElementById("save-item");
+  const itemsBody = document.getElementById("items-body");
+  const titleInput = document.querySelector("input[name='title']");
+  const modalTitle = document.getElementById("modal-title");
+  const formMethod = "{{ 'edit' if edit_mode else 'new' }}";
+
+  let itemIndex = 0;
+  let editingItemId = null;
+
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+    modalTitle.textContent = titleInput.value ? `Judul: ${titleInput.value}` : "";
+  }
+
+  function closeModal() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  openBtn.addEventListener("click", openModal);
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  saveBtn.addEventListener("click", () => {
+    if (editingItemId) {
+      saveExistingItem();
+      return;
+    }
+    const data = {
+      call_number: document.getElementById("item-call-number").value,
+      inventory_code: document.getElementById("item-inventory").value,
+      location_id: document.getElementById("item-location").value,
+      site: document.getElementById("item-site").value,
+      coll_type_id: document.getElementById("item-coll-type").value,
+      item_status_id: document.getElementById("item-status").value,
+      order_no: document.getElementById("item-order-no").value,
+      received_date: document.getElementById("item-received-date").value,
+      supplier_id: document.getElementById("item-supplier").value,
+      source: document.querySelector("input[name='item-source']:checked").value,
+      invoice: document.getElementById("item-invoice").value,
+      invoice_date: document.getElementById("item-invoice-date").value,
+      price: document.getElementById("item-price").value,
+    };
+
+    if (!data.inventory_code) {
+      alert("Kode inventaris wajib diisi.");
+      return;
+    }
+
+    const row = document.createElement("div");
+    row.className = "table-row";
+    row.innerHTML = `
+      <div class="td">${data.call_number || "-"}</div>
+      <div class="td">${data.inventory_code}</div>
+      <div class="td">${data.location_id || "-"}</div>
+      <div class="td">${document.getElementById("item-coll-type").selectedOptions[0]?.text || "-"}</div>
+      <div class="td center"><button type="button" class="btn ghost btn-remove">Hapus</button></div>
+    `;
+
+    const hiddenFields = [
+      "call_number",
+      "inventory_code",
+      "location_id",
+      "site",
+      "coll_type_id",
+      "item_status_id",
+      "order_no",
+      "received_date",
+      "supplier_id",
+      "source",
+      "invoice",
+      "invoice_date",
+      "price",
+    ];
+
+    hiddenFields.forEach((field) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = `items-${itemIndex}-${field}`;
+      input.value = data[field] || "";
+      row.appendChild(input);
+    });
+
+      row.querySelector(".btn-remove").addEventListener("click", () => {
+      row.remove();
+      if (!itemsBody.querySelector(".table-row")) {
+        itemsBody.innerHTML = '<div class="table-row"><div class="td full">Belum ada eksemplar.</div></div>';
+      }
+    });
+
+    itemsBody.querySelectorAll(".table-row").forEach((existing) => {
+      if (existing.textContent.includes("Belum ada eksemplar")) {
+        existing.remove();
+      }
+    });
+
+    itemsBody.appendChild(row);
+    itemIndex += 1;
+    closeModal();
+  });
+
+  function setModalValues(data) {
+    document.getElementById("item-call-number").value = data.call_number || "";
+    document.getElementById("item-inventory").value = data.inventory_code || "";
+    document.getElementById("item-location").value = data.location_id || "";
+    document.getElementById("item-site").value = data.site || "";
+    document.getElementById("item-coll-type").value = data.coll_type_id || "";
+    document.getElementById("item-status").value = data.item_status_id || "";
+    document.getElementById("item-order-no").value = data.order_no || "";
+    document.getElementById("item-received-date").value = data.received_date || "";
+    document.getElementById("item-supplier").value = data.supplier_id || "";
+    const source = data.source ? String(data.source) : "1";
+    document.querySelector(`input[name='item-source'][value='${source}']`).checked = true;
+    document.getElementById("item-invoice").value = data.invoice || "";
+    document.getElementById("item-invoice-date").value = data.invoice_date || "";
+    document.getElementById("item-price").value = data.price || "";
+  }
+
+  function clearModalValues() {
+    setModalValues({
+      call_number: "",
+      inventory_code: "",
+      location_id: "",
+      site: "",
+      coll_type_id: "",
+      item_status_id: "",
+      order_no: "",
+      received_date: "",
+      supplier_id: "",
+      source: "1",
+      invoice: "",
+      invoice_date: "",
+      price: "",
+    });
+  }
+
+  async function saveExistingItem() {
+    const data = {
+      call_number: document.getElementById("item-call-number").value,
+      inventory_code: document.getElementById("item-inventory").value,
+      location_id: document.getElementById("item-location").value,
+      site: document.getElementById("item-site").value,
+      coll_type_id: document.getElementById("item-coll-type").value,
+      item_status_id: document.getElementById("item-status").value,
+      order_no: document.getElementById("item-order-no").value,
+      received_date: document.getElementById("item-received-date").value,
+      supplier_id: document.getElementById("item-supplier").value,
+      source: document.querySelector("input[name='item-source']:checked").value,
+      invoice: document.getElementById("item-invoice").value,
+      invoice_date: document.getElementById("item-invoice-date").value,
+      price: document.getElementById("item-price").value,
+    };
+
+    const res = await fetch(`{{ url_for('main.admin_item_update', item_id=0) }}`.replace("0", editingItemId), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const payload = await res.json();
+    if (!res.ok) {
+      alert(payload.error || "Gagal menyimpan eksemplar.");
+      return;
+    }
+
+    const row = document.querySelector(`.item-row[data-item-id='${editingItemId}']`);
+    if (row) {
+      row.dataset.callNumber = data.call_number || "";
+      row.dataset.inventoryCode = data.inventory_code || "";
+      row.dataset.locationId = data.location_id || "";
+      row.dataset.site = data.site || "";
+      row.dataset.collTypeId = data.coll_type_id || "";
+      row.dataset.itemStatusId = data.item_status_id || "";
+      row.dataset.orderNo = data.order_no || "";
+      row.dataset.receivedDate = data.received_date || "";
+      row.dataset.supplierId = data.supplier_id || "";
+      row.dataset.source = data.source || "1";
+      row.dataset.invoice = data.invoice || "";
+      row.dataset.invoiceDate = data.invoice_date || "";
+      row.dataset.price = data.price || "";
+
+      row.children[0].textContent = data.call_number || "-";
+      row.children[1].textContent = data.inventory_code || "-";
+      row.children[2].textContent = data.location_id || "-";
+      row.children[3].textContent = document.getElementById("item-coll-type").selectedOptions[0]?.text || "-";
+    }
+
+    editingItemId = null;
+    closeModal();
+  }
+
+  document.addEventListener("click", async (event) => {
+    if (event.target.classList.contains("btn-edit-item")) {
+      const row = event.target.closest(".item-row");
+      if (!row) return;
+      editingItemId = row.dataset.itemId;
+      setModalValues({
+        call_number: row.dataset.callNumber,
+        inventory_code: row.dataset.inventoryCode,
+        location_id: row.dataset.locationId,
+        site: row.dataset.site,
+        coll_type_id: row.dataset.collTypeId,
+        item_status_id: row.dataset.itemStatusId,
+        order_no: row.dataset.orderNo,
+        received_date: row.dataset.receivedDate,
+        supplier_id: row.dataset.supplierId,
+        source: row.dataset.source,
+        invoice: row.dataset.invoice,
+        invoice_date: row.dataset.invoiceDate,
+        price: row.dataset.price,
+      });
+      openModal();
+    }
+
+    if (event.target.classList.contains("btn-delete-item")) {
+      const row = event.target.closest(".item-row");
+      if (!row) return;
+      const itemId = row.dataset.itemId;
+      if (!confirm("Hapus eksemplar ini?")) return;
+      const res = await fetch(`{{ url_for('main.admin_item_delete', item_id=0) }}`.replace("0", itemId), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        row.remove();
+      } else {
+        alert("Gagal menghapus eksemplar.");
+      }
+    }
+  });
+
+  openBtn.addEventListener("click", () => {
+    editingItemId = null;
+    clearModalValues();
+  });
+</script>
+{% endblock %}

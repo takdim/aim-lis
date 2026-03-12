@@ -1,0 +1,254 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Mulai Transaksi Sirkulasi</div>
+    <div class="page-sub">Cari anggota untuk memulai transaksi peminjaman</div>
+  </div>
+</div>
+
+<div class="search-bar transaction-search">
+  <div class="search-input">
+    <span class="icon">🔎</span>
+    <input type="text" id="member-search" placeholder="Masukkan NIM/ID anggota..." />
+  </div>
+  <button class="btn danger" id="finish-btn" type="button">Selesai Transaksi</button>
+</div>
+
+<div class="transaction-grid hidden" id="transaction-panel">
+  <div class="transaction-left">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Detail Keanggotaan</div>
+      </div>
+      <div class="panel-body detail-grid" id="member-detail"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Peminjaman</div>
+      </div>
+      <div class="panel-body">
+        <div class="borrow-bar">
+          <input type="text" id="item-code" placeholder="Masukkan kode eksemplar..." />
+          <button class="btn primary" id="borrow-btn" type="button">Pinjam</button>
+        </div>
+        <div class="hint" id="borrow-hint"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="transaction-right">
+    <div class="panel">
+      <div class="panel-header tabs">
+        <button class="tab active" data-tab="current">Pinjaman Saat Ini (<span id="current-count">0</span>)</button>
+        <button class="tab" data-tab="fine">Denda</button>
+        <button class="tab" data-tab="history">Sejarah</button>
+      </div>
+      <div class="panel-body">
+        <div class="tab-content" id="tab-current"></div>
+        <div class="tab-content hidden" id="tab-fine"></div>
+        <div class="tab-content hidden" id="tab-history"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="empty-state" id="empty-state">
+  <div class="empty-title">Masukkan NIM/ID anggota untuk mulai transaksi</div>
+</div>
+
+<script>
+  const memberInput = document.getElementById("member-search");
+  const transactionPanel = document.getElementById("transaction-panel");
+  const emptyState = document.getElementById("empty-state");
+  const memberDetail = document.getElementById("member-detail");
+  const borrowBtn = document.getElementById("borrow-btn");
+  const itemCodeInput = document.getElementById("item-code");
+  const borrowHint = document.getElementById("borrow-hint");
+  const currentCount = document.getElementById("current-count");
+  const tabCurrent = document.getElementById("tab-current");
+  const tabFine = document.getElementById("tab-fine");
+  const tabHistory = document.getElementById("tab-history");
+
+  let activeMember = null;
+
+  function renderDetail(member) {
+    const rows = [
+      ["Nama Anggota", member.member_name],
+      ["Email", member.member_email || "-"],
+      ["ID Anggota", member.member_id],
+      ["Tipe Keanggotaan", member.member_type_name || "-"],
+      ["Tanggal Registrasi", member.register_date || "-"],
+      ["Berlaku Hingga", member.expire_date || "-"],
+    ];
+    memberDetail.innerHTML = rows
+      .map(
+        ([label, value]) => `
+          <div class="detail-row">
+            <div class="detail-label">${label}</div>
+            <div class="detail-value">${value}</div>
+          </div>`
+      )
+      .join("");
+  }
+
+  function renderCurrent(loans) {
+    currentCount.textContent = loans.length;
+    if (!loans.length) {
+      tabCurrent.innerHTML = '<div class="empty-mini">Belum ada pinjaman aktif.</div>';
+      return;
+    }
+    tabCurrent.innerHTML = loans
+      .map(
+        (loan) => `
+        <div class="loan-card">
+          <div>
+            <div class="loan-title">${loan.title}</div>
+            <div class="loan-meta">${loan.item_code}</div>
+            <div class="loan-meta">Pinjam: ${loan.loan_date} · Kembali: ${loan.due_date}</div>
+          </div>
+          <button class="btn ghost" data-return="${loan.loan_id}">Kembalikan</button>
+        </div>`
+      )
+      .join("");
+  }
+
+  function renderFines(fines) {
+    if (!fines.items.length) {
+      tabFine.innerHTML = '<div class="empty-mini">Tidak ada denda.</div>';
+      return;
+    }
+    const items = fines.items
+      .map(
+        (fine) => `
+        <div class="loan-card">
+          <div>
+            <div class="loan-title">${fine.title}</div>
+            <div class="loan-meta">${fine.item_code}</div>
+            <div class="loan-meta">Terlambat ${fine.days_late} hari · Rp ${fine.amount}</div>
+          </div>
+        </div>`
+      )
+      .join("");
+    tabFine.innerHTML = `<div class="fine-total">Total Denda: Rp ${fines.total}</div>${items}`;
+  }
+
+  function renderHistory(history) {
+    if (!history.length) {
+      tabHistory.innerHTML = '<div class="empty-mini">Belum ada riwayat peminjaman.</div>';
+      return;
+    }
+    tabHistory.innerHTML = history
+      .map(
+        (loan) => `
+        <div class="loan-card">
+          <div>
+            <div class="loan-title">${loan.title}</div>
+            <div class="loan-meta">${loan.item_code}</div>
+            <div class="loan-meta">Pinjam: ${loan.loan_date} · Kembali: ${loan.return_date || '-'} </div>
+          </div>
+          <div class="badge ${loan.status}">${loan.status_label}</div>
+        </div>`
+      )
+      .join("");
+  }
+
+  function setActiveTab(name) {
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.classList.toggle("active", tab.dataset.tab === name);
+    });
+    tabCurrent.classList.toggle("hidden", name !== "current");
+    tabFine.classList.toggle("hidden", name !== "fine");
+    tabHistory.classList.toggle("hidden", name !== "history");
+  }
+
+  async function loadMember() {
+    const memberId = memberInput.value.trim();
+    if (!memberId) return;
+
+    const res = await fetch("/admin/transaksi/member", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ member_id: memberId }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "Anggota tidak ditemukan.");
+      return;
+    }
+    activeMember = data.member;
+    renderDetail(data.member);
+    renderCurrent(data.current);
+    renderFines(data.fines);
+    renderHistory(data.history);
+    transactionPanel.classList.remove("hidden");
+    emptyState.classList.add("hidden");
+    setActiveTab("current");
+  }
+
+  async function borrowItem() {
+    const itemCode = itemCodeInput.value.trim();
+    if (!itemCode || !activeMember) return;
+    borrowHint.textContent = "";
+
+    const res = await fetch("/admin/transaksi/loan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ member_id: activeMember.member_id, item_code: itemCode }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      borrowHint.textContent = data.error || "Gagal meminjam.";
+      return;
+    }
+    itemCodeInput.value = "";
+    renderCurrent(data.current);
+    renderFines(data.fines);
+    renderHistory(data.history);
+    setActiveTab("current");
+  }
+
+  async function returnItem(loanId) {
+    const res = await fetch("/admin/transaksi/return", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loan_id: loanId }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "Gagal mengembalikan.");
+      return;
+    }
+    renderCurrent(data.current);
+    renderFines(data.fines);
+    renderHistory(data.history);
+  }
+
+  memberInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      loadMember();
+    }
+  });
+  borrowBtn.addEventListener("click", borrowItem);
+  itemCodeInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      borrowItem();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    const tabBtn = event.target.closest(".tab");
+    if (tabBtn) {
+      setActiveTab(tabBtn.dataset.tab);
+    }
+    const returnBtn = event.target.closest("[data-return]");
+    if (returnBtn) {
+      returnItem(returnBtn.dataset.return);
+    }
+  });
+</script>
+{% endblock %}

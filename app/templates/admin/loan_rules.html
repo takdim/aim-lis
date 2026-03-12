@@ -1,0 +1,190 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Aturan Peminjaman</div>
+    <div class="page-sub">Atur batas peminjaman per tipe anggota dan jenis koleksi</div>
+  </div>
+  <button class="btn primary" id="open-add">+ Tambah Aturan</button>
+</div>
+
+<div class="table loan-rule-table">
+  <div class="table-head">
+    <div class="th">Tipe Anggota</div>
+    <div class="th">GMD</div>
+    <div class="th">Batas Pinjam</div>
+    <div class="th">Durasi (hari)</div>
+    <div class="th">Denda/Hari</div>
+    <div class="th">Perpanjang</div>
+    <div class="th"></div>
+  </div>
+
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row rule-row"
+      data-id="{{ row.loan_rules_id }}"
+      data-member-type="{{ row.member_type_id }}"
+      data-gmd-id="{{ row.gmd_id }}"
+      data-loan-limit="{{ row.loan_limit }}"
+      data-loan-periode="{{ row.loan_periode }}"
+      data-fine-each-day="{{ row.fine_each_day }}"
+      data-extend="{{ row.extend }}"
+    >
+      <div class="td">{{ row.member_type_name }}</div>
+      <div class="td">{{ row.gmd_name }}</div>
+      <div class="td">{{ row.loan_limit }}</div>
+      <div class="td">{{ row.loan_periode }}</div>
+      <div class="td">Rp {{ row.fine_each_day }}</div>
+      <div class="td">{{ row.extend }}x</div>
+      <div class="td actions">
+        <button class="icon-btn btn-edit-rule" type="button" title="Edit">✏️</button>
+        <button class="icon-btn danger btn-delete-rule" type="button" title="Hapus">🗑️</button>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada aturan.</div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal" id="rule-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Aturan Baru</div>
+      <button class="btn ghost" id="close-modal" type="button">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>Tipe Anggota <span class="req">*</span></span>
+          <select id="rule-member-type">
+            <option value="">Pilih tipe anggota</option>
+            {% for t in member_types %}
+            <option value="{{ t.member_type_id }}">{{ t.member_type_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field">
+          <span>GMD (Jenis Koleksi)</span>
+          <select id="rule-gmd">
+            <option value="0">Semua GMD</option>
+            {% for g in gmds %}
+            <option value="{{ g.gmd_id }}">{{ g.gmd_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field">
+          <span>Batas Pinjam</span>
+          <input type="number" id="rule-loan-limit" value="3" />
+        </label>
+        <label class="field">
+          <span>Durasi Pinjam (hari)</span>
+          <input type="number" id="rule-loan-periode" value="14" />
+        </label>
+        <label class="field">
+          <span>Denda/Hari (Rp)</span>
+          <input type="number" id="rule-fine" value="1000" />
+        </label>
+        <label class="field">
+          <span>Batas Perpanjang</span>
+          <input type="number" id="rule-extend" value="3" />
+        </label>
+        <label class="field">
+          <span>Masa Tenggang (hari)</span>
+          <input type="number" id="rule-grace" value="1" />
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancel-modal" type="button">Batal</button>
+      <button class="btn primary" id="save-modal" type="button">Simpan Aturan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById("rule-modal");
+  const openAdd = document.getElementById("open-add");
+  const closeModal = document.getElementById("close-modal");
+  const cancelModal = document.getElementById("cancel-modal");
+  const saveModal = document.getElementById("save-modal");
+  const modalTitle = document.getElementById("modal-title");
+
+  let editingId = null;
+
+  function openModal(mode, row) {
+    modalTitle.textContent = mode === "edit" ? "Edit Aturan" : "Aturan Baru";
+    if (mode === "edit" && row) {
+      editingId = row.dataset.id;
+      document.getElementById("rule-member-type").value = row.dataset.memberType;
+      document.getElementById("rule-gmd").value = row.dataset.gmdId;
+      document.getElementById("rule-loan-limit").value = row.dataset.loanLimit;
+      document.getElementById("rule-loan-periode").value = row.dataset.loanPeriode;
+      document.getElementById("rule-fine").value = row.dataset.fineEachDay;
+      document.getElementById("rule-extend").value = row.dataset.extend;
+    } else {
+      editingId = null;
+      document.getElementById("rule-member-type").value = "";
+      document.getElementById("rule-gmd").value = "0";
+      document.getElementById("rule-loan-limit").value = 3;
+      document.getElementById("rule-loan-periode").value = 14;
+      document.getElementById("rule-fine").value = 1000;
+      document.getElementById("rule-extend").value = 3;
+    }
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  function hideModal() {
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  async function saveRule() {
+    const payload = {
+      member_type_id: document.getElementById("rule-member-type").value,
+      gmd_id: document.getElementById("rule-gmd").value,
+      loan_limit: document.getElementById("rule-loan-limit").value,
+      loan_periode: document.getElementById("rule-loan-periode").value,
+      fine_each_day: document.getElementById("rule-fine").value,
+      extend: document.getElementById("rule-extend").value,
+    };
+    const url = editingId ? `/admin/aturan-peminjaman/${editingId}/update` : `/admin/aturan-peminjaman/create`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "Gagal menyimpan aturan.");
+      return;
+    }
+    hideModal();
+    location.reload();
+  }
+
+  openAdd.addEventListener("click", () => openModal("new"));
+  closeModal.addEventListener("click", hideModal);
+  cancelModal.addEventListener("click", hideModal);
+  saveModal.addEventListener("click", saveRule);
+
+  document.addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".btn-edit-rule");
+    if (editBtn) {
+      openModal("edit", editBtn.closest(".rule-row"));
+    }
+    const delBtn = event.target.closest(".btn-delete-rule");
+    if (delBtn) {
+      const row = delBtn.closest(".rule-row");
+      const id = row.dataset.id;
+      if (!confirm("Hapus aturan ini?")) return;
+      fetch(`/admin/aturan-peminjaman/${id}/delete`, { method: "POST" })
+        .then(() => location.reload());
+    }
+  });
+</script>
+{% endblock %}

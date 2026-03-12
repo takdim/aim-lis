@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title or "Buku Tamu" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/opac.css') }}" />
+  </head>
+  <body>
+    <header class="opac-header">
+      <div class="brand">
+        <div class="brand-icon">W</div>
+        <div>
+          <div class="brand-title">Perpustakaan Digital</div>
+          <div class="brand-sub">Online Public Access Catalogue</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="opac-main guestbook-page">
+      <section class="hero">
+        <h1>Buku Tamu Perpustakaan</h1>
+        <p>Silakan isi data kunjungan Anda untuk keperluan administrasi.</p>
+      </section>
+
+      <section class="guestbook-card">
+        <h2>Form Buku Tamu</h2>
+
+        {% if message %}
+          <div class="notice success">{{ message }}</div>
+        {% endif %}
+        {% if error %}
+          <div class="notice error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" class="guestbook-form">
+          <label>
+            <span>Nama Lengkap *</span>
+            <input type="text" name="member_name" placeholder="Nama lengkap" required />
+          </label>
+          <label>
+            <span>NIM / ID Anggota</span>
+            <input type="text" name="member_id" placeholder="Contoh: B022252039" />
+          </label>
+          <label>
+            <span>Instansi</span>
+            <input type="text" name="institution" placeholder="Contoh: Fakultas Hukum" />
+          </label>
+
+          <button class="btn primary" type="submit">Simpan Buku Tamu</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
