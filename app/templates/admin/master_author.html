@@ -1,0 +1,184 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Master Pengarang</div>
+    <div class="page-sub">Daftar pengarang koleksi</div>
+  </div>
+  <button class="btn primary" id="toggle-form">+ Tambah Pengarang</button>
+</div>
+
+<div class="panel form-panel hidden" id="author-form">
+  <div class="panel-body">
+    <div class="form-title">Pengarang Baru</div>
+    <form class="form" method="post" action="{{ url_for('main.admin_master_author_create') }}">
+      <div class="form-grid">
+        <label class="field">
+          <span>Nama Pengarang <span class="req">*</span></span>
+          <input type="text" name="author_name" required />
+        </label>
+        <label class="field">
+          <span>Tahun</span>
+          <input type="text" name="author_year" />
+        </label>
+        <label class="field">
+          <span>Tipe</span>
+          <select name="authority_type">
+            <option value="p">Perorangan</option>
+            <option value="o">Organisasi</option>
+            <option value="c">Konferensi</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" id="cancel-form">Batal</button>
+        <button class="btn primary" type="submit">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table">
+  <div class="table-head">
+    <div class="th">Nama Pengarang</div>
+    <div class="th">Tahun</div>
+    <div class="th">Tipe</div>
+    <div class="th">Terakhir</div>
+    <div class="th"></div>
+  </div>
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row author-row"
+      data-id="{{ row.author_id }}"
+      data-name="{{ row.author_name }}"
+      data-year="{{ row.author_year or '' }}"
+      data-type="{{ row.authority_type or 'p' }}"
+    >
+      <div class="td">{{ row.author_name }}</div>
+      <div class="td">{{ row.author_year or '-' }}</div>
+      <div class="td">{{ row.authority_type or '-' }}</div>
+      <div class="td">{{ row.last_update or '-' }}</div>
+      <div class="td actions">
+        <button class="icon-btn btn-edit" type="button" title="Edit">✏️</button>
+        <button class="icon-btn danger btn-delete" type="button" title="Hapus">🗑️</button>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada data pengarang.</div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal" id="author-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">Edit Pengarang</div>
+      <button class="btn ghost" type="button" id="close-modal">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>Nama Pengarang</span>
+          <input type="text" id="edit-name" />
+        </label>
+        <label class="field">
+          <span>Tahun</span>
+          <input type="text" id="edit-year" />
+        </label>
+        <label class="field">
+          <span>Tipe</span>
+          <select id="edit-type">
+            <option value="p">Perorangan</option>
+            <option value="o">Organisasi</option>
+            <option value="c">Konferensi</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-modal">Batal</button>
+      <button class="btn primary" type="button" id="save-modal">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const formPanel = document.getElementById("author-form");
+  const toggleBtn = document.getElementById("toggle-form");
+  const cancelBtn = document.getElementById("cancel-form");
+
+  const modal = document.getElementById("author-modal");
+  const closeModal = document.getElementById("close-modal");
+  const cancelModal = document.getElementById("cancel-modal");
+  const saveModal = document.getElementById("save-modal");
+
+  let editingId = null;
+
+  toggleBtn.addEventListener("click", () => {
+    formPanel.classList.toggle("hidden");
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    formPanel.classList.add("hidden");
+  });
+
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+  }
+
+  function closeModalFn() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  document.addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".btn-edit");
+    if (editBtn) {
+      const row = editBtn.closest(".author-row");
+      editingId = row.dataset.id;
+      document.getElementById("edit-name").value = row.dataset.name || "";
+      document.getElementById("edit-year").value = row.dataset.year || "";
+      document.getElementById("edit-type").value = row.dataset.type || "p";
+      openModal();
+    }
+
+    const delBtn = event.target.closest(".btn-delete");
+    if (delBtn) {
+      const row = delBtn.closest(".author-row");
+      const id = row.dataset.id;
+      if (!confirm("Hapus pengarang ini?")) return;
+      fetch(`/admin/masterfile/pengarang/${id}/delete`, { method: "POST" })
+        .then((r) => r.json())
+        .then((res) => {
+          if (res.ok) window.location.reload();
+          else alert(res.error || "Gagal menghapus.");
+        });
+    }
+  });
+
+  saveModal.addEventListener("click", () => {
+    if (!editingId) return;
+    fetch(`/admin/masterfile/pengarang/${editingId}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        author_name: document.getElementById("edit-name").value,
+        author_year: document.getElementById("edit-year").value,
+        authority_type: document.getElementById("edit-type").value,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.ok) window.location.reload();
+        else alert(res.error || "Gagal menyimpan.");
+      });
+  });
+
+  closeModal.addEventListener("click", closeModalFn);
+  cancelModal.addEventListener("click", closeModalFn);
+</script>
+{% endblock %}

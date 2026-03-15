@@ -1,0 +1,72 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Statistik Koleksi</div>
+    <div class="page-sub">Ringkasan statistik koleksi</div>
+  </div>
+  <button class="btn ghost">Unduh Laporan</button>
+</div>
+
+<div class="report-summary">
+  <div class="report-row">
+    <div class="report-label">Total Judul</div>
+    <div class="report-value">{{ total_titles }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Judul dengan eksemplar</div>
+    <div class="report-value">{{ titles_with_items }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Eksemplar/Kopi</div>
+    <div class="report-value">{{ total_items }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Eksemplar Dipinjam</div>
+    <div class="report-value">{{ items_on_loan }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Eksemplar Dalam Koleksi</div>
+    <div class="report-value">{{ items_in_collection }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Judul Menurut Media/GMD</div>
+    <div class="report-value">
+      <button class="btn primary small">Tunjukkan dalam grafik</button>
+      <div class="report-list">
+        {% for name, count in by_gmd %}
+          <span>{{ name or '-' }} ({{ count }})</span>
+        {% else %}
+          <span>-</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Eksemplar Menurut Jenis Koleksi</div>
+    <div class="report-value">
+      <button class="btn primary small">Tunjukkan dalam grafik</button>
+      <div class="report-list">
+        {% for name, count in by_coll_type %}
+          <span>{{ name or '-' }} ({{ count }})</span>
+        {% else %}
+          <span>-</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">10 Judul Terpopuler</div>
+    <div class="report-value">
+      <ol class="report-list ordered">
+        {% for title, _count in popular_titles %}
+          <li>{{ title }}</li>
+        {% else %}
+          <li>-</li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+</div>
+{% endblock %}

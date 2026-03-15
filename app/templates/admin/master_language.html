@@ -1,0 +1,164 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Master Bahasa Dokumen</div>
+    <div class="page-sub">Daftar bahasa dokumen</div>
+  </div>
+  <button class="btn primary" id="toggle-form">+ Tambah Bahasa</button>
+</div>
+
+<div class="panel form-panel hidden" id="language-form">
+  <div class="panel-body">
+    <div class="form-title">Bahasa Baru</div>
+    <form class="form" method="post" action="{{ url_for('main.admin_master_language_create') }}">
+      <div class="form-grid">
+        <label class="field">
+          <span>Kode <span class="req">*</span></span>
+          <input type="text" name="language_id" required />
+        </label>
+        <label class="field">
+          <span>Nama Bahasa <span class="req">*</span></span>
+          <input type="text" name="language_name" required />
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" id="cancel-form">Batal</button>
+        <button class="btn primary" type="submit">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table">
+  <div class="table-head">
+    <div class="th">Kode</div>
+    <div class="th">Nama Bahasa</div>
+    <div class="th">Terakhir</div>
+    <div class="th"></div>
+    <div class="th"></div>
+  </div>
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row language-row"
+      data-id="{{ row.language_id }}"
+      data-name="{{ row.language_name }}"
+    >
+      <div class="td">{{ row.language_id }}</div>
+      <div class="td">{{ row.language_name }}</div>
+      <div class="td">{{ row.last_update or '-' }}</div>
+      <div class="td actions">
+        <button class="icon-btn btn-edit" type="button" title="Edit">✏️</button>
+        <button class="icon-btn danger btn-delete" type="button" title="Hapus">🗑️</button>
+      </div>
+      <div class="td"></div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada data bahasa.</div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal" id="language-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">Edit Bahasa</div>
+      <button class="btn ghost" type="button" id="close-modal">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>Kode</span>
+          <input type="text" id="edit-id" />
+        </label>
+        <label class="field">
+          <span>Nama Bahasa</span>
+          <input type="text" id="edit-name" />
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-modal">Batal</button>
+      <button class="btn primary" type="button" id="save-modal">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const formPanel = document.getElementById("language-form");
+  const toggleBtn = document.getElementById("toggle-form");
+  const cancelBtn = document.getElementById("cancel-form");
+
+  const modal = document.getElementById("language-modal");
+  const closeModal = document.getElementById("close-modal");
+  const cancelModal = document.getElementById("cancel-modal");
+  const saveModal = document.getElementById("save-modal");
+
+  let editingId = null;
+
+  toggleBtn.addEventListener("click", () => {
+    formPanel.classList.toggle("hidden");
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    formPanel.classList.add("hidden");
+  });
+
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+  }
+
+  function closeModalFn() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  document.addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".btn-edit");
+    if (editBtn) {
+      const row = editBtn.closest(".language-row");
+      editingId = row.dataset.id;
+      document.getElementById("edit-id").value = row.dataset.id || "";
+      document.getElementById("edit-name").value = row.dataset.name || "";
+      openModal();
+    }
+
+    const delBtn = event.target.closest(".btn-delete");
+    if (delBtn) {
+      const row = delBtn.closest(".language-row");
+      const id = row.dataset.id;
+      if (!confirm("Hapus bahasa ini?")) return;
+      fetch(`/admin/masterfile/bahasa/${id}/delete`, { method: "POST" })
+        .then((r) => r.json())
+        .then((res) => {
+          if (res.ok) window.location.reload();
+          else alert(res.error || "Gagal menghapus.");
+        });
+    }
+  });
+
+  saveModal.addEventListener("click", () => {
+    if (!editingId) return;
+    fetch(`/admin/masterfile/bahasa/${editingId}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        language_id: document.getElementById("edit-id").value,
+        language_name: document.getElementById("edit-name").value,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.ok) window.location.reload();
+        else alert(res.error || "Gagal menyimpan.");
+      });
+  });
+
+  closeModal.addEventListener("click", closeModalFn);
+  cancelModal.addEventListener("click", closeModalFn);
+</script>
+{% endblock %}

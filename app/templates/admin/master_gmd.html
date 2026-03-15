@@ -1,0 +1,176 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Master GMD</div>
+    <div class="page-sub">Daftar General Material Designation</div>
+  </div>
+  <button class="btn primary" id="toggle-form">+ Tambah GMD</button>
+</div>
+
+<div class="panel form-panel hidden" id="gmd-form">
+  <div class="panel-body">
+    <div class="form-title">GMD Baru</div>
+    <form class="form" method="post" action="{{ url_for('main.admin_master_gmd_create') }}">
+      <div class="form-grid">
+        <label class="field">
+          <span>Kode</span>
+          <input type="text" name="gmd_code" />
+        </label>
+        <label class="field">
+          <span>Nama GMD <span class="req">*</span></span>
+          <input type="text" name="gmd_name" required />
+        </label>
+        <label class="field">
+          <span>Icon</span>
+          <input type="text" name="icon_image" />
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" id="cancel-form">Batal</button>
+        <button class="btn primary" type="submit">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table">
+  <div class="table-head">
+    <div class="th">Kode</div>
+    <div class="th">Nama GMD</div>
+    <div class="th">Icon</div>
+    <div class="th">Terakhir</div>
+    <div class="th"></div>
+  </div>
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row gmd-row"
+      data-id="{{ row.gmd_id }}"
+      data-code="{{ row.gmd_code or '' }}"
+      data-name="{{ row.gmd_name }}"
+      data-icon="{{ row.icon_image or '' }}"
+    >
+      <div class="td">{{ row.gmd_code or '-' }}</div>
+      <div class="td">{{ row.gmd_name }}</div>
+      <div class="td">{{ row.icon_image or '-' }}</div>
+      <div class="td">{{ row.last_update or '-' }}</div>
+      <div class="td actions">
+        <button class="icon-btn btn-edit" type="button" title="Edit">✏️</button>
+        <button class="icon-btn danger btn-delete" type="button" title="Hapus">🗑️</button>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada data GMD.</div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal" id="gmd-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">Edit GMD</div>
+      <button class="btn ghost" type="button" id="close-modal">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>Kode</span>
+          <input type="text" id="edit-code" />
+        </label>
+        <label class="field">
+          <span>Nama GMD</span>
+          <input type="text" id="edit-name" />
+        </label>
+        <label class="field">
+          <span>Icon</span>
+          <input type="text" id="edit-icon" />
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-modal">Batal</button>
+      <button class="btn primary" type="button" id="save-modal">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const formPanel = document.getElementById("gmd-form");
+  const toggleBtn = document.getElementById("toggle-form");
+  const cancelBtn = document.getElementById("cancel-form");
+
+  const modal = document.getElementById("gmd-modal");
+  const closeModal = document.getElementById("close-modal");
+  const cancelModal = document.getElementById("cancel-modal");
+  const saveModal = document.getElementById("save-modal");
+
+  let editingId = null;
+
+  toggleBtn.addEventListener("click", () => {
+    formPanel.classList.toggle("hidden");
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    formPanel.classList.add("hidden");
+  });
+
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+  }
+
+  function closeModalFn() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  document.addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".btn-edit");
+    if (editBtn) {
+      const row = editBtn.closest(".gmd-row");
+      editingId = row.dataset.id;
+      document.getElementById("edit-code").value = row.dataset.code || "";
+      document.getElementById("edit-name").value = row.dataset.name || "";
+      document.getElementById("edit-icon").value = row.dataset.icon || "";
+      openModal();
+    }
+
+    const delBtn = event.target.closest(".btn-delete");
+    if (delBtn) {
+      const row = delBtn.closest(".gmd-row");
+      const id = row.dataset.id;
+      if (!confirm("Hapus GMD ini?")) return;
+      fetch(`/admin/masterfile/gmd/${id}/delete`, { method: "POST" })
+        .then((r) => r.json())
+        .then((res) => {
+          if (res.ok) window.location.reload();
+          else alert(res.error || "Gagal menghapus.");
+        });
+    }
+  });
+
+  saveModal.addEventListener("click", () => {
+    if (!editingId) return;
+    fetch(`/admin/masterfile/gmd/${editingId}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gmd_code: document.getElementById("edit-code").value,
+        gmd_name: document.getElementById("edit-name").value,
+        icon_image: document.getElementById("edit-icon").value,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.ok) window.location.reload();
+        else alert(res.error || "Gagal menyimpan.");
+      });
+  });
+
+  closeModal.addEventListener("click", closeModalFn);
+  cancelModal.addEventListener("click", closeModalFn);
+</script>
+{% endblock %}

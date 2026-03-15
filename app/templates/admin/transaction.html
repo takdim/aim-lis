@@ -108,6 +108,11 @@
             <div class="loan-title">${loan.title}</div>
             <div class="loan-meta">${loan.item_code}</div>
             <div class="loan-meta">Pinjam: ${loan.loan_date} · Kembali: ${loan.due_date}</div>
+            ${
+              loan.fine_amount && loan.fine_amount > 0
+                ? `<div class="loan-meta danger">Denda: Rp ${loan.fine_amount}</div>`
+                : ""
+            }
           </div>
           <button class="btn ghost" data-return="${loan.loan_id}">Kembalikan</button>
         </div>`
@@ -125,9 +130,13 @@
         (fine) => `
         <div class="loan-card">
           <div>
-            <div class="loan-title">${fine.title}</div>
-            <div class="loan-meta">${fine.item_code}</div>
-            <div class="loan-meta">Terlambat ${fine.days_late} hari · Rp ${fine.amount}</div>
+            <div class="loan-title">${fine.title || "Denda"}</div>
+            <div class="loan-meta">${fine.item_code || "-"}</div>
+            <div class="loan-meta">${
+              fine.days_late !== null && fine.days_late !== undefined
+                ? `Terlambat ${fine.days_late} hari · Rp ${fine.amount}`
+                : `Total denda · Rp ${fine.amount}`
+            }</div>
           </div>
         </div>`
       )

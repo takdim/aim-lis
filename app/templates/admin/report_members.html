@@ -1,0 +1,42 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Laporan Anggota</div>
+    <div class="page-sub">Ringkasan anggota berdasarkan tipe</div>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Anggota</div>
+    <div class="stat-value">{{ total_members }}</div>
+  </div>
+</div>
+
+<div class="table report-members-table">
+  <div class="table-head">
+    <div class="th">Tipe Anggota</div>
+    <div class="th">Jumlah</div>
+    <div class="th"></div>
+    <div class="th"></div>
+    <div class="th"></div>
+  </div>
+  {% if by_type %}
+    {% for name, count in by_type %}
+    <div class="table-row">
+      <div class="td">{{ name or '-' }}</div>
+      <div class="td">{{ count }}</div>
+      <div class="td"></div>
+      <div class="td"></div>
+      <div class="td"></div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada data.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

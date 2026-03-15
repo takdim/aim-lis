@@ -18,23 +18,58 @@
         </div>
 
         <nav class="nav">
-          <div class="nav-section">Bibliografi</div>
-          <a class="nav-item {{ 'active' if active == 'biblio' else '' }}" href="{{ url_for('main.admin_biblio') }}">
-            Daftar Bibliografi
-          </a>
-          <a class="nav-item {{ 'active' if active == 'items' else '' }}" href="{{ url_for('main.admin_items') }}">Daftar Eksemplar</a>
-          <a class="nav-item" href="#">Eksemplar Keluar</a>
-          <a class="nav-item {{ 'active' if active == 'labels' else '' }}" href="{{ url_for('main.admin_labels') }}">Cetak Label & Barcode</a>
+          <div class="nav-group {{ 'open' if active in ['biblio','items','labels'] else '' }}">
+            <button class="nav-group-toggle" type="button">Bibliografi</button>
+            <div class="nav-group-items">
+              <a class="nav-item {{ 'active' if active == 'biblio' else '' }}" href="{{ url_for('main.admin_biblio') }}">
+                Daftar Bibliografi
+              </a>
+              <a class="nav-item {{ 'active' if active == 'items' else '' }}" href="{{ url_for('main.admin_items') }}">Daftar Eksemplar</a>
+              <a class="nav-item" href="#">Eksemplar Keluar</a>
+              <a class="nav-item {{ 'active' if active == 'labels' else '' }}" href="{{ url_for('main.admin_labels') }}">Cetak Label & Barcode</a>
+            </div>
+          </div>
 
-          <div class="nav-section">Sirkulasi</div>
-          <a class="nav-item {{ 'active' if active == 'transaction' else '' }}" href="{{ url_for('main.admin_transaksi') }}">Mulai Transaksi</a>
-          <a class="nav-item {{ 'active' if active == 'quick_return' else '' }}" href="{{ url_for('main.admin_quick_return') }}">Pengembalian Kilat</a>
-          <a class="nav-item {{ 'active' if active == 'loan_rules' else '' }}" href="{{ url_for('main.admin_loan_rules') }}">Aturan Peminjaman</a>
+          <div class="nav-group {{ 'open' if active in ['transaction','quick_return','loan_rules'] else '' }}">
+            <button class="nav-group-toggle" type="button">Sirkulasi</button>
+            <div class="nav-group-items">
+              <a class="nav-item {{ 'active' if active == 'transaction' else '' }}" href="{{ url_for('main.admin_transaksi') }}">Mulai Transaksi</a>
+              <a class="nav-item {{ 'active' if active == 'quick_return' else '' }}" href="{{ url_for('main.admin_quick_return') }}">Pengembalian Kilat</a>
+              <a class="nav-item {{ 'active' if active == 'loan_rules' else '' }}" href="{{ url_for('main.admin_loan_rules') }}">Aturan Peminjaman</a>
+            </div>
+          </div>
 
-          <div class="nav-section">Keanggotaan</div>
-          <a class="nav-item {{ 'active' if active == 'members' else '' }}" href="{{ url_for('main.admin_members') }}">Daftar Anggota</a>
-          <a class="nav-item {{ 'active' if active == 'member_type' else '' }}" href="{{ url_for('main.admin_member_types') }}">Tipe Keanggotaan</a>
-          <a class="nav-item {{ 'active' if active == 'guestbook' else '' }}" href="{{ url_for('main.admin_guestbook') }}">Buku Tamu</a>
+          <div class="nav-group {{ 'open' if active in ['members','member_type','guestbook'] else '' }}">
+            <button class="nav-group-toggle" type="button">Keanggotaan</button>
+            <div class="nav-group-items">
+              <a class="nav-item {{ 'active' if active == 'members' else '' }}" href="{{ url_for('main.admin_members') }}">Daftar Anggota</a>
+              <a class="nav-item {{ 'active' if active == 'member_type' else '' }}" href="{{ url_for('main.admin_member_types') }}">Tipe Keanggotaan</a>
+              <a class="nav-item {{ 'active' if active == 'guestbook' else '' }}" href="{{ url_for('main.admin_guestbook') }}">Buku Tamu</a>
+            </div>
+          </div>
+
+          <div class="nav-group {{ 'open' if active in ['master_gmd','master_content','master_media','master_author','master_publisher','master_language'] else '' }}">
+            <button class="nav-group-toggle" type="button">Masterfile</button>
+            <div class="nav-group-items">
+              <a class="nav-item {{ 'active' if active == 'master_gmd' else '' }}" href="{{ url_for('main.admin_master_gmd') }}">GMD</a>
+              <a class="nav-item {{ 'active' if active == 'master_content' else '' }}" href="{{ url_for('main.admin_master_content_type') }}">Tipe Isi</a>
+              <a class="nav-item {{ 'active' if active == 'master_media' else '' }}" href="{{ url_for('main.admin_master_media_type') }}">Tipe Media</a>
+              <a class="nav-item {{ 'active' if active == 'master_author' else '' }}" href="{{ url_for('main.admin_master_author') }}">Pengarang</a>
+              <a class="nav-item {{ 'active' if active == 'master_publisher' else '' }}" href="{{ url_for('main.admin_master_publisher') }}">Penerbit</a>
+              <a class="nav-item {{ 'active' if active == 'master_language' else '' }}" href="{{ url_for('main.admin_master_language') }}">Bahasa Dokumen</a>
+            </div>
+          </div>
+
+          <div class="nav-group {{ 'open' if active in ['report_collection','report_loans','report_members','report_usage','report_classification'] else '' }}">
+            <button class="nav-group-toggle" type="button">Pelaporan</button>
+            <div class="nav-group-items">
+              <a class="nav-item {{ 'active' if active == 'report_collection' else '' }}" href="{{ url_for('main.admin_report_collection') }}">Statistik Koleksi</a>
+              <a class="nav-item {{ 'active' if active == 'report_loans' else '' }}" href="{{ url_for('main.admin_report_loans') }}">Laporan Peminjaman</a>
+              <a class="nav-item {{ 'active' if active == 'report_members' else '' }}" href="{{ url_for('main.admin_report_members') }}">Laporan Anggota</a>
+              <a class="nav-item {{ 'active' if active == 'report_usage' else '' }}" href="{{ url_for('main.admin_report_usage') }}">Statistik Penggunaan Koleksi</a>
+              <a class="nav-item {{ 'active' if active == 'report_classification' else '' }}" href="{{ url_for('main.admin_report_classification') }}">Peminjaman Berdasarkan Klasifikasi</a>
+            </div>
+          </div>
         </nav>
 
         <div class="sidebar-footer">
@@ -58,5 +93,13 @@
         </div>
       </main>
     </div>
+
+    <script>
+      document.querySelectorAll(".nav-group-toggle").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          btn.parentElement.classList.toggle("open");
+        });
+      });
+    </script>
   </body>
 </html>

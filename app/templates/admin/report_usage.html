@@ -1,0 +1,35 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Statistik Penggunaan Koleksi</div>
+    <div class="page-sub">Koleksi teratas berdasarkan peminjaman</div>
+  </div>
+</div>
+
+<div class="table report-usage-table">
+  <div class="table-head">
+    <div class="th">Judul</div>
+    <div class="th">Jumlah Pinjam</div>
+    <div class="th"></div>
+    <div class="th"></div>
+    <div class="th"></div>
+  </div>
+  {% if popular %}
+    {% for title, count in popular %}
+    <div class="table-row">
+      <div class="td">{{ title }}</div>
+      <div class="td">{{ count }}</div>
+      <div class="td"></div>
+      <div class="td"></div>
+      <div class="td"></div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada data.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

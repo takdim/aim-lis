@@ -1,0 +1,35 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Peminjaman Berdasarkan Klasifikasi</div>
+    <div class="page-sub">Klasifikasi teratas berdasarkan peminjaman</div>
+  </div>
+</div>
+
+<div class="table report-classification-table">
+  <div class="table-head">
+    <div class="th">Klasifikasi</div>
+    <div class="th">Jumlah Pinjam</div>
+    <div class="th"></div>
+    <div class="th"></div>
+    <div class="th"></div>
+  </div>
+  {% if rows %}
+    {% for classification, count in rows %}
+    <div class="table-row">
+      <div class="td">{{ classification or '-' }}</div>
+      <div class="td">{{ count }}</div>
+      <div class="td"></div>
+      <div class="td"></div>
+      <div class="td"></div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada data.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -67,17 +67,49 @@ body {
   margin-top: 18px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   flex: 1;
 }
 
-.nav-section {
-  margin-top: 14px;
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-group-toggle {
+  margin-top: 6px;
+  background: transparent;
+  border: none;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted);
   padding: 6px 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-group-toggle::after {
+  content: "▾";
+  float: right;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.nav-group.open .nav-group-toggle::after {
+  transform: rotate(180deg);
+}
+
+.nav-group-items {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 6px;
+}
+
+.nav-group.open .nav-group-items {
+  display: flex;
 }
 
 .nav-item {
@@ -270,9 +302,100 @@ body {
   grid-template-columns: 1.3fr 1.1fr 140px 140px 140px 120px 80px;
 }
 
+.report-collection-table .table-head,
+.report-collection-table .table-row,
+.report-members-table .table-head,
+.report-members-table .table-row,
+.report-usage-table .table-head,
+.report-usage-table .table-row,
+.report-classification-table .table-head,
+.report-classification-table .table-row {
+  grid-template-columns: 1.4fr 180px;
+}
+
+.report-loans-table .table-head,
+.report-loans-table .table-row {
+  grid-template-columns: 1.2fr 140px 1.6fr 160px 140px 140px 140px;
+}
+
 .guestbook-table .table-head,
 .guestbook-table .table-row {
   grid-template-columns: 180px 1.4fr 160px 1fr;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.report-summary {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.report-row {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.report-row:last-child {
+  border-bottom: none;
+}
+
+.report-label {
+  color: var(--muted);
+}
+
+.report-value {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.report-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.report-list.ordered {
+  display: grid;
+  gap: 6px;
+  padding-left: 18px;
+}
+
+.btn.small {
+  padding: 8px 12px;
+  font-size: 12px;
 }
 
 .transaction-search {
@@ -375,6 +498,11 @@ body {
   color: var(--muted);
   font-size: 12px;
   margin-top: 4px;
+}
+
+.loan-meta.danger {
+  color: #b3261e;
+  font-weight: 600;
 }
 
 .empty-mini {

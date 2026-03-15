@@ -51,5 +51,20 @@
         </form>
       </section>
     </main>
+
+    {% if message %}
+    <script>
+      (function () {
+        const text = {{ message|tojson }};
+        if (!("speechSynthesis" in window) || !text) return;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "id-ID";
+        utter.rate = 1;
+        utter.pitch = 1;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utter);
+      })();
+    </script>
+    {% endif %}
   </body>
 </html>

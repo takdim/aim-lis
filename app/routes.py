@@ -11,6 +11,9 @@ from .models import (
     Item,
     MstCollType,
     MstGmd,
+    MstContentType,
+    MstMediaType,
+    MstAuthor,
     MstItemStatus,
     MstLanguage,
     MstFrequency,
@@ -21,6 +24,7 @@ from .models import (
     MstSupplier,
     Member,
     Loan,
+    Fines,
     Item,
     Biblio,
     MstLoanRules,
@@ -794,6 +798,531 @@ def admin_guestbook():
     )
 
 
+@bp.get("/admin/masterfile/gmd")
+@login_required
+def admin_master_gmd():
+    rows = MstGmd.query.order_by(MstGmd.gmd_name.asc()).all()
+    return render_template(
+        "admin/master_gmd.html",
+        title="Master GMD",
+        crumbs="Masterfile / GMD",
+        active="master_gmd",
+        rows=rows,
+    )
+
+
+@bp.post("/admin/masterfile/gmd/create")
+@login_required
+def admin_master_gmd_create():
+    name = (request.form.get("gmd_name") or "").strip()
+    if not name:
+        return redirect(url_for("main.admin_master_gmd"))
+    gmd = MstGmd(
+        gmd_code=(request.form.get("gmd_code") or "").strip() or None,
+        gmd_name=name,
+        icon_image=(request.form.get("icon_image") or "").strip() or None,
+        input_date=datetime.utcnow().date(),
+        last_update=datetime.utcnow().date(),
+    )
+    db.session.add(gmd)
+    db.session.commit()
+    return redirect(url_for("main.admin_master_gmd"))
+
+
+@bp.post("/admin/masterfile/gmd/<int:gmd_id>/update")
+@login_required
+def admin_master_gmd_update(gmd_id: int):
+    gmd = MstGmd.query.get_or_404(gmd_id)
+    data = request.get_json(silent=True) or {}
+    name = (data.get("gmd_name") or "").strip()
+    if not name:
+        return jsonify({"ok": False, "error": "Nama GMD wajib diisi."}), 400
+    gmd.gmd_name = name
+    gmd.gmd_code = (data.get("gmd_code") or "").strip() or None
+    gmd.icon_image = (data.get("icon_image") or "").strip() or None
+    gmd.last_update = datetime.utcnow().date()
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.post("/admin/masterfile/gmd/<int:gmd_id>/delete")
+@login_required
+def admin_master_gmd_delete(gmd_id: int):
+    gmd = MstGmd.query.get_or_404(gmd_id)
+    db.session.delete(gmd)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.get("/admin/masterfile/tipe-isi")
+@login_required
+def admin_master_content_type():
+    rows = MstContentType.query.order_by(MstContentType.content_type.asc()).all()
+    return render_template(
+        "admin/master_content_type.html",
+        title="Master Tipe Isi",
+        crumbs="Masterfile / Tipe Isi",
+        active="master_content",
+        rows=rows,
+    )
+
+
+@bp.post("/admin/masterfile/tipe-isi/create")
+@login_required
+def admin_master_content_type_create():
+    name = (request.form.get("content_type") or "").strip()
+    code = (request.form.get("code") or "").strip()
+    code2 = (request.form.get("code2") or "").strip()
+    if not name or not code or not code2:
+        return redirect(url_for("main.admin_master_content_type"))
+    row = MstContentType(
+        content_type=name,
+        code=code,
+        code2=code2,
+        input_date=datetime.utcnow(),
+        last_update=datetime.utcnow(),
+    )
+    db.session.add(row)
+    db.session.commit()
+    return redirect(url_for("main.admin_master_content_type"))
+
+
+@bp.post("/admin/masterfile/tipe-isi/<int:row_id>/update")
+@login_required
+def admin_master_content_type_update(row_id: int):
+    row = MstContentType.query.get_or_404(row_id)
+    data = request.get_json(silent=True) or {}
+    name = (data.get("content_type") or "").strip()
+    code = (data.get("code") or "").strip()
+    code2 = (data.get("code2") or "").strip()
+    if not name or not code or not code2:
+        return jsonify({"ok": False, "error": "Semua field wajib diisi."}), 400
+    row.content_type = name
+    row.code = code
+    row.code2 = code2
+    row.last_update = datetime.utcnow()
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.post("/admin/masterfile/tipe-isi/<int:row_id>/delete")
+@login_required
+def admin_master_content_type_delete(row_id: int):
+    row = MstContentType.query.get_or_404(row_id)
+    db.session.delete(row)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.get("/admin/masterfile/tipe-media")
+@login_required
+def admin_master_media_type():
+    rows = MstMediaType.query.order_by(MstMediaType.media_type.asc()).all()
+    return render_template(
+        "admin/master_media_type.html",
+        title="Master Tipe Media",
+        crumbs="Masterfile / Tipe Media",
+        active="master_media",
+        rows=rows,
+    )
+
+
+@bp.post("/admin/masterfile/tipe-media/create")
+@login_required
+def admin_master_media_type_create():
+    name = (request.form.get("media_type") or "").strip()
+    code = (request.form.get("code") or "").strip()
+    code2 = (request.form.get("code2") or "").strip()
+    if not name or not code or not code2:
+        return redirect(url_for("main.admin_master_media_type"))
+    row = MstMediaType(
+        media_type=name,
+        code=code,
+        code2=code2,
+        input_date=datetime.utcnow(),
+        last_update=datetime.utcnow(),
+    )
+    db.session.add(row)
+    db.session.commit()
+    return redirect(url_for("main.admin_master_media_type"))
+
+
+@bp.post("/admin/masterfile/tipe-media/<int:row_id>/update")
+@login_required
+def admin_master_media_type_update(row_id: int):
+    row = MstMediaType.query.get_or_404(row_id)
+    data = request.get_json(silent=True) or {}
+    name = (data.get("media_type") or "").strip()
+    code = (data.get("code") or "").strip()
+    code2 = (data.get("code2") or "").strip()
+    if not name or not code or not code2:
+        return jsonify({"ok": False, "error": "Semua field wajib diisi."}), 400
+    row.media_type = name
+    row.code = code
+    row.code2 = code2
+    row.last_update = datetime.utcnow()
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.post("/admin/masterfile/tipe-media/<int:row_id>/delete")
+@login_required
+def admin_master_media_type_delete(row_id: int):
+    row = MstMediaType.query.get_or_404(row_id)
+    db.session.delete(row)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.get("/admin/masterfile/pengarang")
+@login_required
+def admin_master_author():
+    rows = MstAuthor.query.order_by(MstAuthor.author_name.asc()).all()
+    return render_template(
+        "admin/master_author.html",
+        title="Master Pengarang",
+        crumbs="Masterfile / Pengarang",
+        active="master_author",
+        rows=rows,
+    )
+
+
+@bp.post("/admin/masterfile/pengarang/create")
+@login_required
+def admin_master_author_create():
+    name = (request.form.get("author_name") or "").strip()
+    if not name:
+        return redirect(url_for("main.admin_master_author"))
+    row = MstAuthor(
+        author_name=name,
+        author_year=(request.form.get("author_year") or "").strip() or None,
+        authority_type=(request.form.get("authority_type") or "").strip() or "p",
+        auth_list=None,
+        input_date=datetime.utcnow().date(),
+        last_update=datetime.utcnow().date(),
+    )
+    db.session.add(row)
+    db.session.commit()
+    return redirect(url_for("main.admin_master_author"))
+
+
+@bp.post("/admin/masterfile/pengarang/<int:row_id>/update")
+@login_required
+def admin_master_author_update(row_id: int):
+    row = MstAuthor.query.get_or_404(row_id)
+    data = request.get_json(silent=True) or {}
+    name = (data.get("author_name") or "").strip()
+    if not name:
+        return jsonify({"ok": False, "error": "Nama pengarang wajib diisi."}), 400
+    row.author_name = name
+    row.author_year = (data.get("author_year") or "").strip() or None
+    row.authority_type = (data.get("authority_type") or "").strip() or "p"
+    row.last_update = datetime.utcnow().date()
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.post("/admin/masterfile/pengarang/<int:row_id>/delete")
+@login_required
+def admin_master_author_delete(row_id: int):
+    row = MstAuthor.query.get_or_404(row_id)
+    db.session.delete(row)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.get("/admin/masterfile/penerbit")
+@login_required
+def admin_master_publisher():
+    rows = MstPublisher.query.order_by(MstPublisher.publisher_name.asc()).all()
+    return render_template(
+        "admin/master_publisher.html",
+        title="Master Penerbit",
+        crumbs="Masterfile / Penerbit",
+        active="master_publisher",
+        rows=rows,
+    )
+
+
+@bp.post("/admin/masterfile/penerbit/create")
+@login_required
+def admin_master_publisher_create():
+    name = (request.form.get("publisher_name") or "").strip()
+    if not name:
+        return redirect(url_for("main.admin_master_publisher"))
+    row = MstPublisher(
+        publisher_name=name,
+        input_date=datetime.utcnow().date(),
+        last_update=datetime.utcnow().date(),
+    )
+    db.session.add(row)
+    db.session.commit()
+    return redirect(url_for("main.admin_master_publisher"))
+
+
+@bp.post("/admin/masterfile/penerbit/<int:row_id>/update")
+@login_required
+def admin_master_publisher_update(row_id: int):
+    row = MstPublisher.query.get_or_404(row_id)
+    data = request.get_json(silent=True) or {}
+    name = (data.get("publisher_name") or "").strip()
+    if not name:
+        return jsonify({"ok": False, "error": "Nama penerbit wajib diisi."}), 400
+    row.publisher_name = name
+    row.last_update = datetime.utcnow().date()
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.post("/admin/masterfile/penerbit/<int:row_id>/delete")
+@login_required
+def admin_master_publisher_delete(row_id: int):
+    row = MstPublisher.query.get_or_404(row_id)
+    db.session.delete(row)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.get("/admin/masterfile/bahasa")
+@login_required
+def admin_master_language():
+    rows = MstLanguage.query.order_by(MstLanguage.language_name.asc()).all()
+    return render_template(
+        "admin/master_language.html",
+        title="Master Bahasa",
+        crumbs="Masterfile / Bahasa Dokumen",
+        active="master_language",
+        rows=rows,
+    )
+
+
+@bp.post("/admin/masterfile/bahasa/create")
+@login_required
+def admin_master_language_create():
+    language_id = (request.form.get("language_id") or "").strip()
+    name = (request.form.get("language_name") or "").strip()
+    if not language_id or not name:
+        return redirect(url_for("main.admin_master_language"))
+    row = MstLanguage(
+        language_id=language_id,
+        language_name=name,
+        input_date=datetime.utcnow().date(),
+        last_update=datetime.utcnow().date(),
+    )
+    db.session.add(row)
+    db.session.commit()
+    return redirect(url_for("main.admin_master_language"))
+
+
+@bp.post("/admin/masterfile/bahasa/<language_id>/update")
+@login_required
+def admin_master_language_update(language_id: str):
+    row = MstLanguage.query.get_or_404(language_id)
+    data = request.get_json(silent=True) or {}
+    lang_id = (data.get("language_id") or "").strip()
+    name = (data.get("language_name") or "").strip()
+    if not lang_id or not name:
+        return jsonify({"ok": False, "error": "Kode dan nama bahasa wajib diisi."}), 400
+    if lang_id != row.language_id:
+        exists = MstLanguage.query.filter_by(language_id=lang_id).first()
+        if exists:
+            return jsonify({"ok": False, "error": "Kode bahasa sudah digunakan."}), 400
+        row.language_id = lang_id
+    row.language_name = name
+    row.last_update = datetime.utcnow().date()
+    db.session.commit()
+    return jsonify({"ok": True, "language_id": row.language_id})
+
+
+@bp.post("/admin/masterfile/bahasa/<language_id>/delete")
+@login_required
+def admin_master_language_delete(language_id: str):
+    row = MstLanguage.query.get_or_404(language_id)
+    db.session.delete(row)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.get("/admin/pelaporan/statistik-koleksi")
+@login_required
+def admin_report_collection():
+    total_titles = db.session.query(func.count(Biblio.biblio_id)).scalar() or 0
+    total_items = db.session.query(func.count(Item.item_id)).scalar() or 0
+    titles_with_items = (
+        db.session.query(func.count(func.distinct(Item.biblio_id))).scalar() or 0
+    )
+    items_on_loan = (
+        db.session.query(func.count(Loan.loan_id))
+        .filter(Loan.is_return == 0)
+        .scalar()
+        or 0
+    )
+    items_in_collection = total_items
+    by_gmd = (
+        db.session.query(MstGmd.gmd_name, func.count(Biblio.biblio_id))
+        .outerjoin(Biblio, Biblio.gmd_id == MstGmd.gmd_id)
+        .group_by(MstGmd.gmd_name)
+        .order_by(func.count(Biblio.biblio_id).desc())
+        .all()
+    )
+    by_coll_type = (
+        db.session.query(MstCollType.coll_type_name, func.count(Item.item_id))
+        .outerjoin(Item, Item.coll_type_id == MstCollType.coll_type_id)
+        .group_by(MstCollType.coll_type_name)
+        .order_by(func.count(Item.item_id).desc())
+        .all()
+    )
+    popular_titles = (
+        db.session.query(Biblio.title, func.count(Loan.loan_id).label("cnt"))
+        .outerjoin(Item, Item.biblio_id == Biblio.biblio_id)
+        .outerjoin(Loan, Loan.item_code == Item.item_code)
+        .group_by(Biblio.title)
+        .order_by(func.count(Loan.loan_id).desc())
+        .limit(10)
+        .all()
+    )
+    return render_template(
+        "admin/report_collection.html",
+        title="Statistik Koleksi",
+        crumbs="Pelaporan / Statistik Koleksi",
+        active="report_collection",
+        total_titles=total_titles,
+        titles_with_items=titles_with_items,
+        total_items=total_items,
+        items_on_loan=items_on_loan,
+        items_in_collection=items_in_collection,
+        by_gmd=by_gmd,
+        by_coll_type=by_coll_type,
+        popular_titles=popular_titles,
+    )
+
+
+@bp.get("/admin/pelaporan/laporan-peminjaman")
+@login_required
+def admin_report_loans():
+    total_loans = db.session.query(func.count(Loan.loan_id)).scalar() or 0
+    by_gmd = (
+        db.session.query(MstGmd.gmd_name, func.count(Loan.loan_id))
+        .outerjoin(Biblio, Biblio.gmd_id == MstGmd.gmd_id)
+        .outerjoin(Item, Item.biblio_id == Biblio.biblio_id)
+        .outerjoin(Loan, Loan.item_code == Item.item_code)
+        .group_by(MstGmd.gmd_name)
+        .order_by(func.count(Loan.loan_id).desc())
+        .all()
+    )
+    by_coll_type = (
+        db.session.query(MstCollType.coll_type_name, func.count(Loan.loan_id))
+        .outerjoin(Item, Item.coll_type_id == MstCollType.coll_type_id)
+        .outerjoin(Loan, Loan.item_code == Item.item_code)
+        .group_by(MstCollType.coll_type_name)
+        .order_by(func.count(Loan.loan_id).desc())
+        .all()
+    )
+
+    total_transactions = (
+        db.session.query(func.count(func.distinct(Loan.loan_date))).scalar() or 0
+    )
+    avg_per_day = int(total_loans / total_transactions) if total_transactions else 0
+    daily_max = (
+        db.session.query(func.count(Loan.loan_id).label("cnt"))
+        .group_by(Loan.loan_date)
+        .order_by(func.count(Loan.loan_id).desc())
+        .limit(1)
+        .scalar()
+        or 0
+    )
+    members_borrowing = (
+        db.session.query(func.count(func.distinct(Loan.member_id))).scalar() or 0
+    )
+    total_members = db.session.query(func.count(Member.member_id)).scalar() or 0
+    members_never = max(total_members - members_borrowing, 0)
+    overdue = (
+        db.session.query(func.count(Loan.loan_id))
+        .filter(Loan.is_return == 0, Loan.due_date < datetime.utcnow().date())
+        .scalar()
+        or 0
+    )
+
+    return render_template(
+        "admin/report_loans.html",
+        title="Laporan Peminjaman",
+        crumbs="Pelaporan / Laporan Peminjaman",
+        active="report_loans",
+        total_loans=total_loans,
+        by_gmd=by_gmd,
+        by_coll_type=by_coll_type,
+        total_transactions=total_transactions,
+        avg_per_day=avg_per_day,
+        daily_max=daily_max,
+        members_borrowing=members_borrowing,
+        members_never=members_never,
+        overdue=overdue,
+    )
+
+
+@bp.get("/admin/pelaporan/laporan-anggota")
+@login_required
+def admin_report_members():
+    by_type = (
+        db.session.query(MstMemberType.member_type_name, func.count(Member.member_id))
+        .outerjoin(Member, Member.member_type_id == MstMemberType.member_type_id)
+        .group_by(MstMemberType.member_type_name)
+        .order_by(func.count(Member.member_id).desc())
+        .all()
+    )
+    total_members = db.session.query(func.count(Member.member_id)).scalar() or 0
+    return render_template(
+        "admin/report_members.html",
+        title="Laporan Anggota",
+        crumbs="Pelaporan / Laporan Anggota",
+        active="report_members",
+        by_type=by_type,
+        total_members=total_members,
+    )
+
+
+@bp.get("/admin/pelaporan/statistik-penggunaan")
+@login_required
+def admin_report_usage():
+    popular = (
+        db.session.query(Biblio.title, func.count(Loan.loan_id))
+        .outerjoin(Item, Item.biblio_id == Biblio.biblio_id)
+        .outerjoin(Loan, Loan.item_code == Item.item_code)
+        .group_by(Biblio.title)
+        .order_by(func.count(Loan.loan_id).desc())
+        .limit(15)
+        .all()
+    )
+    return render_template(
+        "admin/report_usage.html",
+        title="Statistik Penggunaan Koleksi",
+        crumbs="Pelaporan / Statistik Penggunaan Koleksi",
+        active="report_usage",
+        popular=popular,
+    )
+
+
+@bp.get("/admin/pelaporan/peminjaman-klasifikasi")
+@login_required
+def admin_report_classification():
+    rows = (
+        db.session.query(Biblio.classification, func.count(Loan.loan_id))
+        .outerjoin(Item, Item.biblio_id == Biblio.biblio_id)
+        .outerjoin(Loan, Loan.item_code == Item.item_code)
+        .group_by(Biblio.classification)
+        .order_by(func.count(Loan.loan_id).desc())
+        .limit(20)
+        .all()
+    )
+    return render_template(
+        "admin/report_classification.html",
+        title="Peminjaman Berdasarkan Klasifikasi",
+        crumbs="Pelaporan / Peminjaman Berdasarkan Klasifikasi",
+        active="report_classification",
+        rows=rows,
+    )
+
+
 @bp.post("/admin/anggota/create")
 @login_required
 def admin_member_create():
@@ -929,6 +1458,7 @@ def _get_loan_data(member_id: str):
             "return_date": return_date if loan.is_return else None,
             "status": "returned" if loan.is_return else "active",
             "status_label": "Selesai" if loan.is_return else "Aktif",
+            "fine_amount": 0,
         }
 
         if loan.is_return:
@@ -939,14 +1469,40 @@ def _get_loan_data(member_id: str):
                 days_late = (today - loan.due_date).days
                 amount = days_late * fine_each_day
                 fines_total += amount
+                entry["fine_amount"] = amount
                 fines_items.append(
                     {
                         "title": title,
                         "item_code": item_code,
                         "days_late": days_late,
                         "amount": amount,
+                        "source": "overdue",
                     }
                 )
+
+    # Include fines recorded in fines table
+    fines_rows = (
+        db.session.query(Fines)
+        .filter(Fines.member_id == member_id)
+        .order_by(Fines.fines_date.desc(), Fines.fines_id.desc())
+        .all()
+    )
+    for fine in fines_rows:
+        debet = int(fine.debet or 0)
+        credit = int(fine.credit or 0)
+        amount = debet - credit
+        if amount <= 0:
+            continue
+        fines_total += amount
+        fines_items.append(
+            {
+                "title": fine.description or "Denda",
+                "item_code": "-",
+                "days_late": None,
+                "amount": amount,
+                "source": "table",
+            }
+        )
 
     return current, history, {"total": fines_total, "items": fines_items}
 

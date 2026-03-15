@@ -1,0 +1,176 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Master Tipe Isi</div>
+    <div class="page-sub">Daftar jenis isi koleksi</div>
+  </div>
+  <button class="btn primary" id="toggle-form">+ Tambah Tipe Isi</button>
+</div>
+
+<div class="panel form-panel hidden" id="content-form">
+  <div class="panel-body">
+    <div class="form-title">Tipe Isi Baru</div>
+    <form class="form" method="post" action="{{ url_for('main.admin_master_content_type_create') }}">
+      <div class="form-grid">
+        <label class="field">
+          <span>Nama Tipe Isi <span class="req">*</span></span>
+          <input type="text" name="content_type" required />
+        </label>
+        <label class="field">
+          <span>Kode <span class="req">*</span></span>
+          <input type="text" name="code" required />
+        </label>
+        <label class="field">
+          <span>Kode 2 <span class="req">*</span></span>
+          <input type="text" name="code2" required />
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" id="cancel-form">Batal</button>
+        <button class="btn primary" type="submit">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table">
+  <div class="table-head">
+    <div class="th">Kode</div>
+    <div class="th">Nama Tipe Isi</div>
+    <div class="th">Kode 2</div>
+    <div class="th">Terakhir</div>
+    <div class="th"></div>
+  </div>
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row content-row"
+      data-id="{{ row.id }}"
+      data-name="{{ row.content_type }}"
+      data-code="{{ row.code }}"
+      data-code2="{{ row.code2 }}"
+    >
+      <div class="td">{{ row.code }}</div>
+      <div class="td">{{ row.content_type }}</div>
+      <div class="td">{{ row.code2 }}</div>
+      <div class="td">{{ row.last_update or '-' }}</div>
+      <div class="td actions">
+        <button class="icon-btn btn-edit" type="button" title="Edit">✏️</button>
+        <button class="icon-btn danger btn-delete" type="button" title="Hapus">🗑️</button>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada data tipe isi.</div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal" id="content-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">Edit Tipe Isi</div>
+      <button class="btn ghost" type="button" id="close-modal">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>Nama Tipe Isi</span>
+          <input type="text" id="edit-name" />
+        </label>
+        <label class="field">
+          <span>Kode</span>
+          <input type="text" id="edit-code" />
+        </label>
+        <label class="field">
+          <span>Kode 2</span>
+          <input type="text" id="edit-code2" />
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-modal">Batal</button>
+      <button class="btn primary" type="button" id="save-modal">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const formPanel = document.getElementById("content-form");
+  const toggleBtn = document.getElementById("toggle-form");
+  const cancelBtn = document.getElementById("cancel-form");
+
+  const modal = document.getElementById("content-modal");
+  const closeModal = document.getElementById("close-modal");
+  const cancelModal = document.getElementById("cancel-modal");
+  const saveModal = document.getElementById("save-modal");
+
+  let editingId = null;
+
+  toggleBtn.addEventListener("click", () => {
+    formPanel.classList.toggle("hidden");
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    formPanel.classList.add("hidden");
+  });
+
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+  }
+
+  function closeModalFn() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  document.addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".btn-edit");
+    if (editBtn) {
+      const row = editBtn.closest(".content-row");
+      editingId = row.dataset.id;
+      document.getElementById("edit-name").value = row.dataset.name || "";
+      document.getElementById("edit-code").value = row.dataset.code || "";
+      document.getElementById("edit-code2").value = row.dataset.code2 || "";
+      openModal();
+    }
+
+    const delBtn = event.target.closest(".btn-delete");
+    if (delBtn) {
+      const row = delBtn.closest(".content-row");
+      const id = row.dataset.id;
+      if (!confirm("Hapus tipe isi ini?")) return;
+      fetch(`/admin/masterfile/tipe-isi/${id}/delete`, { method: "POST" })
+        .then((r) => r.json())
+        .then((res) => {
+          if (res.ok) window.location.reload();
+          else alert(res.error || "Gagal menghapus.");
+        });
+    }
+  });
+
+  saveModal.addEventListener("click", () => {
+    if (!editingId) return;
+    fetch(`/admin/masterfile/tipe-isi/${editingId}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content_type: document.getElementById("edit-name").value,
+        code: document.getElementById("edit-code").value,
+        code2: document.getElementById("edit-code2").value,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.ok) window.location.reload();
+        else alert(res.error || "Gagal menyimpan.");
+      });
+  });
+
+  closeModal.addEventListener("click", closeModalFn);
+  cancelModal.addEventListener("click", closeModalFn);
+</script>
+{% endblock %}

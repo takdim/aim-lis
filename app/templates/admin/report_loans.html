@@ -1,0 +1,68 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Statistik Peminjaman</div>
+    <div class="page-sub">Ringkasan statistik peminjaman</div>
+  </div>
+  <button class="btn ghost">Unduh Laporan</button>
+</div>
+
+<div class="report-summary">
+  <div class="report-row">
+    <div class="report-label">Total Peminjaman</div>
+    <div class="report-value">{{ total_loans }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Judul Menurut Media/GMD</div>
+    <div class="report-value">
+      <button class="btn primary small">Tunjukkan dalam grafik</button>
+      <div class="report-list">
+        {% for name, count in by_gmd %}
+          <span>{{ name or '-' }} ({{ count }})</span>
+        {% else %}
+          <span>-</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Eksemplar Menurut Jenis Koleksi</div>
+    <div class="report-value">
+      <button class="btn primary small">Tunjukkan dalam grafik</button>
+      <div class="report-list">
+        {% for name, count in by_coll_type %}
+          <span>{{ name or '-' }} ({{ count }})</span>
+        {% else %}
+          <span>-</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Transaksi Peminjaman</div>
+    <div class="report-value">{{ total_transactions }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Rata-Rata Transaksi Per Hari</div>
+    <div class="report-value">{{ avg_per_day }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Transaksi Tertinggi Dalam Sehari</div>
+    <div class="report-value">{{ daily_max }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Anggota Yang Meminjam</div>
+    <div class="report-value">{{ members_borrowing }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Anggota Belum Pernah Meminjam</div>
+    <div class="report-value">{{ members_never }}</div>
+  </div>
+  <div class="report-row">
+    <div class="report-label">Total Peminjaman Terlambat</div>
+    <div class="report-value">{{ overdue }}</div>
+  </div>
+</div>
+{% endblock %}
