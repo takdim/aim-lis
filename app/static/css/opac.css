@@ -270,6 +270,17 @@ body {
 .status.ok { background: #e8f7ea; color: #16a34a; padding: 4px 8px; border-radius: 999px; }
 .status.warn { background: #fff1f2; color: #ef4444; padding: 4px 8px; border-radius: 999px; }
 
+.app-footer {
+  border-top: 1px solid #e6ebf2;
+  padding: 18px 24px 26px;
+  color: #6c7a92;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+}
+
 .foot { color: var(--muted); margin-top: 12px; }
 
 @media (max-width: 900px) {

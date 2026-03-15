@@ -1,0 +1,35 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Pustakawan & Pengguna Sistem</div>
+    <div class="page-sub">Daftar pengguna sistem perpustakaan</div>
+  </div>
+</div>
+
+<div class="table">
+  <div class="table-head">
+    <div class="th">Username</div>
+    <div class="th">Nama</div>
+    <div class="th">Email</div>
+    <div class="th">Group</div>
+    <div class="th"></div>
+  </div>
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row">
+      <div class="td">{{ row.username }}</div>
+      <div class="td">{{ row.realname }}</div>
+      <div class="td">{{ row.email or '-' }}</div>
+      <div class="td">{{ row.groups or '-' }}</div>
+      <div class="td"></div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada pengguna.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

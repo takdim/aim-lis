@@ -32,6 +32,7 @@ from .models import (
     BiblioView,
     SearchBiblio,
     User,
+    UserGroup,
     db,
 )
 
@@ -1191,8 +1192,8 @@ def admin_report_collection():
         total_items=total_items,
         items_on_loan=items_on_loan,
         items_in_collection=items_in_collection,
-        by_gmd=by_gmd,
-        by_coll_type=by_coll_type,
+        by_gmd=[(name, int(count)) for name, count in by_gmd],
+        by_coll_type=[(name, int(count)) for name, count in by_coll_type],
         popular_titles=popular_titles,
     )
 
@@ -1249,8 +1250,8 @@ def admin_report_loans():
         crumbs="Pelaporan / Laporan Peminjaman",
         active="report_loans",
         total_loans=total_loans,
-        by_gmd=by_gmd,
-        by_coll_type=by_coll_type,
+        by_gmd=[(name, int(count)) for name, count in by_gmd],
+        by_coll_type=[(name, int(count)) for name, count in by_coll_type],
         total_transactions=total_transactions,
         avg_per_day=avg_per_day,
         daily_max=daily_max,
@@ -1320,6 +1321,43 @@ def admin_report_classification():
         crumbs="Pelaporan / Peminjaman Berdasarkan Klasifikasi",
         active="report_classification",
         rows=rows,
+    )
+
+
+@bp.get("/admin/sistem/hari-libur")
+@login_required
+def admin_system_holidays():
+    return render_template(
+        "admin/system_holidays.html",
+        title="Setelan Hari Libur",
+        crumbs="Sistem / Setelan Hari Libur",
+        active="system_holidays",
+    )
+
+
+@bp.get("/admin/sistem/kelompok-pengguna")
+@login_required
+def admin_system_groups():
+    groups = UserGroup.query.order_by(UserGroup.group_name.asc()).all()
+    return render_template(
+        "admin/system_groups.html",
+        title="Kelompok Pengguna",
+        crumbs="Sistem / Kelompok Pengguna",
+        active="system_groups",
+        rows=groups,
+    )
+
+
+@bp.get("/admin/sistem/pengguna")
+@login_required
+def admin_system_users():
+    users = User.query.order_by(User.username.asc()).all()
+    return render_template(
+        "admin/system_users.html",
+        title="Pustakawan & Pengguna Sistem",
+        crumbs="Sistem / Pustakawan & Pengguna Sistem",
+        active="system_users",
+        rows=users,
     )
 
 

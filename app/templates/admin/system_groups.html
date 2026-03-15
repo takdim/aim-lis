@@ -1,0 +1,35 @@
+{% extends "admin/_base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Kelompok Pengguna</div>
+    <div class="page-sub">Daftar kelompok pengguna sistem</div>
+  </div>
+</div>
+
+<div class="table">
+  <div class="table-head">
+    <div class="th">Nama Kelompok</div>
+    <div class="th">Terakhir</div>
+    <div class="th"></div>
+    <div class="th"></div>
+    <div class="th"></div>
+  </div>
+  {% if rows %}
+    {% for row in rows %}
+    <div class="table-row">
+      <div class="td">{{ row.group_name }}</div>
+      <div class="td">{{ row.last_update or '-' }}</div>
+      <div class="td"></div>
+      <div class="td"></div>
+      <div class="td"></div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="table-row">
+      <div class="td full">Belum ada kelompok pengguna.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

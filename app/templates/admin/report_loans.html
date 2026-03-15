@@ -30,7 +30,8 @@
   <div class="report-row">
     <div class="report-label">Total Eksemplar Menurut Jenis Koleksi</div>
     <div class="report-value">
-      <button class="btn primary small">Tunjukkan dalam grafik</button>
+      <button class="btn primary small" id="toggle-coll-chart">Tunjukkan dalam grafik</button>
+      <div class="report-chart hidden" id="coll-chart"></div>
       <div class="report-list">
         {% for name, count in by_coll_type %}
           <span>{{ name or '-' }} ({{ count }})</span>
@@ -65,4 +66,42 @@
     <div class="report-value">{{ overdue }}</div>
   </div>
 </div>
+
+<script>
+  const collData = {{ by_coll_type|tojson }};
+  const chartEl = document.getElementById("coll-chart");
+  const toggleBtn = document.getElementById("toggle-coll-chart");
+
+  function renderBars(data) {
+    if (!data.length) {
+      chartEl.innerHTML = '<div class="empty-mini">Belum ada data.</div>';
+      return;
+    }
+    const max = Math.max(...data.map((d) => d[1] || 0), 1);
+    chartEl.innerHTML = data
+      .map((d) => {
+        const label = d[0] || "-";
+        const value = d[1] || 0;
+        const width = Math.round((value / max) * 100);
+        return `
+          <div class="bar-row">
+            <div class="bar-label">${label}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${width}%"></div>
+            </div>
+            <div class="bar-value">${value}</div>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    chartEl.classList.toggle("hidden");
+    if (!chartEl.dataset.ready) {
+      renderBars(collData);
+      chartEl.dataset.ready = "1";
+    }
+  });
+</script>
 {% endblock %}
