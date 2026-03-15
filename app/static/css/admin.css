@@ -328,6 +328,44 @@ body {
   grid-template-columns: 1.2fr 140px 1.6fr 160px 140px 140px 140px;
 }
 
+.system-holidays-table .table-head,
+.system-holidays-table .table-row {
+  grid-template-columns: 160px 120px 1.2fr 1.4fr 80px;
+}
+
+.system-groups-table .table-head,
+.system-groups-table .table-row {
+  grid-template-columns: 1.6fr 180px 80px;
+}
+
+.system-users-table .table-head,
+.system-users-table .table-row {
+  grid-template-columns: 180px 1.4fr 1.2fr 180px 80px;
+}
+
+.priv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f7fb;
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.toggle input {
+  width: 16px;
+  height: 16px;
+}
+
 .guestbook-table .table-head,
 .guestbook-table .table-row {
   grid-template-columns: 180px 1.4fr 160px 1fr;

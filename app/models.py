@@ -346,6 +346,7 @@ class UserGroup(db.Model):
     __tablename__ = "user_group"
     group_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     group_name = db.Column(db.String(30), nullable=False, unique=True)
+    privileges = db.Column(db.Text)
     input_date = db.Column(db.Date)
     last_update = db.Column(db.Date)
 
@@ -369,6 +370,17 @@ class SystemLog(db.Model):
     action = db.Column(db.String(50))
     log_msg = db.Column(db.Text, nullable=False)
     log_date = db.Column(db.DateTime, nullable=False)
+
+
+class Holiday(db.Model):
+    __tablename__ = "holiday"
+    holiday_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    holiday_date = db.Column(db.Date, nullable=False, index=True)
+    holiday_dayname = db.Column(db.String(20), nullable=True)
+    holiday_name = db.Column(db.String(100), nullable=False)
+    note = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class Setting(db.Model):

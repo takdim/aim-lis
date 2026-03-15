@@ -4,11 +4,53 @@
 <div class="page-header">
   <div>
     <div class="page-title">Pustakawan & Pengguna Sistem</div>
-    <div class="page-sub">Daftar pengguna sistem perpustakaan</div>
+    <div class="page-sub">Kelola pengguna sistem perpustakaan</div>
+  </div>
+  <button class="btn primary" id="toggle-form">+ Tambah Pengguna</button>
+</div>
+
+<div class="panel form-panel hidden" id="user-form">
+  <div class="panel-body">
+    <div class="form-title">Pengguna Baru</div>
+    <form class="form" method="post" action="{{ url_for('main.admin_system_users_create') }}">
+      <div class="form-grid">
+        <label class="field">
+          <span>Nama Masuk Pengguna <span class="req">*</span></span>
+          <input type="text" name="username" required />
+        </label>
+        <label class="field">
+          <span>Nama Asli <span class="req">*</span></span>
+          <input type="text" name="realname" required />
+        </label>
+        <label class="field">
+          <span>Kata Sandi <span class="req">*</span></span>
+          <input type="password" name="password" required />
+        </label>
+        <label class="field">
+          <span>Konfirmasi Kata Sandi <span class="req">*</span></span>
+          <input type="password" name="confirm_password" required />
+        </label>
+      </div>
+      <div class="field">
+        <span>Kelompok</span>
+        <div class="priv-grid">
+          {% for g in groups %}
+          <label class="toggle">
+            <input type="checkbox" name="groups" value="{{ g.group_name }}" />
+            <span class="toggle-label">{{ g.group_name }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn ghost" type="button" id="cancel-form">Batal</button>
+        <button class="btn primary" type="submit">Simpan</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<div class="table">
+<div class="table system-users-table">
   <div class="table-head">
     <div class="th">Username</div>
     <div class="th">Nama</div>
@@ -18,12 +60,20 @@
   </div>
   {% if rows %}
     {% for row in rows %}
-    <div class="table-row">
+    <div class="table-row user-row"
+      data-id="{{ row.user_id }}"
+      data-username="{{ row.username }}"
+      data-realname="{{ row.realname }}"
+      data-groups="{{ row.groups or '' }}"
+    >
       <div class="td">{{ row.username }}</div>
       <div class="td">{{ row.realname }}</div>
       <div class="td">{{ row.email or '-' }}</div>
       <div class="td">{{ row.groups or '-' }}</div>
-      <div class="td"></div>
+      <div class="td actions">
+        <button class="icon-btn btn-edit" type="button" title="Edit">✏️</button>
+        <button class="icon-btn danger btn-delete" type="button" title="Hapus">🗑️</button>
+      </div>
     </div>
     {% endfor %}
   {% else %}
@@ -32,4 +82,141 @@
     </div>
   {% endif %}
 </div>
+
+<div class="modal" id="user-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">Edit Pengguna</div>
+      <button class="btn ghost" type="button" id="close-modal">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field">
+          <span>Nama Masuk Pengguna</span>
+          <input type="text" id="edit-username" />
+        </label>
+        <label class="field">
+          <span>Nama Asli</span>
+          <input type="text" id="edit-realname" />
+        </label>
+        <label class="field">
+          <span>Kata Sandi Baru</span>
+          <input type="password" id="edit-password" />
+        </label>
+        <label class="field">
+          <span>Konfirmasi Kata Sandi</span>
+          <input type="password" id="edit-confirm" />
+        </label>
+      </div>
+      <div class="field">
+        <span>Kelompok</span>
+        <div class="priv-grid" id="edit-groups"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-modal">Batal</button>
+      <button class="btn primary" type="button" id="save-modal">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const GROUPS = [
+    {% for g in groups %}
+      "{{ g.group_name }}",
+    {% endfor %}
+  ];
+
+  const formPanel = document.getElementById("user-form");
+  const toggleBtn = document.getElementById("toggle-form");
+  const cancelBtn = document.getElementById("cancel-form");
+
+  const modal = document.getElementById("user-modal");
+  const closeModal = document.getElementById("close-modal");
+  const cancelModal = document.getElementById("cancel-modal");
+  const saveModal = document.getElementById("save-modal");
+  const editGroupsWrap = document.getElementById("edit-groups");
+
+  let editingId = null;
+
+  toggleBtn.addEventListener("click", () => {
+    formPanel.classList.toggle("hidden");
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    formPanel.classList.add("hidden");
+  });
+
+  function openModal() {
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("show");
+  }
+
+  function closeModalFn() {
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("show");
+  }
+
+  function renderGroups(selected) {
+    editGroupsWrap.innerHTML = GROUPS.map((name) => {
+      const checked = selected.includes(name) ? "checked" : "";
+      return `
+        <label class="toggle">
+          <input type="checkbox" value="${name}" ${checked} />
+          <span class="toggle-label">${name}</span>
+        </label>
+      `;
+    }).join("");
+  }
+
+  document.addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".btn-edit");
+    if (editBtn) {
+      const row = editBtn.closest(".user-row");
+      editingId = row.dataset.id;
+      document.getElementById("edit-username").value = row.dataset.username || "";
+      document.getElementById("edit-realname").value = row.dataset.realname || "";
+      const selected = (row.dataset.groups || "").split(",").filter(Boolean);
+      renderGroups(selected);
+      openModal();
+    }
+
+    const delBtn = event.target.closest(".btn-delete");
+    if (delBtn) {
+      const row = delBtn.closest(".user-row");
+      const id = row.dataset.id;
+      if (!confirm("Hapus pengguna ini?")) return;
+      fetch(`/admin/sistem/pengguna/${id}/delete`, { method: "POST" })
+        .then((r) => r.json())
+        .then((res) => {
+          if (res.ok) window.location.reload();
+          else alert(res.error || "Gagal menghapus.");
+        });
+    }
+  });
+
+  saveModal.addEventListener("click", () => {
+    if (!editingId) return;
+    const selected = Array.from(editGroupsWrap.querySelectorAll("input:checked")).map((i) => i.value);
+    fetch(`/admin/sistem/pengguna/${editingId}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: document.getElementById("edit-username").value,
+        realname: document.getElementById("edit-realname").value,
+        groups: selected,
+        password: document.getElementById("edit-password").value,
+        confirm_password: document.getElementById("edit-confirm").value,
+      }),
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.ok) window.location.reload();
+        else alert(res.error || "Gagal menyimpan.");
+      });
+  });
+
+  closeModal.addEventListener("click", closeModalFn);
+  cancelModal.addEventListener("click", closeModalFn);
+</script>
 {% endblock %}

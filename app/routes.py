@@ -2,9 +2,11 @@ from functools import wraps
 
 from flask import Blueprint, abort, jsonify, redirect, render_template, request, session, url_for
 from datetime import datetime, timedelta
+import json
 
 from sqlalchemy import and_, func, or_, text
 from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
 
 from .models import (
     Biblio,
@@ -33,10 +35,112 @@ from .models import (
     SearchBiblio,
     User,
     UserGroup,
+    Holiday,
     db,
 )
 
 bp = Blueprint("main", __name__)
+
+_PRIV_MAP = {
+    "biblio": {
+        "admin_biblio",
+        "admin_biblio_new",
+        "admin_biblio_edit",
+        "admin_biblio_delete",
+    },
+    "items": {
+        "admin_items",
+        "admin_item_update",
+        "admin_item_delete",
+        "admin_item_delete_bulk",
+    },
+    "labels": {"admin_labels"},
+    "transaction": {"admin_transaksi", "admin_transaksi_member", "admin_transaksi_loan", "admin_transaksi_return"},
+    "quick_return": {"admin_quick_return", "admin_quick_return_post"},
+    "loan_rules": {"admin_loan_rules", "admin_loan_rules_create", "admin_loan_rules_update", "admin_loan_rules_delete"},
+    "members": {"admin_members", "admin_member_create", "admin_member_update", "admin_member_delete"},
+    "member_type": {"admin_member_types", "admin_member_type_update", "admin_member_type_delete"},
+    "guestbook": {"admin_guestbook"},
+    "masterfile": {
+        "admin_master_gmd",
+        "admin_master_gmd_create",
+        "admin_master_gmd_update",
+        "admin_master_gmd_delete",
+        "admin_master_content_type",
+        "admin_master_content_type_create",
+        "admin_master_content_type_update",
+        "admin_master_content_type_delete",
+        "admin_master_media_type",
+        "admin_master_media_type_create",
+        "admin_master_media_type_update",
+        "admin_master_media_type_delete",
+        "admin_master_author",
+        "admin_master_author_create",
+        "admin_master_author_update",
+        "admin_master_author_delete",
+        "admin_master_publisher",
+        "admin_master_publisher_create",
+        "admin_master_publisher_update",
+        "admin_master_publisher_delete",
+        "admin_master_language",
+        "admin_master_language_create",
+        "admin_master_language_update",
+        "admin_master_language_delete",
+    },
+    "reports": {
+        "admin_report_collection",
+        "admin_report_loans",
+        "admin_report_members",
+        "admin_report_usage",
+        "admin_report_classification",
+    },
+    "system": {
+        "admin_system_holidays",
+        "admin_system_holidays_create",
+        "admin_system_holidays_update",
+        "admin_system_holidays_delete",
+        "admin_system_groups",
+        "admin_system_groups_create",
+        "admin_system_groups_update",
+        "admin_system_groups_delete",
+        "admin_system_users",
+        "admin_system_users_create",
+        "admin_system_users_update",
+        "admin_system_users_delete",
+    },
+}
+
+_ENDPOINT_PRIV = {}
+for priv, names in _PRIV_MAP.items():
+    for name in names:
+        _ENDPOINT_PRIV[f"main.{name}"] = priv
+
+
+def _current_user():
+    uid = session.get("user_id")
+    if not uid:
+        return None
+    return User.query.get(uid)
+
+
+def _user_privileges(user: User | None):
+    if not user:
+        return set()
+    groups = [g.strip() for g in (user.groups or "").split(",") if g.strip()]
+    if any(g.lower() == "admin" for g in groups):
+        return {"*"}
+    if not groups:
+        return set()
+    group_rows = UserGroup.query.filter(UserGroup.group_name.in_(groups)).all()
+    privs: set[str] = set()
+    for row in group_rows:
+        try:
+            items = json.loads(row.privileges) if row.privileges else []
+        except Exception:
+            items = []
+        for item in items:
+            privs.add(str(item))
+    return privs
 
 
 def login_required(view):
@@ -48,12 +152,52 @@ def login_required(view):
         if not user:
             session.pop("user_id", None)
             return redirect(url_for("main.login"))
-        groups = (user.groups or "").lower()
-        if groups and "admin" not in groups:
-            abort(403)
         return view(*args, **kwargs)
 
     return wrapper
+
+
+def require_priv(*privs: str):
+    def decorator(view):
+        @wraps(view)
+        def wrapper(*args, **kwargs):
+            user = _current_user()
+            if not user:
+                return redirect(url_for("main.login"))
+            user_privs = _user_privileges(user)
+            if "*" in user_privs:
+                return view(*args, **kwargs)
+            if not privs:
+                return view(*args, **kwargs)
+            if not any(p in user_privs for p in privs):
+                abort(403)
+            return view(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+@bp.before_request
+def _enforce_privileges():
+    endpoint = request.endpoint
+    if not endpoint or not endpoint.startswith("main."):
+        return
+    if not request.path.startswith("/admin"):
+        return
+    if endpoint in ("main.login", "main.logout"):
+        return
+    required = _ENDPOINT_PRIV.get(endpoint)
+    if not required:
+        return
+    user = _current_user()
+    if not user:
+        return redirect(url_for("main.login"))
+    privs = _user_privileges(user)
+    if "*" in privs:
+        return
+    if required not in privs:
+        abort(403)
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -1327,38 +1471,250 @@ def admin_report_classification():
 @bp.get("/admin/sistem/hari-libur")
 @login_required
 def admin_system_holidays():
+    _ensure_holiday_schema()
+    rows = Holiday.query.order_by(Holiday.holiday_date.desc()).all()
     return render_template(
         "admin/system_holidays.html",
         title="Setelan Hari Libur",
         crumbs="Sistem / Setelan Hari Libur",
         active="system_holidays",
+        rows=rows,
     )
+
+
+@bp.post("/admin/sistem/hari-libur/create")
+@login_required
+def admin_system_holidays_create():
+    _ensure_holiday_schema()
+    date_raw = (request.form.get("holiday_date") or "").strip()
+    name = (request.form.get("holiday_name") or "").strip()
+    note = (request.form.get("note") or "").strip()
+    if not date_raw or not name:
+        return redirect(url_for("main.admin_system_holidays"))
+    dayname = datetime.strptime(date_raw, "%Y-%m-%d").strftime("%A")
+    row = Holiday(
+        holiday_date=date_raw,
+        holiday_dayname=dayname,
+        holiday_name=name,
+        note=note or None,
+    )
+    db.session.add(row)
+    db.session.commit()
+    return redirect(url_for("main.admin_system_holidays"))
+
+
+@bp.post("/admin/sistem/hari-libur/<int:holiday_id>/update")
+@login_required
+def admin_system_holidays_update(holiday_id: int):
+    _ensure_holiday_schema()
+    row = Holiday.query.get_or_404(holiday_id)
+    data = request.get_json(silent=True) or {}
+    date_raw = (data.get("holiday_date") or "").strip()
+    name = (data.get("holiday_name") or "").strip()
+    if not date_raw or not name:
+        return jsonify({"ok": False, "error": "Tanggal dan nama wajib diisi."}), 400
+    row.holiday_date = date_raw
+    row.holiday_dayname = datetime.strptime(date_raw, "%Y-%m-%d").strftime("%A")
+    row.holiday_name = name
+    row.note = (data.get("note") or "").strip() or None
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.post("/admin/sistem/hari-libur/<int:holiday_id>/delete")
+@login_required
+def admin_system_holidays_delete(holiday_id: int):
+    _ensure_holiday_schema()
+    row = Holiday.query.get_or_404(holiday_id)
+    db.session.delete(row)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+def _ensure_holiday_schema():
+    columns = {
+        row[0]
+        for row in db.session.execute(
+            text(
+                """
+                SELECT COLUMN_NAME
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'holiday'
+                """
+            )
+        ).fetchall()
+    }
+    if "holiday_name" not in columns:
+        db.session.execute(
+            text("ALTER TABLE holiday ADD COLUMN holiday_name VARCHAR(100) NOT NULL")
+        )
+    if "holiday_dayname" not in columns:
+        db.session.execute(
+            text(
+                "ALTER TABLE holiday ADD COLUMN holiday_dayname VARCHAR(20) NOT NULL DEFAULT ''"
+            )
+        )
+    if "note" not in columns:
+        db.session.execute(text("ALTER TABLE holiday ADD COLUMN note TEXT NULL"))
+    if "created_at" not in columns:
+        db.session.execute(
+            text(
+                "ALTER TABLE holiday ADD COLUMN created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            )
+        )
+    if "updated_at" not in columns:
+        db.session.execute(
+            text(
+                "ALTER TABLE holiday ADD COLUMN updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            )
+        )
+    db.session.commit()
 
 
 @bp.get("/admin/sistem/kelompok-pengguna")
 @login_required
 def admin_system_groups():
     groups = UserGroup.query.order_by(UserGroup.group_name.asc()).all()
+    rows = []
+    for g in groups:
+        try:
+            privs = json.loads(g.privileges) if g.privileges else []
+        except Exception:
+            privs = []
+        rows.append(
+            {
+                "group_id": g.group_id,
+                "group_name": g.group_name,
+                "last_update": g.last_update,
+                "privileges": privs,
+            }
+        )
     return render_template(
         "admin/system_groups.html",
         title="Kelompok Pengguna",
         crumbs="Sistem / Kelompok Pengguna",
         active="system_groups",
-        rows=groups,
+        rows=rows,
     )
+
+
+@bp.post("/admin/sistem/kelompok-pengguna/create")
+@login_required
+def admin_system_groups_create():
+    name = (request.form.get("group_name") or "").strip()
+    privileges = request.form.getlist("privileges")
+    if not name:
+        return redirect(url_for("main.admin_system_groups"))
+    row = UserGroup(
+        group_name=name,
+        privileges=json.dumps(privileges),
+        input_date=datetime.utcnow().date(),
+        last_update=datetime.utcnow().date(),
+    )
+    db.session.add(row)
+    db.session.commit()
+    return redirect(url_for("main.admin_system_groups"))
+
+
+@bp.post("/admin/sistem/kelompok-pengguna/<int:group_id>/update")
+@login_required
+def admin_system_groups_update(group_id: int):
+    row = UserGroup.query.get_or_404(group_id)
+    data = request.get_json(silent=True) or {}
+    name = (data.get("group_name") or "").strip()
+    privileges = data.get("privileges") or []
+    if not name:
+        return jsonify({"ok": False, "error": "Nama kelompok wajib diisi."}), 400
+    row.group_name = name
+    row.privileges = json.dumps(privileges)
+    row.last_update = datetime.utcnow().date()
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.post("/admin/sistem/kelompok-pengguna/<int:group_id>/delete")
+@login_required
+def admin_system_groups_delete(group_id: int):
+    row = UserGroup.query.get_or_404(group_id)
+    db.session.delete(row)
+    db.session.commit()
+    return jsonify({"ok": True})
 
 
 @bp.get("/admin/sistem/pengguna")
 @login_required
 def admin_system_users():
     users = User.query.order_by(User.username.asc()).all()
+    groups = UserGroup.query.order_by(UserGroup.group_name.asc()).all()
     return render_template(
         "admin/system_users.html",
         title="Pustakawan & Pengguna Sistem",
         crumbs="Sistem / Pustakawan & Pengguna Sistem",
         active="system_users",
         rows=users,
+        groups=groups,
     )
+
+
+@bp.post("/admin/sistem/pengguna/create")
+@login_required
+def admin_system_users_create():
+    username = (request.form.get("username") or "").strip()
+    realname = (request.form.get("realname") or "").strip()
+    groups = request.form.getlist("groups")
+    password = request.form.get("password") or ""
+    confirm = request.form.get("confirm_password") or ""
+    if not username or not realname or not password:
+        return redirect(url_for("main.admin_system_users"))
+    if password != confirm:
+        return redirect(url_for("main.admin_system_users"))
+    exists = User.query.filter_by(username=username).first()
+    if exists:
+        return redirect(url_for("main.admin_system_users"))
+
+    user = User(
+        username=username,
+        realname=realname,
+        passwd=generate_password_hash(password),
+        groups=",".join(groups) if groups else None,
+    )
+    db.session.add(user)
+    db.session.commit()
+    return redirect(url_for("main.admin_system_users"))
+
+
+@bp.post("/admin/sistem/pengguna/<int:user_id>/update")
+@login_required
+def admin_system_users_update(user_id: int):
+    user = User.query.get_or_404(user_id)
+    data = request.get_json(silent=True) or {}
+    username = (data.get("username") or "").strip()
+    realname = (data.get("realname") or "").strip()
+    groups = data.get("groups") or []
+    password = data.get("password") or ""
+    confirm = data.get("confirm_password") or ""
+    if not username or not realname:
+        return jsonify({"ok": False, "error": "Username dan nama asli wajib diisi."}), 400
+    if password and password != confirm:
+        return jsonify({"ok": False, "error": "Konfirmasi kata sandi tidak sama."}), 400
+
+    user.username = username
+    user.realname = realname
+    user.groups = ",".join(groups) if groups else None
+    if password:
+        user.passwd = generate_password_hash(password)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@bp.post("/admin/sistem/pengguna/<int:user_id>/delete")
+@login_required
+def admin_system_users_delete(user_id: int):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"ok": True})
 
 
 @bp.post("/admin/anggota/create")
