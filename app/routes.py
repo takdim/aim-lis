@@ -226,6 +226,7 @@ def logout():
 
 @bp.get("/")
 def opac_home():
+    _ensure_biblio_view_table()
     loan_counts = (
         db.session.query(
             Item.biblio_id,
@@ -233,6 +234,10 @@ def opac_home():
         )
         .outerjoin(Loan, Loan.item_code == Item.item_code)
         .group_by(Item.biblio_id)
+        .subquery()
+    )
+    view_counts = (
+        db.session.query(BiblioView.biblio_id, BiblioView.views.label("views"))
         .subquery()
     )
 
@@ -247,26 +252,27 @@ def opac_home():
         }
 
     latest = (
-        db.session.query(Biblio, SearchBiblio, MstGmd, loan_counts.c.views)
+        db.session.query(Biblio, SearchBiblio, MstGmd, view_counts.c.views)
         .outerjoin(SearchBiblio, SearchBiblio.biblio_id == Biblio.biblio_id)
         .outerjoin(MstGmd, MstGmd.gmd_id == Biblio.gmd_id)
-        .outerjoin(loan_counts, loan_counts.c.biblio_id == Biblio.biblio_id)
+        .outerjoin(view_counts, view_counts.c.biblio_id == Biblio.biblio_id)
         .order_by(Biblio.input_date.is_(None), Biblio.input_date.desc(), Biblio.biblio_id.desc())
         .limit(10)
         .all()
     )
     popular = (
-        db.session.query(Biblio, SearchBiblio, MstGmd, loan_counts.c.views)
+        db.session.query(Biblio, SearchBiblio, MstGmd, view_counts.c.views, loan_counts.c.views.label("loan_views"))
         .outerjoin(SearchBiblio, SearchBiblio.biblio_id == Biblio.biblio_id)
         .outerjoin(MstGmd, MstGmd.gmd_id == Biblio.gmd_id)
         .outerjoin(loan_counts, loan_counts.c.biblio_id == Biblio.biblio_id)
+        .outerjoin(view_counts, view_counts.c.biblio_id == Biblio.biblio_id)
         .order_by(func.coalesce(loan_counts.c.views, 0).desc(), Biblio.biblio_id.desc())
         .limit(10)
         .all()
     )
 
     latest_rows = [row_from(b, s, g, v) for b, s, g, v in latest]
-    popular_rows = [row_from(b, s, g, v) for b, s, g, v in popular]
+    popular_rows = [row_from(b, s, g, v) for b, s, g, v, _lv in popular]
 
     return render_template(
         "opac_home.html",
@@ -343,13 +349,9 @@ def opac_search():
     if not q:
         return jsonify({"rows": [], "total": 0, "page": 1, "total_pages": 1})
 
-    loan_counts = (
-        db.session.query(
-            Item.biblio_id,
-            func.count(Loan.loan_id).label("views"),
-        )
-        .outerjoin(Loan, Loan.item_code == Item.item_code)
-        .group_by(Item.biblio_id)
+    _ensure_biblio_view_table()
+    view_counts = (
+        db.session.query(BiblioView.biblio_id, BiblioView.views.label("views"))
         .subquery()
     )
 
@@ -373,10 +375,10 @@ def opac_search():
         page = total_pages
 
     results = (
-        db.session.query(Biblio, SearchBiblio, MstGmd, loan_counts.c.views)
+        db.session.query(Biblio, SearchBiblio, MstGmd, view_counts.c.views)
         .outerjoin(SearchBiblio, SearchBiblio.biblio_id == Biblio.biblio_id)
         .outerjoin(MstGmd, MstGmd.gmd_id == Biblio.gmd_id)
-        .outerjoin(loan_counts, loan_counts.c.biblio_id == Biblio.biblio_id)
+        .outerjoin(view_counts, view_counts.c.biblio_id == Biblio.biblio_id)
         .filter(
             or_(
                 Biblio.title.ilike(like),
@@ -2135,18 +2137,7 @@ def admin_quick_return_post():
 
 @bp.get("/opac/biblio/<int:biblio_id>")
 def opac_biblio_detail(biblio_id: int):
-    db.session.execute(
-        text(
-            """
-            CREATE TABLE IF NOT EXISTS biblio_view (
-                biblio_id INT PRIMARY KEY,
-                views INT NOT NULL DEFAULT 0,
-                last_viewed DATETIME NULL
-            )
-            """
-        )
-    )
-    db.session.commit()
+    _ensure_biblio_view_table()
 
     biblio = Biblio.query.get_or_404(biblio_id)
     search = SearchBiblio.query.filter_by(biblio_id=biblio_id).first()
@@ -2201,6 +2192,21 @@ def opac_biblio_detail(biblio_id: int):
             "items": item_rows,
         }
     )
+
+
+def _ensure_biblio_view_table():
+    db.session.execute(
+        text(
+            """
+            CREATE TABLE IF NOT EXISTS biblio_view (
+                biblio_id INT PRIMARY KEY,
+                views INT NOT NULL DEFAULT 0,
+                last_viewed DATETIME NULL
+            )
+            """
+        )
+    )
+    db.session.commit()
 
 
 @bp.post("/admin/label-barcode/items")
