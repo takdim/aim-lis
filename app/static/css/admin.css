@@ -573,6 +573,11 @@ body {
   background: var(--panel);
 }
 
+.loan-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .loan-title {
   font-weight: 700;
 }

@@ -114,7 +114,10 @@
                 : ""
             }
           </div>
-          <button class="btn ghost" data-return="${loan.loan_id}">Kembalikan</button>
+          <div class="loan-actions">
+            ${loan.can_renew ? `<button class="btn ghost" data-renew="${loan.loan_id}">Perpanjang</button>` : ""}
+            <button class="btn ghost" data-return="${loan.loan_id}">Kembalikan</button>
+          </div>
         </div>`
       )
       .join("");
@@ -258,6 +261,26 @@
     if (returnBtn) {
       returnItem(returnBtn.dataset.return);
     }
+    const renewBtn = event.target.closest("[data-renew]");
+    if (renewBtn) {
+      renewItem(renewBtn.dataset.renew);
+    }
   });
+
+  async function renewItem(loanId) {
+    const res = await fetch("/admin/transaksi/renew", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loan_id: loanId }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "Gagal perpanjang.");
+      return;
+    }
+    renderCurrent(data.current);
+    renderHistory(data.history);
+    renderFines(data.fines);
+  }
 </script>
 {% endblock %}

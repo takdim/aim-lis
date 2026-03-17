@@ -55,7 +55,7 @@ _PRIV_MAP = {
         "admin_item_delete_bulk",
     },
     "labels": {"admin_labels"},
-    "transaction": {"admin_transaksi", "admin_transaksi_member", "admin_transaksi_loan", "admin_transaksi_return"},
+    "transaction": {"admin_transaksi", "admin_transaksi_member", "admin_transaksi_loan", "admin_transaksi_return", "admin_transaksi_renew"},
     "quick_return": {"admin_quick_return", "admin_quick_return_post"},
     "loan_rules": {"admin_loan_rules", "admin_loan_rules_create", "admin_loan_rules_update", "admin_loan_rules_delete"},
     "members": {"admin_members", "admin_member_create", "admin_member_update", "admin_member_delete"},
@@ -1832,9 +1832,13 @@ def _get_loan_data(member_id: str):
     )
     member = Member.query.get(member_id)
     fine_each_day = 0
+    loan_periode = 0
+    reborrow_limit = 0
     if member and member.member_type_id:
         mt = MstMemberType.query.get(member.member_type_id)
         fine_each_day = mt.fine_each_day if mt else 0
+        loan_periode = mt.loan_periode if mt else 0
+        reborrow_limit = mt.reborrow_limit or 0 if mt else 0
 
     today = datetime.utcnow().date()
 
@@ -1855,12 +1859,15 @@ def _get_loan_data(member_id: str):
             "status": "returned" if loan.is_return else "active",
             "status_label": "Selesai" if loan.is_return else "Aktif",
             "fine_amount": 0,
+            "can_renew": False,
         }
 
         if loan.is_return:
             history.append(entry)
         else:
             current.append(entry)
+            if reborrow_limit and (loan.renewed or 0) < reborrow_limit:
+                entry["can_renew"] = True
             if loan.due_date and loan.due_date < today and fine_each_day:
                 days_late = (today - loan.due_date).days
                 amount = days_late * fine_each_day
@@ -1998,6 +2005,44 @@ def admin_transaksi_return():
     loan.is_lent = 0
     loan.return_date = today
     loan.actual = today
+    loan.last_update = datetime.utcnow()
+    db.session.commit()
+
+    current, history, fines = _get_loan_data(loan.member_id)
+    return jsonify({"ok": True, "current": current, "history": history, "fines": fines})
+
+
+@bp.post("/admin/transaksi/renew")
+@login_required
+def admin_transaksi_renew():
+    data = request.get_json(silent=True) or {}
+    loan_id = data.get("loan_id")
+    if not loan_id:
+        return jsonify({"ok": False, "error": "ID pinjaman tidak valid."}), 400
+
+    loan = Loan.query.get(loan_id)
+    if not loan or loan.is_return:
+        return jsonify({"ok": False, "error": "Peminjaman tidak ditemukan."}), 404
+
+    member = Member.query.get(loan.member_id)
+    if not member or not member.member_type_id:
+        return jsonify({"ok": False, "error": "Tipe anggota tidak ditemukan."}), 400
+
+    member_type = MstMemberType.query.get(member.member_type_id)
+    reborrow_limit = member_type.reborrow_limit or 0 if member_type else 0
+    if not reborrow_limit:
+        return jsonify({"ok": False, "error": "Perpanjang tidak diizinkan untuk tipe ini."}), 400
+
+    renewed = loan.renewed or 0
+    if renewed >= reborrow_limit:
+        return jsonify({"ok": False, "error": "Batas perpanjang sudah tercapai."}), 400
+
+    loan_periode = member_type.loan_periode if member_type else 0
+    if not loan_periode or not loan.due_date:
+        return jsonify({"ok": False, "error": "Durasi pinjam tidak valid."}), 400
+
+    loan.due_date = loan.due_date + timedelta(days=loan_periode)
+    loan.renewed = renewed + 1
     loan.last_update = datetime.utcnow()
     db.session.commit()
 
