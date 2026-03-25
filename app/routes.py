@@ -2263,19 +2263,21 @@ def admin_items_label_data():
         return jsonify({"items": []})
 
     items = (
-        db.session.query(Item, Biblio)
+        db.session.query(Item, Biblio, SearchBiblio)
         .outerjoin(Biblio, Biblio.biblio_id == Item.biblio_id)
+        .outerjoin(SearchBiblio, SearchBiblio.biblio_id == Item.biblio_id)
         .filter(Item.item_id.in_(ids))
         .all()
     )
     payload = []
-    for item, biblio in items:
+    for item, biblio, search in items:
         payload.append(
             {
                 "id": item.item_id,
                 "code": item.item_code or item.inventory_code or "",
                 "title": biblio.title if biblio else "",
                 "call_number": item.call_number or "",
+                "author": search.author if search and search.author else "",
             }
         )
     return jsonify({"items": payload})

@@ -1057,6 +1057,71 @@ body {
   gap: 14px;
 }
 
+.slip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.slip-card {
+  background: #fff;
+  border: 1px solid #1c1c1c;
+  padding: 10px;
+  font-size: 11px;
+}
+
+.slip-barcode svg {
+  max-width: 100%;
+  height: 40px;
+}
+
+.slip-title {
+  font-weight: 700;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.slip-sub {
+  font-size: 10px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.slip-divider {
+  border-top: 1px solid #1c1c1c;
+  margin: 6px 0;
+}
+
+.slip-meta {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.slip-meta span:first-child {
+  display: inline-block;
+  width: 70px;
+}
+
+.slip-table {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid #1c1c1c;
+}
+
+.slip-head,
+.slip-cell {
+  border-right: 1px solid #1c1c1c;
+  border-bottom: 1px solid #1c1c1c;
+  padding: 3px 4px;
+  min-height: 18px;
+}
+
+.slip-head:nth-child(3n),
+.slip-cell:nth-child(3n) {
+  border-right: none;
+}
+
 .label-card {
   width: 180px;
   min-height: 180px;
@@ -1068,6 +1133,32 @@ body {
   align-items: center;
   text-align: center;
   gap: 4px;
+}
+
+.label-body {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.label-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.label-bar {
+  width: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border-right: 2px solid #1c1c1c;
+  padding-right: 6px;
 }
 
 .label-top {
@@ -1093,19 +1184,33 @@ body {
   font-weight: 600;
 }
 
+
+
 .label-barcode svg {
-  max-width: 100%;
-  height: auto;
+  width: 120px;
+  height: 36px;
+  transform-origin: center;
+  shape-rendering: crispEdges; 
 }
 
 .label-code {
+  margin-top: 4px;
+  height: 120px;
+  display: flex;
   font-size: 10px;
+  transform: rotate(90deg);
+  transform-origin: center;
+  align-items: center;
+  justify-content: center;
 }
+
 
 .label-barcode {
   margin-top: 4px;
-  height: 32px;
+  height: 120px;
   display: flex;
+  transform: rotate(-90deg);
+  transform-origin: center;
   align-items: center;
   justify-content: center;
 }
