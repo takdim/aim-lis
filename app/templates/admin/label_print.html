@@ -69,19 +69,18 @@
 
 <template id="label-template">
   <div class="label-card">
-    <div class="label-top">PERPUSTAKAAN</div>
+    <div class="label-top">PERPUSTAKAAN FAKULTAS HUKUM</div>
     <div class="label-body">
       <div class="label-bar">
         <div class="label-barcode-wrap">
-          <div class="label-code"></div>
           <div class="label-barcode"></div>
         </div>
       </div>
       <div class="label-info">
-        <div class="label-title"></div>
         <div class="label-call"></div>
         <div class="label-call-small"></div>
         <div class="label-call-small"></div>
+        <div class="label-code"></div>
       </div>
     </div>
   </div>
@@ -145,14 +144,12 @@
           const card = tpl.querySelector(".label-card");
           
           // Seleksi elemen
-          const titleEl = tpl.querySelector(".label-title");
           const callEl = tpl.querySelector(".label-call");
           const callSmall = tpl.querySelectorAll(".label-call-small");
           const barcodeContainer = tpl.querySelector(".label-barcode"); // Container SVG
           const codeTextEl = tpl.querySelector(".label-code");
 
           // Isi konten teks
-          titleEl.textContent = item.title || "TANPA JUDUL";
           const call = (item.call_number || "-").split(/\s+/).filter(Boolean);
           callEl.textContent = call[0] || "-";
           if (callSmall.length >= 2) {

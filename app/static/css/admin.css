@@ -1123,8 +1123,8 @@ body {
 }
 
 .label-card {
-  width: 180px;
-  min-height: 180px;
+  width: 220px;
+  min-height: 220px;
   border: 2px solid #1c1c1c;
   padding: 10px;
   background: #f4f7ff;
@@ -1145,6 +1145,7 @@ body {
 
 .label-info {
   flex: 1;
+  margin-left: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1168,14 +1169,14 @@ body {
 }
 
 .label-title {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 8px;
+  font-weight: 400;
   line-height: 1.2;
   margin-bottom: 4px;
 }
 
 .label-call {
-  font-size: 20px;
+  font-size: 40px;
   font-weight: 800;
 }
 
@@ -1194,11 +1195,10 @@ body {
 }
 
 .label-code {
-  margin-top: 4px;
-  height: 120px;
+  height: 10px;
   display: flex;
   font-size: 10px;
-  transform: rotate(90deg);
+  margin-top: 5px;
   transform-origin: center;
   align-items: center;
   justify-content: center;
