@@ -2254,6 +2254,69 @@ def _ensure_biblio_view_table():
     db.session.commit()
 
 
+def _upsert_search_biblio(payload: dict):
+    required_rows = db.session.execute(
+        text(
+            """
+            SELECT COLUMN_NAME, DATA_TYPE, EXTRA
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'search_biblio'
+              AND IS_NULLABLE = 'NO'
+              AND COLUMN_DEFAULT IS NULL
+            """
+        )
+    ).fetchall()
+
+    for col, dtype, extra in required_rows:
+        if "auto_increment" in (extra or ""):
+            continue
+        if col not in payload or payload[col] is None:
+            if dtype in (
+                "int",
+                "integer",
+                "smallint",
+                "tinyint",
+                "mediumint",
+                "bigint",
+                "decimal",
+                "numeric",
+                "float",
+                "double",
+            ):
+                payload[col] = 0
+            elif dtype in ("date",):
+                payload[col] = datetime.utcnow().date().isoformat()
+            elif dtype in ("datetime", "timestamp"):
+                payload[col] = datetime.utcnow()
+            elif dtype in ("time",):
+                payload[col] = "00:00:00"
+            else:
+                payload[col] = ""
+
+    exists = db.session.execute(
+        text("SELECT 1 FROM search_biblio WHERE biblio_id = :biblio_id"),
+        {"biblio_id": payload.get("biblio_id")},
+    ).scalar()
+
+    if exists:
+        set_cols = [c for c in payload.keys() if c != "biblio_id"]
+        if set_cols:
+            set_clause = ", ".join([f"{c} = :{c}" for c in set_cols])
+            db.session.execute(
+                text(f"UPDATE search_biblio SET {set_clause} WHERE biblio_id = :biblio_id"),
+                payload,
+            )
+        return
+
+    cols = ", ".join(payload.keys())
+    vals = ", ".join([f":{k}" for k in payload.keys()])
+    db.session.execute(
+        text(f"INSERT INTO search_biblio ({cols}) VALUES ({vals})"),
+        payload,
+    )
+
+
 @bp.post("/admin/label-barcode/items")
 @login_required
 def admin_items_label_data():
@@ -2332,6 +2395,28 @@ def admin_biblio_new():
 
             db.session.add(biblio)
             db.session.flush()
+
+            publisher_name = None
+            publisher_id_raw = request.form.get("publisher_id")
+            if publisher_id_raw:
+                try:
+                    publisher_id_val = int(publisher_id_raw)
+                    publisher = MstPublisher.query.get(publisher_id_val)
+                    publisher_name = publisher.publisher_name if publisher else None
+                except ValueError:
+                    publisher_name = None
+
+            _upsert_search_biblio(
+                {
+                    "biblio_id": biblio.biblio_id,
+                    "title": title,
+                    "author": (request.form.get("author") or "").strip() or None,
+                    "topic": (request.form.get("topic") or "").strip() or None,
+                    "publisher": publisher_name,
+                    "publish_year": biblio.publish_year,
+                    "call_number": biblio.call_number,
+                }
+            )
 
             items = []
             for key in request.form.keys():
@@ -2490,6 +2575,28 @@ def admin_biblio_edit(biblio_id: int):
             biblio.spec_detail_info = request.form.get("spec_detail_info")
             biblio.gmd_id = request.form.get("gmd_id") or None
             biblio.last_update = datetime.utcnow()
+
+            publisher_name = None
+            publisher_id_raw = request.form.get("publisher_id")
+            if publisher_id_raw:
+                try:
+                    publisher_id_val = int(publisher_id_raw)
+                    publisher = MstPublisher.query.get(publisher_id_val)
+                    publisher_name = publisher.publisher_name if publisher else None
+                except ValueError:
+                    publisher_name = None
+
+            _upsert_search_biblio(
+                {
+                    "biblio_id": biblio.biblio_id,
+                    "title": title,
+                    "author": (request.form.get("author") or "").strip() or None,
+                    "topic": (request.form.get("topic") or "").strip() or None,
+                    "publisher": publisher_name,
+                    "publish_year": biblio.publish_year,
+                    "call_number": biblio.call_number,
+                }
+            )
 
             items = []
             for key in request.form.keys():
