@@ -1226,6 +1226,14 @@ body {
     visibility: visible;
   }
 
+  body.print-label .print-area-slip {
+    display: none !important;
+  }
+
+  body.print-slip .print-area-label {
+    display: none !important;
+  }
+
   .print-area {
     position: absolute;
     inset: 0;
