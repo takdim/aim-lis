@@ -93,6 +93,7 @@ _PRIV_MAP = {
         "admin_report_members",
         "admin_report_usage",
         "admin_report_classification",
+        "admin_report_guestbook",
     },
     "system": {
         "admin_system_holidays",
@@ -300,31 +301,58 @@ def guestbook_form():
         if not name:
             error = "Nama wajib diisi."
         else:
-            member = None
+            # Check for duplicate entry with same name and member_id
+            # Only allow 1 entry per unique name+member_id combination per day
+            today = datetime.utcnow().date()
+            existing = None
+            
             if member_id:
-                member = Member.query.filter_by(member_id=member_id).first()
-
-            if member:
-                saved_name = member.member_name
-                saved_inst = member.inst_name or None
-                success_message = f"Selamat datang, {saved_name}."
-                if saved_inst:
-                    success_message = f"{success_message} Instansi: {saved_inst}."
+                # If member_id provided, check for duplicate with same member_id and name
+                existing = VisitorCount.query.filter(
+                    and_(
+                        VisitorCount.member_id == member_id,
+                        VisitorCount.member_name == name,
+                        func.date(VisitorCount.checkin_date) == today
+                    )
+                ).first()
             else:
-                saved_name = name
-                saved_inst = institution or None
-                success_message = f"Selamat datang, {saved_name}."
+                # If no member_id, check for duplicate with same name only
+                existing = VisitorCount.query.filter(
+                    and_(
+                        VisitorCount.member_name == name,
+                        VisitorCount.member_id.is_(None),
+                        func.date(VisitorCount.checkin_date) == today
+                    )
+                ).first()
+            
+            if existing:
+                error = f"Anda sudah mengisi buku tamu hari ini, {name}. Terima kasih!"
+            else:
+                member = None
+                if member_id:
+                    member = Member.query.filter_by(member_id=member_id).first()
 
-            row = VisitorCount(
-                member_name=saved_name,
-                member_id=member_id or None,
-                institution=saved_inst,
-                checkin_date=datetime.utcnow(),
-            )
-            db.session.add(row)
-            db.session.commit()
-            session["guestbook_message"] = success_message
-            return redirect(url_for("main.guestbook_form", success=1))
+                if member:
+                    saved_name = member.member_name
+                    saved_inst = member.inst_name or None
+                    success_message = f"Selamat datang, {saved_name}."
+                    if saved_inst:
+                        success_message = f"{success_message} Instansi: {saved_inst}."
+                else:
+                    saved_name = name
+                    saved_inst = institution or None
+                    success_message = f"Selamat datang, {saved_name}."
+
+                row = VisitorCount(
+                    member_name=saved_name,
+                    member_id=member_id or None,
+                    institution=saved_inst,
+                    checkin_date=datetime.utcnow(),
+                )
+                db.session.add(row)
+                db.session.commit()
+                session["guestbook_message"] = success_message
+                return redirect(url_for("main.guestbook_form", success=1))
 
     if request.args.get("success") == "1":
         message = session.pop("guestbook_message", None) or "Terima kasih. Buku tamu berhasil disimpan."
@@ -413,11 +441,88 @@ def opac_search():
 @bp.get("/admin")
 @login_required
 def admin_dashboard():
+    # Total Bibliografi
+    total_biblio = db.session.query(func.count(Biblio.biblio_id)).scalar() or 0
+    
+    # Bibliografi added this week
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    biblio_week = db.session.query(func.count(Biblio.biblio_id)).filter(
+        Biblio.input_date >= week_ago
+    ).scalar() or 0
+    
+    # Eksemplar Tersedia (not on loan)
+    total_items = db.session.query(func.count(Item.item_id)).scalar() or 0
+    items_on_loan = db.session.query(func.count(Loan.loan_id)).filter(
+        Loan.is_return == 0
+    ).scalar() or 0
+    items_available = total_items - items_on_loan
+    
+    # Peminjaman Aktif (not returned)
+    active_loans = db.session.query(func.count(Loan.loan_id)).filter(
+        Loan.is_return == 0
+    ).scalar() or 0
+    
+    # Peminjaman Overdue
+    today = datetime.utcnow().date()
+    overdue_loans = db.session.query(func.count(Loan.loan_id)).filter(
+        and_(
+            Loan.is_return == 0,
+            Loan.due_date < today
+        )
+    ).scalar() or 0
+    
+    # Anggota Baru (7 hari terakhir)
+    week_ago_date = (datetime.utcnow() - timedelta(days=7)).date()
+    new_members = db.session.query(func.count(Member.member_id)).filter(
+        Member.register_date >= week_ago_date
+    ).scalar() or 0
+    
+    # Filter untuk Buku Tamu
+    sort_by = request.args.get("sort", "terbaru")
+    
+    if sort_by == "terbanyak":
+        # Get most frequent visitors (group by name and get count)
+        visitors_query = (
+            db.session.query(
+                VisitorCount.member_name,
+                VisitorCount.institution,
+                func.max(VisitorCount.checkin_date).label('latest_visit'),
+                func.count(VisitorCount.visitor_id).label('visit_count')
+            )
+            .group_by(VisitorCount.member_name, VisitorCount.institution)
+            .order_by(func.count(VisitorCount.visitor_id).desc())
+            .limit(5)
+            .all()
+        )
+    else:
+        # Default: Get latest visitors (terbaru)
+        recent_visitors = db.session.query(VisitorCount).order_by(
+            VisitorCount.checkin_date.desc()
+        ).limit(5).all()
+        
+        visitors_query = [(v.member_name, v.institution, v.checkin_date, None) for v in recent_visitors]
+    
+    # Format visitor data
+    visitor_data = []
+    for visitor in visitors_query:
+        visitor_data.append({
+            "name": visitor[0],
+            "institution": visitor[1] or "-",
+            "time": visitor[2].strftime("%d %b %Y %H:%M") if visitor[2] else "-",
+        })
+    
     return render_template(
         "admin/dashboard.html",
         title="Dashboard",
         crumbs="Dashboard",
         active="dashboard",
+        total_biblio=total_biblio,
+        biblio_week=biblio_week,
+        items_available=items_available,
+        active_loans=active_loans,
+        overdue_loans=overdue_loans,
+        new_members=new_members,
+        visitor_data=visitor_data,
     )
 
 
@@ -893,8 +998,12 @@ def admin_guestbook():
     if page < 1:
         page = 1
     q = request.args.get("q", "").strip()
-
+    sort_by = request.args.get("sort", "terbaru")
+    month_filter = request.args.get("month", "")
+    
     base_query = db.session.query(VisitorCount)
+    
+    # Search filter
     if q:
         like = f"%{q}%"
         base_query = base_query.filter(
@@ -904,16 +1013,39 @@ def admin_guestbook():
                 VisitorCount.institution.ilike(like),
             )
         )
+    
+    # Month filter (format: YYYY-MM)
+    if month_filter:
+        try:
+            year, month = month_filter.split("-")
+            year, month = int(year), int(month)
+            from datetime import date
+            first_day = date(year, month, 1)
+            if month == 12:
+                last_day = date(year + 1, 1, 1) - timedelta(days=1)
+            else:
+                last_day = date(year, month + 1, 1) - timedelta(days=1)
+            base_query = base_query.filter(
+                and_(
+                    func.date(VisitorCount.checkin_date) >= first_day,
+                    func.date(VisitorCount.checkin_date) <= last_day
+                )
+            )
+        except:
+            pass
 
     total_count = base_query.with_entities(func.count(VisitorCount.visitor_id)).scalar() or 0
     total_pages = max((total_count + per_page - 1) // per_page, 1)
     if page > total_pages:
         page = total_pages
 
-    query = base_query.order_by(
-        VisitorCount.checkin_date.desc(),
-        VisitorCount.visitor_id.desc(),
-    )
+    # Sorting
+    if sort_by == "lama":
+        query = base_query.order_by(VisitorCount.checkin_date.asc(), VisitorCount.visitor_id.asc())
+    else:
+        # Default terbaru
+        query = base_query.order_by(VisitorCount.checkin_date.desc(), VisitorCount.visitor_id.desc())
+    
     query = query.offset((page - 1) * per_page).limit(per_page)
 
     rows = []
@@ -931,6 +1063,15 @@ def admin_guestbook():
                 "institution": row.institution or "-",
             }
         )
+    
+    # Generate month list for filter dropdown
+    all_months = db.session.query(
+        func.year(VisitorCount.checkin_date).label('year'),
+        func.month(VisitorCount.checkin_date).label('month')
+    ).distinct().order_by(
+        func.year(VisitorCount.checkin_date).desc(),
+        func.month(VisitorCount.checkin_date).desc()
+    ).all()
 
     return render_template(
         "admin/guestbook.html",
@@ -942,6 +1083,9 @@ def admin_guestbook():
         page=page,
         total_pages=total_pages,
         total_count=total_count,
+        sort_by=sort_by,
+        month_filter=month_filter,
+        all_months=all_months,
     )
 
 
@@ -1467,6 +1611,92 @@ def admin_report_classification():
         crumbs="Pelaporan / Peminjaman Berdasarkan Klasifikasi",
         active="report_classification",
         rows=rows,
+    )
+
+
+@bp.get("/admin/pelaporan/buku-tamu")
+@login_required
+def admin_report_guestbook():
+    # Get month filter from query params
+    month_filter = request.args.get("month", "")
+    
+    base_query = db.session.query(VisitorCount)
+    
+    # Month filter (format: YYYY-MM)
+    if month_filter:
+        try:
+            year, month = month_filter.split("-")
+            year, month = int(year), int(month)
+            from datetime import date
+            first_day = date(year, month, 1)
+            if month == 12:
+                last_day = date(year + 1, 1, 1) - timedelta(days=1)
+            else:
+                last_day = date(year, month + 1, 1) - timedelta(days=1)
+            base_query = base_query.filter(
+                and_(
+                    func.date(VisitorCount.checkin_date) >= first_day,
+                    func.date(VisitorCount.checkin_date) <= last_day
+                )
+            )
+        except:
+            pass
+    
+    # Query most frequent visitors with visit count aggregation
+    rows = (
+        base_query.with_entities(
+            VisitorCount.member_name,
+            VisitorCount.member_id,
+            VisitorCount.institution,
+            func.max(VisitorCount.checkin_date).label('latest_visit'),
+            func.count(VisitorCount.visitor_id).label('visit_count')
+        )
+        .group_by(VisitorCount.member_name, VisitorCount.member_id, VisitorCount.institution)
+        .order_by(func.count(VisitorCount.visitor_id).desc())
+        .all()
+    )
+    
+    formatted_rows = []
+    for row in rows:
+        latest_date = row.latest_visit.strftime("%d %b %Y %H:%M") if row.latest_visit else "-"
+        formatted_rows.append({
+            "member_name": row.member_name,
+            "member_id": row.member_id or "-",
+            "institution": row.institution or "-",
+            "visit_count": row.visit_count,
+            "latest_visit": latest_date,
+        })
+    
+    total_visitors = len(formatted_rows)
+    total_visits = (
+        base_query.with_entities(func.count(VisitorCount.visitor_id))
+        .scalar() or 0
+    )
+    
+    # Generate month list for filter dropdown
+    all_months = (
+        db.session.query(
+            func.year(VisitorCount.checkin_date).label('year'),
+            func.month(VisitorCount.checkin_date).label('month')
+        )
+        .distinct()
+        .order_by(
+            func.year(VisitorCount.checkin_date).desc(),
+            func.month(VisitorCount.checkin_date).desc()
+        )
+        .all()
+    )
+    
+    return render_template(
+        "admin/report_guestbook.html",
+        title="Laporan Buku Tamu",
+        crumbs="Pelaporan / Laporan Buku Tamu",
+        active="report_guestbook",
+        rows=formatted_rows,
+        total_visitors=total_visitors,
+        total_visits=total_visits,
+        month_filter=month_filter,
+        all_months=all_months,
     )
 
 

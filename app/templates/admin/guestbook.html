@@ -8,11 +8,29 @@
   </div>
 </div>
 
-<form class="search-bar" method="get">
+<form class="filter-bar" method="get">
   <div class="search-input">
     <span class="icon">🔎</span>
     <input type="text" name="q" value="{{ q or '' }}" placeholder="Cari nama, ID, atau instansi..." />
   </div>
+  
+  <select name="month" class="filter-select">
+    <option value="">Semua Bulan</option>
+    {% for year_month in all_months %}
+      <option value="{{ "{:04d}-{:02d}".format(year_month.year, year_month.month) }}" 
+              {% if month_filter == "{:04d}-{:02d}".format(year_month.year, year_month.month) %}selected{% endif %}>
+        {{ ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][year_month.month-1] }} {{ year_month.year }}
+      </option>
+    {% endfor %}
+  </select>
+  
+  <div class="sort-buttons">
+    <a href="?q={{ q }}&month={{ month_filter }}&sort=terbaru" 
+       class="btn-sort {{ 'active' if sort_by == 'terbaru' else '' }}">↓ Terbaru</a>
+    <a href="?q={{ q }}&month={{ month_filter }}&sort=lama" 
+       class="btn-sort {{ 'active' if sort_by == 'lama' else '' }}">↑ Terlama</a>
+  </div>
+  
   <button class="btn" type="submit">Cari</button>
 </form>
 
@@ -41,18 +59,90 @@
 </div>
 
 <div class="pagination">
-  <div class="page-info">Halaman {{ page }} dari {{ total_pages }}</div>
+  <div class="page-info">Halaman {{ page }} dari {{ total_pages }} (Total: {{ total_count }})</div>
   <div class="page-actions">
     {% if page > 1 %}
-      <a class="btn ghost" href="?q={{ q }}&page={{ page - 1 }}">Sebelumnya</a>
+      <a class="btn ghost" href="?q={{ q }}&month={{ month_filter }}&sort={{ sort_by }}&page={{ page - 1 }}">Sebelumnya</a>
     {% else %}
       <span class="btn ghost disabled">Sebelumnya</span>
     {% endif %}
     {% if page < total_pages %}
-      <a class="btn ghost" href="?q={{ q }}&page={{ page + 1 }}">Berikutnya</a>
+      <a class="btn ghost" href="?q={{ q }}&month={{ month_filter }}&sort={{ sort_by }}&page={{ page + 1 }}">Berikutnya</a>
     {% else %}
       <span class="btn ghost disabled">Berikutnya</span>
     {% endif %}
   </div>
 </div>
+
+<style>
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+.search-input input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+.search-input .icon {
+  font-size: 16px;
+}
+
+.filter-select {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sort {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sort:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.btn-sort.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+</style>
 {% endblock %}

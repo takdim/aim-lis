@@ -11,53 +11,65 @@
 <div class="cards">
   <div class="card">
     <div class="card-label">Total Bibliografi</div>
-    <div class="card-value">24.048</div>
-    <div class="card-meta">+120 minggu ini</div>
+    <div class="card-value">{{ "{:,}".format(total_biblio) }}</div>
+    <div class="card-meta">+{{ biblio_week }} minggu ini</div>
   </div>
   <div class="card">
     <div class="card-label">Eksemplar Tersedia</div>
-    <div class="card-value">18.932</div>
+    <div class="card-value">{{ "{:,}".format(items_available) }}</div>
     <div class="card-meta">Stok sehat</div>
   </div>
   <div class="card">
     <div class="card-label">Peminjaman Aktif</div>
-    <div class="card-value">214</div>
-    <div class="card-meta">Perlu ditindak 6</div>
+    <div class="card-value">{{ active_loans }}</div>
+    <div class="card-meta">{% if overdue_loans > 0 %}Perlu ditindak {{ overdue_loans }}{% else %}Semua tepat waktu{% endif %}</div>
   </div>
   <div class="card">
     <div class="card-label">Anggota Baru</div>
-    <div class="card-value">38</div>
+    <div class="card-value">{{ new_members }}</div>
     <div class="card-meta">7 hari terakhir</div>
   </div>
 </div>
 
-<div class="panel">
-  <div class="panel-header">
-    <div class="panel-title">Aktivitas Terbaru</div>
-    <button class="btn">Lihat Semua</button>
-  </div>
-  <div class="panel-body">
-    <div class="activity">
-      <div class="dot"></div>
-      <div>
-        <div class="activity-title">Pengembalian buku: Hukum kontrak & perancangan kontrak</div>
-        <div class="activity-meta">2 menit lalu · Eksemplar #B-1293</div>
-      </div>
+<div class="panels">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Pengunjung Perpustakaan Terbaru</div>
+      <a class="btn" href="{{ url_for('main.admin_guestbook') }}">Lihat Semua</a>
     </div>
-    <div class="activity">
-      <div class="dot"></div>
-      <div>
-        <div class="activity-title">Anggota baru terdaftar: Rani P.</div>
-        <div class="activity-meta">15 menit lalu · Tipe Keanggotaan Mahasiswa</div>
-      </div>
-    </div>
-    <div class="activity">
-      <div class="dot"></div>
-      <div>
-        <div class="activity-title">Penambahan bibliografi: Undang-undang no. 1 tahun 2026</div>
-        <div class="activity-meta">1 jam lalu · Koleksi Hukum Pidana</div>
-      </div>
+    <div class="panel-body">
+      {% if visitor_data %}
+        {% for visitor in visitor_data %}
+        <div class="activity">
+          <div class="dot"></div>
+          <div>
+            <div class="activity-title">{{ visitor.name }}</div>
+            <div class="activity-meta">{{ visitor.time }} · {{ visitor.institution }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="activity">
+          <div class="empty-state">Belum ada data pengunjung</div>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
+
+<style>
+.panels {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  padding: 20px;
+}
+</style>
 {% endblock %}

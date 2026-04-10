@@ -89,7 +89,7 @@
           {% endif %}
 
           {% if has_priv('reports') %}
-          <div class="nav-group {{ 'open' if active in ['report_collection','report_loans','report_members','report_usage','report_classification'] else '' }}">
+          <div class="nav-group {{ 'open' if active in ['report_collection','report_loans','report_members','report_usage','report_classification','report_guestbook'] else '' }}">
             <button class="nav-group-toggle" type="button">Pelaporan</button>
             <div class="nav-group-items">
               <a class="nav-item {{ 'active' if active == 'report_collection' else '' }}" href="{{ url_for('main.admin_report_collection') }}">Statistik Koleksi</a>
@@ -97,6 +97,7 @@
               <a class="nav-item {{ 'active' if active == 'report_members' else '' }}" href="{{ url_for('main.admin_report_members') }}">Laporan Anggota</a>
               <a class="nav-item {{ 'active' if active == 'report_usage' else '' }}" href="{{ url_for('main.admin_report_usage') }}">Statistik Penggunaan Koleksi</a>
               <a class="nav-item {{ 'active' if active == 'report_classification' else '' }}" href="{{ url_for('main.admin_report_classification') }}">Peminjaman Berdasarkan Klasifikasi</a>
+              <a class="nav-item {{ 'active' if active == 'report_guestbook' else '' }}" href="{{ url_for('main.admin_report_guestbook') }}">Laporan Buku Tamu</a>
             </div>
           </div>
           {% endif %}
