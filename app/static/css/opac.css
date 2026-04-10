@@ -283,6 +283,68 @@ body {
 
 .foot { color: var(--muted); margin-top: 12px; }
 
+.promo-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  animation: slideIn 0.6s ease-out;
+}
+
+.promo-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #fff;
+}
+
+.promo-icon {
+  font-size: 48px;
+  min-width: 60px;
+  text-align: center;
+  animation: bounce 2s infinite;
+}
+
+.promo-text h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.promo-text p {
+  margin: 6px 0;
+  font-size: 14px;
+  opacity: 0.95;
+  line-height: 1.5;
+}
+
+.promo-detail {
+  font-size: 13px !important;
+  opacity: 0.85 !important;
+  font-style: italic;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 @media (max-width: 900px) {
   .hero-search { flex-direction: column; }
   .search-input { min-width: auto; }
