@@ -411,6 +411,20 @@ class Comment(db.Model):
     last_update = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
 
+class GuestbookWinner(db.Model):
+    __tablename__ = "guestbook_winner"
+    winner_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    visitor_id = db.Column(db.Integer, index=True)
+    member_name = db.Column(db.String(255), nullable=False)
+    member_id = db.Column(db.String(20))
+    institution = db.Column(db.String(100))
+    period_month = db.Column(db.Integer, nullable=False)
+    period_year = db.Column(db.Integer, nullable=False)
+    period_type = db.Column(db.Enum("awal", "akhir"), default="awal")  # early or late in month
+    visit_count = db.Column(db.Integer, default=0)
+    set_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
 class SearchBiblio(db.Model):
     __tablename__ = "search_biblio"
     biblio_id = db.Column(db.Integer, primary_key=True)

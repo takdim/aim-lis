@@ -21,6 +21,7 @@ from .models import (
     MstFrequency,
     MstMemberType,
     VisitorCount,
+    GuestbookWinner,
     MstPlace,
     MstPublisher,
     MstSupplier,
@@ -357,11 +358,39 @@ def guestbook_form():
     if request.args.get("success") == "1":
         message = session.pop("guestbook_message", None) or "Terima kasih. Buku tamu berhasil disimpan."
 
+    # Get current month winners (early and late)
+    today = datetime.utcnow()
+    current_month = today.month
+    current_year = today.year
+    
+    month_names = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+                   "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+    current_month_name = month_names[current_month - 1]
+    
+    winners_query = GuestbookWinner.query.filter(
+        and_(
+            GuestbookWinner.period_month == current_month,
+            GuestbookWinner.period_year == current_year
+        )
+    ).all()
+    
+    winners_data = []
+    for winner in winners_query:
+        period_label = f"Awal {current_month_name}" if winner.period_type == "awal" else f"Akhir {current_month_name}"
+        winners_data.append({
+            "name": winner.member_name,
+            "nim": winner.member_id or "-",
+            "visit_count": winner.visit_count,
+            "period": period_label,
+            "period_type": winner.period_type,
+        })
+
     return render_template(
         "guestbook_form.html",
         title="Buku Tamu",
         message=message,
         error=error,
+        winners=winners_data,
     )
 
 
@@ -943,11 +972,18 @@ def admin_members():
 
     rows = []
     for member, mtype in query:
-        expire_display = (
-            member.expire_date.strftime("%d %b %Y")
-            if member.expire_date
-            else "-"
-        )
+        # Handle expire_date as either datetime.date or string
+        if member.expire_date:
+            if isinstance(member.expire_date, str):
+                expire_display = member.expire_date
+                expire_date_formatted = member.expire_date
+            else:
+                expire_display = member.expire_date.strftime("%d %b %Y")
+                expire_date_formatted = member.expire_date.strftime("%Y-%m-%d")
+        else:
+            expire_display = "-"
+            expire_date_formatted = ""
+        
         status = "inactive" if member.is_pending else "active"
         rows.append(
             {
@@ -955,9 +991,7 @@ def admin_members():
                 "member_name": member.member_name,
                 "member_type_id": member.member_type_id or "",
                 "member_type_name": mtype.member_type_name if mtype else "-",
-                "expire_date": member.expire_date.strftime("%Y-%m-%d")
-                if member.expire_date
-                else "",
+                "expire_date": expire_date_formatted,
                 "expire_date_display": expire_display,
                 "inst_name": member.inst_name or "-",
                 "status": status,
@@ -1698,6 +1732,48 @@ def admin_report_guestbook():
         month_filter=month_filter,
         all_months=all_months,
     )
+
+
+@bp.post("/admin/pelaporan/buku-tamu/set-winner")
+@login_required
+def admin_set_guestbook_winner():
+    visitor_id = request.form.get("visitor_id", type=int)
+    month = request.form.get("month", type=int)
+    year = request.form.get("year", type=int)
+    period_type = request.form.get("period_type", "awal").strip()  # awal or akhir
+    member_name = request.form.get("member_name", "").strip()
+    member_id = request.form.get("member_id", "").strip()
+    institution = request.form.get("institution", "").strip()
+    visit_count = request.form.get("visit_count", type=int)
+    
+    if not visitor_id or not month or not year or period_type not in ["awal", "akhir"]:
+        return jsonify({"error": "Data tidak lengkap"}), 400
+    
+    # Remove existing winner for this period and type
+    GuestbookWinner.query.filter(
+        and_(
+            GuestbookWinner.period_month == month,
+            GuestbookWinner.period_year == year,
+            GuestbookWinner.period_type == period_type
+        )
+    ).delete()
+    
+    # Add new winner
+    winner = GuestbookWinner(
+        visitor_id=visitor_id,
+        member_name=member_name,
+        member_id=member_id or None,
+        institution=institution or None,
+        period_month=month,
+        period_year=year,
+        period_type=period_type,
+        visit_count=visit_count,
+    )
+    db.session.add(winner)
+    db.session.commit()
+    
+    period_label = "Awal Bulan" if period_type == "awal" else "Akhir Bulan"
+    return jsonify({"ok": True, "message": f"Pemenang {period_label} {member_name} berhasil disimpan"})
 
 
 @bp.get("/admin/sistem/hari-libur")

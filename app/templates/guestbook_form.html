@@ -28,11 +28,29 @@
           <div class="promo-icon">🎁</div>
           <div class="promo-text">
             <h3>Kesempatan Menarik Menanti Anda!</h3>
-            <p>Semakin sering Anda mengisi buku tamu harian, semakin besar peluang Anda memenangkan <strong>doorpize seru-seruan</strong> dari perpustakaan kami! 🌟</p>
+            <p>Semakin sering Anda mengisi buku tamu harian, semakin besar peluang Anda memenangkan <strong>doorpize seru-seruan</strong> dari Ruang Baca Fak. Hukum UH! 🌟</p>
             <p class="promo-detail">Setiap pengisian buku tamu adalah satu kesempatan emas untuk meraih hadiah spesial. Jangan lewatkan!</p>
           </div>
         </div>
       </section>
+
+      {% if winners %}
+      <section class="winner-section">
+        {% for winner in winners %}
+        <div class="winner-card">
+          <div class="winner-header">⭐ Pemenang {{ winner.period }} ⭐</div>
+          <div class="winner-content">
+            <div class="winner-name">{{ winner.name }}</div>
+            <div class="winner-meta">
+              <span class="winner-stat">NIM: <strong>{{ winner.nim }}</strong></span>
+              <span class="winner-stat">Berkunjung: <strong>{{ winner.visit_count }}x</strong></span>
+            </div>
+            <div class="winner-message">🎉 Selamat! Anda menang doorpize menarik! 🎉</div>
+          </div>
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
 
       <section class="guestbook-card">
         <h2>Form Buku Tamu</h2>

@@ -345,6 +345,73 @@ body {
   }
 }
 
+.winner-section {
+  margin-bottom: 24px;
+  animation: slideIn 0.6s ease-out;
+}
+
+.winner-card {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+  color: white;
+  text-align: center;
+}
+
+.winner-header {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.winner-content {
+  display: grid;
+  gap: 12px;
+}
+
+.winner-name {
+  font-size: 24px;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.winner-meta {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.winner-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.winner-stat strong {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.winner-message {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
 @media (max-width: 900px) {
   .hero-search { flex-direction: column; }
   .search-input { min-width: auto; }

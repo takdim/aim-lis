@@ -44,7 +44,7 @@
   </div>
 </div>
 
-<div class="report-section">
+  <div class="report-section">
   <div class="report-title">Daftar Pengunjung Teratas (Urutan Berdasarkan Jumlah Kunjungan Terbanyak)</div>
   <div class="table">
     <div class="table-head">
@@ -54,6 +54,7 @@
       <div class="th">Instansi</div>
       <div class="th">Jumlah Kunjungan</div>
       <div class="th">Kunjungan Terakhir</div>
+      <div class="th">Aksi</div>
     </div>
 
     {% if rows %}
@@ -67,6 +68,18 @@
           <span class="badge">{{ row.visit_count }}x</span>
         </div>
         <div class="td">{{ row.latest_visit }}</div>
+        <div class="td">
+          <div class="winner-actions">
+            <button class="btn-set-winner-awal" 
+                    onclick="setWinner('{{ row.member_name }}', '{{ row.member_id }}', '{{ row.institution }}', {{ row.visit_count }}, 'awal')">
+              📅 Awal
+            </button>
+            <button class="btn-set-winner-akhir" 
+                    onclick="setWinner('{{ row.member_name }}', '{{ row.member_id }}', '{{ row.institution }}', {{ row.visit_count }}, 'akhir')">
+              📅 Akhir
+            </button>
+          </div>
+        </div>
       </div>
       {% endfor %}
     {% else %}
@@ -143,7 +156,7 @@
 
 .table-head {
   display: grid;
-  grid-template-columns: 60px 2fr 1.2fr 1.5fr 1fr 1.5fr;
+  grid-template-columns: 60px 2fr 1.2fr 1.5fr 1fr 1.5fr 100px;
   gap: 12px;
   padding: 12px 16px;
   border-bottom: 1px solid #e5e7eb;
@@ -153,7 +166,7 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: 60px 2fr 1.2fr 1.5fr 1fr 1.5fr;
+  grid-template-columns: 60px 2fr 1.2fr 1.5fr 1fr 1.5fr 100px;
   gap: 12px;
   padding: 12px 16px;
   border-bottom: 1px solid #e5e7eb;
@@ -185,5 +198,123 @@
   text-align: center;
   color: #9ca3af;
 }
+
+.btn-set-winner {
+  display: inline-block;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-set-winner:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.winner-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-set-winner-awal,
+.btn-set-winner-akhir {
+  display: inline-block;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+  min-width: 60px;
+}
+
+.btn-set-winner-awal:hover,
+.btn-set-winner-akhir:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #10b981;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+  z-index: 1000;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 </style>
+
+<script>
+function setWinner(name, memberId, institution, visitCount, periodType) {
+  const monthInput = document.querySelector('select[name="month"]');
+  if (!monthInput.value) {
+    alert('Silakan pilih bulan terlebih dahulu');
+    return;
+  }
+  
+  const [year, month] = monthInput.value.split('-');
+  
+  const formData = new FormData();
+  formData.append('visitor_id', 1);
+  formData.append('month', month);
+  formData.append('year', year);
+  formData.append('period_type', periodType);
+  formData.append('member_name', name);
+  formData.append('member_id', memberId);
+  formData.append('institution', institution);
+  formData.append('visit_count', visitCount);
+  
+  fetch('{{ url_for("main.admin_set_guestbook_winner") }}', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      const periodLabel = periodType === 'awal' ? 'Awal Bulan' : 'Akhir Bulan';
+      showToast(`✅ ${name} ditetapkan sebagai Pemenang ${periodLabel}!`);
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      alert('Error: ' + data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Terjadi kesalahan');
+  });
+}
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+</script>
 {% endblock %}
