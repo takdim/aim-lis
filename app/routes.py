@@ -1,7 +1,7 @@
 from functools import wraps
 
 from flask import Blueprint, abort, jsonify, redirect, render_template, request, session, url_for
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import json
 
 from sqlalchemy import and_, func, or_, text
@@ -296,11 +296,17 @@ def guestbook_form():
 
     if request.method == "POST":
         name = (request.form.get("member_name") or "").strip()
+        visitor_type = (request.form.get("visitor_type") or "umum").strip()
         member_id = (request.form.get("member_id") or "").strip()
         institution = (request.form.get("institution") or "").strip()
+        institution_general = (request.form.get("institution_general") or "").strip()
 
         if not name:
             error = "Nama wajib diisi."
+        elif visitor_type == "mahasiswa" and not member_id:
+            error = "NIM wajib diisi untuk mahasiswa."
+        elif visitor_type == "mahasiswa" and not institution:
+            error = "Instansi wajib diisi untuk mahasiswa."
         else:
             # Check for duplicate entry with same name and member_id
             # Only allow 1 entry per unique name+member_id combination per day
@@ -330,19 +336,25 @@ def guestbook_form():
                 error = f"Anda sudah mengisi buku tamu hari ini, {name}. Terima kasih!"
             else:
                 member = None
-                if member_id:
+                if member_id and visitor_type == "mahasiswa":
                     member = Member.query.filter_by(member_id=member_id).first()
 
+                # Determine saved info and success message
                 if member:
                     saved_name = member.member_name
-                    saved_inst = member.inst_name or None
+                    saved_inst = member.inst_name or institution
                     success_message = f"Selamat datang, {saved_name}."
-                    if saved_inst:
-                        success_message = f"{success_message} Instansi: {saved_inst}."
                 else:
                     saved_name = name
-                    saved_inst = institution or None
-                    success_message = f"Selamat datang, {saved_name}."
+                    if visitor_type == "mahasiswa":
+                        saved_inst = institution
+                        success_message = f"Selamat datang, {saved_name}, dari {institution}."
+                    else:
+                        saved_inst = institution_general or None
+                        if saved_inst:
+                            success_message = f"Selamat datang, {saved_name}, dari {saved_inst}."
+                        else:
+                            success_message = f"Selamat datang, {saved_name}."
 
                 row = VisitorCount(
                     member_name=saved_name,
@@ -356,7 +368,9 @@ def guestbook_form():
                 return redirect(url_for("main.guestbook_form", success=1))
 
     if request.args.get("success") == "1":
-        message = session.pop("guestbook_message", None) or "Terima kasih. Buku tamu berhasil disimpan."
+        message = session.pop("guestbook_message", None)
+        if not message:
+            return redirect(url_for("main.guestbook_form"))
 
     # Get current month winners (early and late)
     today = datetime.utcnow()
@@ -984,6 +998,11 @@ def admin_members():
             expire_display = "-"
             expire_date_formatted = ""
         
+        # Format optional date fields
+        birth_date_formatted = member.birth_date.strftime("%Y-%m-%d") if member.birth_date else ""
+        register_date_formatted = member.register_date.strftime("%Y-%m-%d") if member.register_date else ""
+        member_since_formatted = member.member_since_date.strftime("%Y-%m-%d") if member.member_since_date else ""
+        
         status = "inactive" if member.is_pending else "active"
         rows.append(
             {
@@ -991,6 +1010,10 @@ def admin_members():
                 "member_name": member.member_name,
                 "member_type_id": member.member_type_id or "",
                 "member_type_name": mtype.member_type_name if mtype else "-",
+                "gender": member.gender or 0,
+                "birth_date": birth_date_formatted,
+                "register_date": register_date_formatted,
+                "member_since_date": member_since_formatted,
                 "expire_date": expire_date_formatted,
                 "expire_date_display": expire_display,
                 "inst_name": member.inst_name or "-",
@@ -1525,47 +1548,135 @@ def admin_report_collection():
 @bp.get("/admin/pelaporan/laporan-peminjaman")
 @login_required
 def admin_report_loans():
-    total_loans = db.session.query(func.count(Loan.loan_id)).scalar() or 0
-    by_gmd = (
+    month_filter = (request.args.get("month") or "").strip()
+    year_filter = (request.args.get("year") or "").strip()
+    selected_year = None
+    selected_month = None
+
+    if month_filter:
+        try:
+            selected_year, selected_month = [int(part) for part in month_filter.split("-", 1)]
+            if selected_month < 1 or selected_month > 12:
+                raise ValueError
+        except ValueError:
+            selected_year = None
+            selected_month = None
+            month_filter = ""
+
+    if not selected_year and year_filter:
+        try:
+            selected_year = int(year_filter)
+        except ValueError:
+            selected_year = None
+            year_filter = ""
+
+    loan_filters = []
+    period_label = "Semua Periode"
+    if selected_year and selected_month:
+        first_day = date(selected_year, selected_month, 1)
+        if selected_month == 12:
+            last_day = date(selected_year + 1, 1, 1) - timedelta(days=1)
+        else:
+            last_day = date(selected_year, selected_month + 1, 1) - timedelta(days=1)
+        loan_filters.extend([Loan.loan_date >= first_day, Loan.loan_date <= last_day])
+        month_names = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                       "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+        period_label = f"{month_names[selected_month - 1]} {selected_year}"
+    elif selected_year:
+        first_day = date(selected_year, 1, 1)
+        last_day = date(selected_year, 12, 31)
+        loan_filters.extend([Loan.loan_date >= first_day, Loan.loan_date <= last_day])
+        period_label = f"Tahun {selected_year}"
+
+    all_months = (
+        db.session.query(
+            func.year(Loan.loan_date).label("year"),
+            func.month(Loan.loan_date).label("month"),
+        )
+        .group_by(func.year(Loan.loan_date), func.month(Loan.loan_date))
+        .order_by(func.year(Loan.loan_date).desc(), func.month(Loan.loan_date).desc())
+        .all()
+    )
+    all_years = [
+        int(row[0])
+        for row in db.session.query(func.year(Loan.loan_date))
+        .group_by(func.year(Loan.loan_date))
+        .order_by(func.year(Loan.loan_date).desc())
+        .all()
+        if row[0]
+    ]
+
+    loans_query = db.session.query(Loan)
+    if loan_filters:
+        loans_query = loans_query.filter(*loan_filters)
+
+    total_loans = loans_query.with_entities(func.count(Loan.loan_id)).scalar() or 0
+    by_gmd_query = (
         db.session.query(MstGmd.gmd_name, func.count(Loan.loan_id))
-        .outerjoin(Biblio, Biblio.gmd_id == MstGmd.gmd_id)
-        .outerjoin(Item, Item.biblio_id == Biblio.biblio_id)
-        .outerjoin(Loan, Loan.item_code == Item.item_code)
+        .select_from(Loan)
+        .outerjoin(Item, Item.item_code == Loan.item_code)
+        .outerjoin(Biblio, Biblio.biblio_id == Item.biblio_id)
+        .outerjoin(MstGmd, MstGmd.gmd_id == Biblio.gmd_id)
+    )
+    if loan_filters:
+        by_gmd_query = by_gmd_query.filter(*loan_filters)
+    by_gmd = (
+        by_gmd_query
         .group_by(MstGmd.gmd_name)
         .order_by(func.count(Loan.loan_id).desc())
         .all()
     )
-    by_coll_type = (
+    by_coll_type_query = (
         db.session.query(MstCollType.coll_type_name, func.count(Loan.loan_id))
-        .outerjoin(Item, Item.coll_type_id == MstCollType.coll_type_id)
-        .outerjoin(Loan, Loan.item_code == Item.item_code)
+        .select_from(Loan)
+        .outerjoin(Item, Item.item_code == Loan.item_code)
+        .outerjoin(MstCollType, MstCollType.coll_type_id == Item.coll_type_id)
+    )
+    if loan_filters:
+        by_coll_type_query = by_coll_type_query.filter(*loan_filters)
+    by_coll_type = (
+        by_coll_type_query
         .group_by(MstCollType.coll_type_name)
         .order_by(func.count(Loan.loan_id).desc())
         .all()
     )
 
-    total_transactions = (
-        db.session.query(func.count(func.distinct(Loan.loan_date))).scalar() or 0
-    )
+    total_transactions = loans_query.with_entities(func.count(func.distinct(Loan.loan_date))).scalar() or 0
     avg_per_day = int(total_loans / total_transactions) if total_transactions else 0
-    daily_max = (
-        db.session.query(func.count(Loan.loan_id).label("cnt"))
-        .group_by(Loan.loan_date)
-        .order_by(func.count(Loan.loan_id).desc())
-        .limit(1)
-        .scalar()
-        or 0
-    )
-    members_borrowing = (
-        db.session.query(func.count(func.distinct(Loan.member_id))).scalar() or 0
-    )
+    daily_max_query = db.session.query(func.count(Loan.loan_id).label("cnt"))
+    if loan_filters:
+        daily_max_query = daily_max_query.filter(*loan_filters)
+    daily_max = daily_max_query.group_by(Loan.loan_date).order_by(func.count(Loan.loan_id).desc()).limit(1).scalar() or 0
+    members_borrowing = loans_query.with_entities(func.count(func.distinct(Loan.member_id))).scalar() or 0
     total_members = db.session.query(func.count(Member.member_id)).scalar() or 0
     members_never = max(total_members - members_borrowing, 0)
-    overdue = (
-        db.session.query(func.count(Loan.loan_id))
-        .filter(Loan.is_return == 0, Loan.due_date < datetime.utcnow().date())
-        .scalar()
-        or 0
+    overdue_query = db.session.query(func.count(Loan.loan_id)).filter(
+        Loan.is_return == 0, Loan.due_date < datetime.utcnow().date()
+    )
+    if loan_filters:
+        overdue_query = overdue_query.filter(*loan_filters)
+    overdue = overdue_query.scalar() or 0
+
+    monthly_rows = (
+        db.session.query(
+            func.year(Loan.loan_date).label("year"),
+            func.month(Loan.loan_date).label("month"),
+            func.count(Loan.loan_id).label("total"),
+            func.count(func.distinct(Loan.member_id)).label("members"),
+        )
+        .group_by(func.year(Loan.loan_date), func.month(Loan.loan_date))
+        .order_by(func.year(Loan.loan_date).desc(), func.month(Loan.loan_date).desc())
+        .all()
+    )
+    yearly_rows = (
+        db.session.query(
+            func.year(Loan.loan_date).label("year"),
+            func.count(Loan.loan_id).label("total"),
+            func.count(func.distinct(Loan.member_id)).label("members"),
+        )
+        .group_by(func.year(Loan.loan_date))
+        .order_by(func.year(Loan.loan_date).desc())
+        .all()
     )
 
     return render_template(
@@ -1573,6 +1684,11 @@ def admin_report_loans():
         title="Laporan Peminjaman",
         crumbs="Pelaporan / Laporan Peminjaman",
         active="report_loans",
+        month_filter=month_filter,
+        year_filter=year_filter,
+        all_months=all_months,
+        all_years=all_years,
+        period_label=period_label,
         total_loans=total_loans,
         by_gmd=[(name, int(count)) for name, count in by_gmd],
         by_coll_type=[(name, int(count)) for name, count in by_coll_type],
@@ -1582,12 +1698,17 @@ def admin_report_loans():
         members_borrowing=members_borrowing,
         members_never=members_never,
         overdue=overdue,
+        monthly_rows=monthly_rows,
+        yearly_rows=yearly_rows,
     )
 
 
 @bp.get("/admin/pelaporan/laporan-anggota")
 @login_required
 def admin_report_members():
+    today = datetime.utcnow().date()
+    
+    # Count by type
     by_type = (
         db.session.query(MstMemberType.member_type_name, func.count(Member.member_id))
         .outerjoin(Member, Member.member_type_id == MstMemberType.member_type_id)
@@ -1595,7 +1716,21 @@ def admin_report_members():
         .order_by(func.count(Member.member_id).desc())
         .all()
     )
+    
+    # Member status counts
     total_members = db.session.query(func.count(Member.member_id)).scalar() or 0
+    active_members = db.session.query(func.count(Member.member_id)).filter(
+        Member.is_pending == 0,
+        Member.expire_date >= today
+    ).scalar() or 0
+    inactive_members = db.session.query(func.count(Member.member_id)).filter(
+        Member.is_pending == 1
+    ).scalar() or 0
+    expired_members = db.session.query(func.count(Member.member_id)).filter(
+        Member.is_pending == 0,
+        Member.expire_date < today
+    ).scalar() or 0
+    
     return render_template(
         "admin/report_members.html",
         title="Laporan Anggota",
@@ -1603,6 +1738,9 @@ def admin_report_members():
         active="report_members",
         by_type=by_type,
         total_members=total_members,
+        active_members=active_members,
+        inactive_members=inactive_members,
+        expired_members=expired_members,
     )
 
 
@@ -2039,15 +2177,29 @@ def admin_member_create():
     if exists:
         return jsonify({"ok": False, "error": "ID anggota sudah digunakan."}), 400
 
+    today = datetime.utcnow().date()
+    
+    # Parse optional date fields
+    birth_date_raw = (data.get("birth_date") or "").strip()
+    birth_date = None
+    if birth_date_raw:
+        try:
+            birth_date = datetime.strptime(birth_date_raw, "%Y-%m-%d").date()
+        except:
+            pass
+    
     member = Member(
         member_id=member_id,
         member_name=member_name,
         member_type_id=data.get("member_type_id") or None,
         expire_date=expire_date_raw,
         inst_name=data.get("inst_name"),
-        input_date=datetime.utcnow().date(),
-        last_update=datetime.utcnow().date(),
-        gender=0,
+        birth_date=birth_date,
+        register_date=today,
+        member_since_date=today,
+        input_date=today,
+        last_update=today,
+        gender=int(data.get("gender") or 0),
         is_pending=1 if data.get("status") == "inactive" else 0,
     )
     db.session.add(member)
@@ -2069,7 +2221,31 @@ def admin_member_update(member_id: str):
     member.member_type_id = data.get("member_type_id") or None
     member.expire_date = expire_date_raw
     member.inst_name = data.get("inst_name")
+    member.gender = int(data.get("gender") or 0)
     member.is_pending = 1 if data.get("status") == "inactive" else 0
+    
+    # Update optional date fields
+    birth_date_raw = (data.get("birth_date") or "").strip()
+    if birth_date_raw:
+        try:
+            member.birth_date = datetime.strptime(birth_date_raw, "%Y-%m-%d").date()
+        except:
+            pass
+    
+    register_date_raw = (data.get("register_date") or "").strip()
+    if register_date_raw:
+        try:
+            member.register_date = datetime.strptime(register_date_raw, "%Y-%m-%d").date()
+        except:
+            pass
+    
+    member_since_raw = (data.get("member_since_date") or "").strip()
+    if member_since_raw:
+        try:
+            member.member_since_date = datetime.strptime(member_since_raw, "%Y-%m-%d").date()
+        except:
+            pass
+    
     member.last_update = datetime.utcnow().date()
     db.session.commit()
     return jsonify({"ok": True})
@@ -2252,6 +2428,20 @@ def admin_transaksi_loan():
     member = Member.query.get(member_id)
     if not member:
         return jsonify({"ok": False, "error": "Anggota tidak ditemukan."}), 404
+    
+    # Validate member status
+    if member.is_pending:
+        return jsonify({"ok": False, "error": "Anggota belum aktif."}), 400
+    
+    # Validate member expire date
+    today = datetime.utcnow().date()
+    if member.expire_date:
+        try:
+            expire_date = member.expire_date if isinstance(member.expire_date, type(today)) else datetime.strptime(str(member.expire_date), "%Y-%m-%d").date()
+            if expire_date < today:
+                return jsonify({"ok": False, "error": "Keanggotaan anggota sudah expired."}), 400
+        except:
+            pass
 
     item = Item.query.filter(
         or_(Item.item_code == item_code, Item.inventory_code == item_code)
@@ -2269,7 +2459,6 @@ def admin_transaksi_loan():
         if mt and mt.loan_periode:
             loan_days = mt.loan_periode
 
-    today = datetime.utcnow().date()
     due_date = today + timedelta(days=loan_days)
 
     loan = Loan(

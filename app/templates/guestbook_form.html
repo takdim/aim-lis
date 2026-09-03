@@ -5,6 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ title or "Buku Tamu" }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/opac.css') }}" />
+    <style>
+      .form-radio-group {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 4px;
+      }
+
+      .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .radio-label input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #3b82f6;
+      }
+
+      .radio-label .radio-text {
+        user-select: none;
+      }
+
+      fieldset {
+        border: 1px solid #d7dde7;
+        border-radius: 10px;
+        padding: 14px;
+        margin: 0 0 16px 0;
+      }
+
+      legend {
+        padding: 0 8px;
+        font-size: 14px;
+        color: #52607a;
+        font-weight: 600;
+      }
+    </style>
   </head>
   <body>
     <header class="opac-header">
@@ -56,24 +96,45 @@
         <h2>Form Buku Tamu</h2>
 
         {% if message %}
-          <div class="notice success">{{ message }}</div>
+          <div class="notice success" id="success-notice">{{ message }}</div>
         {% endif %}
         {% if error %}
           <div class="notice error">{{ error }}</div>
         {% endif %}
 
-        <form method="post" class="guestbook-form">
+        <form method="post" class="guestbook-form" id="guestbook-form">
+          <fieldset>
+            <legend>Tipe Pengunjung *</legend>
+            <div class="form-radio-group">
+              <label class="radio-label">
+                <input type="radio" name="visitor_type" value="umum" checked onchange="toggleVisitorFields()" />
+                <span class="radio-text">Umum</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="visitor_type" value="mahasiswa" onchange="toggleVisitorFields()" />
+                <span class="radio-text">Mahasiswa</span>
+              </label>
+            </div>
+          </fieldset>
+
           <label>
             <span>Nama Lengkap *</span>
             <input type="text" name="member_name" placeholder="Nama lengkap" required />
           </label>
-          <label>
-            <span>NIM / ID Anggota</span>
+
+          <label id="nim-field" style="display: none;">
+            <span>NIM *</span>
             <input type="text" name="member_id" placeholder="Contoh: B022252039" />
           </label>
-          <label>
-            <span>Instansi</span>
+
+          <label id="instansi-field" style="display: none;">
+            <span>Instansi *</span>
             <input type="text" name="institution" placeholder="Contoh: Fakultas Hukum" />
+          </label>
+
+          <label id="instansi-umum-field">
+            <span>Instansi/Organisasi</span>
+            <input type="text" name="institution_general" placeholder="Opsional" />
           </label>
 
           <button class="btn primary" type="submit">Simpan Buku Tamu</button>
@@ -88,16 +149,84 @@
 
     {% if message %}
     <script>
+      function toggleVisitorFields() {
+        const visitorType = document.querySelector('input[name="visitor_type"]:checked').value;
+        const nimField = document.getElementById('nim-field');
+        const instansiField = document.getElementById('instansi-field');
+        const instansiGeneralField = document.getElementById('instansi-umum-field');
+        const nimInput = document.querySelector('#nim-field input');
+        const instansiInput = document.querySelector('#instansi-field input');
+        
+        if (visitorType === 'mahasiswa') {
+          nimField.style.display = 'block';
+          instansiField.style.display = 'block';
+          instansiGeneralField.style.display = 'none';
+          nimInput.required = true;
+          instansiInput.required = true;
+        } else {
+          nimField.style.display = 'none';
+          instansiField.style.display = 'none';
+          instansiGeneralField.style.display = 'block';
+          nimInput.required = false;
+          instansiInput.required = false;
+        }
+      }
+
+      // Call on page load
+      document.addEventListener('DOMContentLoaded', toggleVisitorFields);
+      
+      // Text-to-speech functionality
       (function () {
         const text = {{ message|tojson }};
         if (!("speechSynthesis" in window) || !text) return;
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = "id-ID";
-        utter.rate = 1;
-        utter.pitch = 1;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utter);
+        
+        // Wait a bit for page to load
+        setTimeout(() => {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "id-ID";
+          utterance.rate = 0.9;
+          utterance.pitch = 1;
+          utterance.volume = 1;
+          
+          // After speech ends, return to a clean form page.
+          utterance.onend = () => {
+            setTimeout(() => {
+              window.location.replace({{ url_for('main.guestbook_form')|tojson }});
+            }, 2000);
+          };
+          
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(utterance);
+        }, 500);
       })();
+    </script>
+    {% else %}
+    <script>
+      function toggleVisitorFields() {
+        const visitorType = document.querySelector('input[name="visitor_type"]:checked').value;
+        const nimField = document.getElementById('nim-field');
+        const instansiField = document.getElementById('instansi-field');
+        const instansiGeneralField = document.getElementById('instansi-umum-field');
+        const nimInput = document.querySelector('#nim-field input');
+        const instansiInput = document.querySelector('#instansi-field input');
+        
+        if (visitorType === 'mahasiswa') {
+          nimField.style.display = 'block';
+          instansiField.style.display = 'block';
+          instansiGeneralField.style.display = 'none';
+          nimInput.required = true;
+          instansiInput.required = true;
+        } else {
+          nimField.style.display = 'none';
+          instansiField.style.display = 'none';
+          instansiGeneralField.style.display = 'block';
+          nimInput.required = false;
+          instansiInput.required = false;
+        }
+      }
+
+      // Call on page load
+      document.addEventListener('DOMContentLoaded', toggleVisitorFields);
     </script>
     {% endif %}
   </body>

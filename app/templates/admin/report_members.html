@@ -4,7 +4,7 @@
 <div class="page-header">
   <div>
     <div class="page-title">Laporan Anggota</div>
-    <div class="page-sub">Ringkasan anggota berdasarkan tipe</div>
+    <div class="page-sub">Ringkasan anggota berdasarkan tipe dan status</div>
   </div>
 </div>
 
@@ -12,6 +12,18 @@
   <div class="stat-card">
     <div class="stat-label">Total Anggota</div>
     <div class="stat-value">{{ total_members }}</div>
+  </div>
+  <div class="stat-card" style="background-color: #4CAF50;">
+    <div class="stat-label">Anggota Aktif</div>
+    <div class="stat-value">{{ active_members }}</div>
+  </div>
+  <div class="stat-card" style="background-color: #FF9800;">
+    <div class="stat-label">Belum Aktif</div>
+    <div class="stat-value">{{ inactive_members }}</div>
+  </div>
+  <div class="stat-card" style="background-color: #f44336;">
+    <div class="stat-label">Expired</div>
+    <div class="stat-value">{{ expired_members }}</div>
   </div>
 </div>
 

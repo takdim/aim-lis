@@ -4,9 +4,36 @@
 <div class="page-header">
   <div>
     <div class="page-title">Statistik Peminjaman</div>
-    <div class="page-sub">Ringkasan statistik peminjaman</div>
+    <div class="page-sub">Ringkasan statistik peminjaman - {{ period_label }}</div>
   </div>
   <button class="btn ghost">Unduh Laporan</button>
+</div>
+
+<div class="filter-section">
+  <form method="get" class="filter-form">
+    <label for="month-filter">Bulan</label>
+    <select id="month-filter" name="month" class="filter-select">
+      <option value="">Semua Bulan</option>
+      {% for year_month in all_months %}
+        {% set value = "{:04d}-{:02d}".format(year_month.year, year_month.month) %}
+        <option value="{{ value }}" {% if month_filter == value %}selected{% endif %}>
+          {{ ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][year_month.month-1] }} {{ year_month.year }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <label for="year-filter">Tahun</label>
+    <select id="year-filter" name="year" class="filter-select">
+      <option value="">Semua Tahun</option>
+      {% for year in all_years %}
+        <option value="{{ year }}" {% if year_filter == year|string and not month_filter %}selected{% endif %}>{{ year }}</option>
+      {% endfor %}
+    </select>
+
+    <button class="btn primary small" type="submit">Terapkan</button>
+    <a class="btn ghost small" href="{{ url_for('main.admin_report_loans') }}">Reset</a>
+  </form>
+  <p class="filter-info">Jika bulan dipilih, filter tahun akan mengikuti bulan tersebut.</p>
 </div>
 
 <div class="report-summary">
@@ -66,6 +93,106 @@
     <div class="report-value">{{ overdue }}</div>
   </div>
 </div>
+
+<div class="report-section">
+  <div class="report-title">Rekap Per Bulan</div>
+  <div class="table report-period-table">
+    <div class="table-head">
+      <div class="th">Periode</div>
+      <div class="th">Total Peminjaman</div>
+      <div class="th">Anggota Meminjam</div>
+    </div>
+    {% for row in monthly_rows %}
+      <div class="table-row">
+        <div class="td">
+          {{ ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][row.month-1] }} {{ row.year }}
+        </div>
+        <div class="td">{{ row.total }}</div>
+        <div class="td">{{ row.members }}</div>
+      </div>
+    {% else %}
+      <div class="table-row">
+        <div class="td full">Belum ada data peminjaman.</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="report-section">
+  <div class="report-title">Rekap Per Tahun</div>
+  <div class="table report-period-table">
+    <div class="table-head">
+      <div class="th">Tahun</div>
+      <div class="th">Total Peminjaman</div>
+      <div class="th">Anggota Meminjam</div>
+    </div>
+    {% for row in yearly_rows %}
+      <div class="table-row">
+        <div class="td">{{ row.year }}</div>
+        <div class="td">{{ row.total }}</div>
+        <div class="td">{{ row.members }}</div>
+      </div>
+    {% else %}
+      <div class="table-row">
+        <div class="td full">Belum ada data peminjaman.</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .filter-section {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .filter-form label {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .filter-select {
+    min-width: 180px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 10px;
+    background: #fff;
+    font-size: 13px;
+  }
+
+  .filter-info {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .report-section {
+    margin-top: 18px;
+  }
+
+  .report-title {
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .report-period-table .table-head,
+  .report-period-table .table-row {
+    grid-template-columns: 1.4fr 180px 180px;
+  }
+</style>
 
 <script>
   const collData = {{ by_coll_type|tojson }};

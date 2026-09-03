@@ -34,7 +34,11 @@
       <div class="table-row member-row"
         data-id="{{ row.member_id }}"
         data-name="{{ row.member_name }}"
+        data-gender="{{ row.gender }}"
+        data-birth-date="{{ row.birth_date }}"
         data-type-id="{{ row.member_type_id }}"
+        data-register-date="{{ row.register_date }}"
+        data-since-date="{{ row.member_since_date }}"
         data-expire-date="{{ row.expire_date }}"
         data-inst="{{ row.inst_name }}"
         data-status="{{ row.status }}"
@@ -85,12 +89,31 @@
           <input type="text" id="member-id" />
         </label>
         <label class="field">
+          <span>Jenis Kelamin</span>
+          <select id="member-gender">
+            <option value="0">Laki-laki</option>
+            <option value="1">Perempuan</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Tanggal Lahir</span>
+          <input type="date" id="member-birth-date" />
+        </label>
+        <label class="field">
           <span>Tipe</span>
           <select id="member-type">
             {% for t in member_types %}
             <option value="{{ t.member_type_id }}">{{ t.member_type_name }}</option>
             {% endfor %}
           </select>
+        </label>
+        <label class="field">
+          <span>Tanggal Daftar</span>
+          <input type="date" id="member-register-date" />
+        </label>
+        <label class="field">
+          <span>Berlaku Sejak</span>
+          <input type="date" id="member-since-date" />
         </label>
         <label class="field">
           <span>Berlaku Hingga</span>
@@ -152,7 +175,11 @@
           <div class="table-row member-row"
             data-id="${row.member_id}"
             data-name="${row.member_name}"
+            data-gender="${row.gender || 0}"
+            data-birth-date="${row.birth_date || ''}"
             data-type-id="${row.member_type_id}"
+            data-register-date="${row.register_date || ''}"
+            data-since-date="${row.member_since_date || ''}"
             data-expire-date="${row.expire_date}"
             data-inst="${row.inst_name}"
             data-status="${row.status}"
@@ -199,7 +226,11 @@
     if (mode === "edit" && row) {
       document.getElementById("member-name").value = row.dataset.name || "";
       document.getElementById("member-id").value = row.dataset.id || "";
+      document.getElementById("member-gender").value = row.dataset.gender || "0";
+      document.getElementById("member-birth-date").value = row.dataset.birthDate || "";
       document.getElementById("member-type").value = row.dataset.typeId || "";
+      document.getElementById("member-register-date").value = row.dataset.registerDate || "";
+      document.getElementById("member-since-date").value = row.dataset.sinceDate || "";
       document.getElementById("member-expire").value = row.dataset.expireDate || "";
       document.getElementById("member-inst").value = row.dataset.inst || "";
       document.getElementById("member-status").value = row.dataset.status || "active";
@@ -207,7 +238,11 @@
     } else {
       document.getElementById("member-name").value = "";
       document.getElementById("member-id").value = "";
+      document.getElementById("member-gender").value = "0";
+      document.getElementById("member-birth-date").value = "";
       document.getElementById("member-type").value = "";
+      document.getElementById("member-register-date").value = "";
+      document.getElementById("member-since-date").value = "";
       document.getElementById("member-expire").value = "";
       document.getElementById("member-inst").value = "";
       document.getElementById("member-status").value = "active";
@@ -226,7 +261,11 @@
     const payload = {
       member_id: document.getElementById("member-id").value.trim(),
       member_name: document.getElementById("member-name").value.trim(),
+      gender: document.getElementById("member-gender").value,
+      birth_date: document.getElementById("member-birth-date").value,
       member_type_id: document.getElementById("member-type").value,
+      register_date: document.getElementById("member-register-date").value,
+      member_since_date: document.getElementById("member-since-date").value,
       expire_date: document.getElementById("member-expire").value,
       inst_name: document.getElementById("member-inst").value.trim(),
       status: document.getElementById("member-status").value,
