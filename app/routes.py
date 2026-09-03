@@ -4,7 +4,7 @@ from flask import Blueprint, abort, jsonify, redirect, render_template, request,
 from datetime import date, datetime, timedelta
 import json
 
-from sqlalchemy import and_, func, or_, text
+from sqlalchemy import and_, case, func, or_, text
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
@@ -1707,40 +1707,149 @@ def admin_report_loans():
 @login_required
 def admin_report_members():
     today = datetime.utcnow().date()
+    month_filter = (request.args.get("month") or "").strip()
+    year_filter = (request.args.get("year") or "").strip()
+    selected_year = None
+    selected_month = None
+
+    if month_filter:
+        try:
+            selected_year, selected_month = [int(part) for part in month_filter.split("-", 1)]
+            if selected_month < 1 or selected_month > 12:
+                raise ValueError
+        except ValueError:
+            selected_year = None
+            selected_month = None
+            month_filter = ""
+
+    if not selected_year and year_filter:
+        try:
+            selected_year = int(year_filter)
+        except ValueError:
+            selected_year = None
+            year_filter = ""
+
+    member_filters = []
+    period_label = "Semua Periode"
+    month_names = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                   "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+    if selected_year and selected_month:
+        first_day = date(selected_year, selected_month, 1)
+        if selected_month == 12:
+            last_day = date(selected_year + 1, 1, 1) - timedelta(days=1)
+        else:
+            last_day = date(selected_year, selected_month + 1, 1) - timedelta(days=1)
+        member_filters.extend([Member.register_date >= first_day, Member.register_date <= last_day])
+        period_label = f"{month_names[selected_month - 1]} {selected_year}"
+    elif selected_year:
+        first_day = date(selected_year, 1, 1)
+        last_day = date(selected_year, 12, 31)
+        member_filters.extend([Member.register_date >= first_day, Member.register_date <= last_day])
+        period_label = f"Tahun {selected_year}"
+
+    all_months = (
+        db.session.query(
+            func.year(Member.register_date).label("year"),
+            func.month(Member.register_date).label("month"),
+        )
+        .filter(Member.register_date.isnot(None))
+        .group_by(func.year(Member.register_date), func.month(Member.register_date))
+        .order_by(func.year(Member.register_date).desc(), func.month(Member.register_date).desc())
+        .all()
+    )
+    all_years = [
+        int(row[0])
+        for row in db.session.query(func.year(Member.register_date))
+        .filter(Member.register_date.isnot(None))
+        .group_by(func.year(Member.register_date))
+        .order_by(func.year(Member.register_date).desc())
+        .all()
+        if row[0]
+    ]
+
+    members_query = db.session.query(Member)
+    if member_filters:
+        members_query = members_query.filter(*member_filters)
     
     # Count by type
-    by_type = (
+    by_type_query = (
         db.session.query(MstMemberType.member_type_name, func.count(Member.member_id))
-        .outerjoin(Member, Member.member_type_id == MstMemberType.member_type_id)
+        .select_from(Member)
+        .outerjoin(MstMemberType, MstMemberType.member_type_id == Member.member_type_id)
+    )
+    if member_filters:
+        by_type_query = by_type_query.filter(*member_filters)
+    by_type = (
+        by_type_query
         .group_by(MstMemberType.member_type_name)
         .order_by(func.count(Member.member_id).desc())
         .all()
     )
     
     # Member status counts
-    total_members = db.session.query(func.count(Member.member_id)).scalar() or 0
-    active_members = db.session.query(func.count(Member.member_id)).filter(
+    total_members = members_query.with_entities(func.count(Member.member_id)).scalar() or 0
+    active_query = db.session.query(func.count(Member.member_id)).filter(
         Member.is_pending == 0,
         Member.expire_date >= today
-    ).scalar() or 0
-    inactive_members = db.session.query(func.count(Member.member_id)).filter(
+    )
+    inactive_query = db.session.query(func.count(Member.member_id)).filter(
         Member.is_pending == 1
-    ).scalar() or 0
-    expired_members = db.session.query(func.count(Member.member_id)).filter(
+    )
+    expired_query = db.session.query(func.count(Member.member_id)).filter(
         Member.is_pending == 0,
         Member.expire_date < today
-    ).scalar() or 0
+    )
+    if member_filters:
+        active_query = active_query.filter(*member_filters)
+        inactive_query = inactive_query.filter(*member_filters)
+        expired_query = expired_query.filter(*member_filters)
+    active_members = active_query.scalar() or 0
+    inactive_members = inactive_query.scalar() or 0
+    expired_members = expired_query.scalar() or 0
+
+    monthly_rows = (
+        db.session.query(
+            func.year(Member.register_date).label("year"),
+            func.month(Member.register_date).label("month"),
+            func.count(Member.member_id).label("total"),
+            func.sum(case((Member.is_pending == 0, 1), else_=0)).label("active"),
+            func.sum(case((Member.is_pending == 1, 1), else_=0)).label("inactive"),
+        )
+        .filter(Member.register_date.isnot(None))
+        .group_by(func.year(Member.register_date), func.month(Member.register_date))
+        .order_by(func.year(Member.register_date).desc(), func.month(Member.register_date).desc())
+        .all()
+    )
+    yearly_rows = (
+        db.session.query(
+            func.year(Member.register_date).label("year"),
+            func.count(Member.member_id).label("total"),
+            func.sum(case((Member.is_pending == 0, 1), else_=0)).label("active"),
+            func.sum(case((Member.is_pending == 1, 1), else_=0)).label("inactive"),
+        )
+        .filter(Member.register_date.isnot(None))
+        .group_by(func.year(Member.register_date))
+        .order_by(func.year(Member.register_date).desc())
+        .all()
+    )
     
     return render_template(
         "admin/report_members.html",
         title="Laporan Anggota",
         crumbs="Pelaporan / Laporan Anggota",
         active="report_members",
+        month_filter=month_filter,
+        year_filter=year_filter,
+        all_months=all_months,
+        all_years=all_years,
+        period_label=period_label,
         by_type=by_type,
         total_members=total_members,
         active_members=active_members,
         inactive_members=inactive_members,
         expired_members=expired_members,
+        monthly_rows=monthly_rows,
+        yearly_rows=yearly_rows,
     )
 
 
