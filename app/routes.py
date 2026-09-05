@@ -1032,10 +1032,20 @@ def admin_members():
             expire_display = "-"
             expire_date_formatted = ""
         
-        # Format optional date fields
-        birth_date_formatted = member.birth_date.strftime("%Y-%m-%d") if member.birth_date else ""
-        register_date_formatted = member.register_date.strftime("%Y-%m-%d") if member.register_date else ""
-        member_since_formatted = member.member_since_date.strftime("%Y-%m-%d") if member.member_since_date else ""
+        # Format optional date fields - handle both string and date objects
+        def format_optional_date(value):
+            if not value:
+                return ""
+            if isinstance(value, str):
+                return value
+            try:
+                return value.strftime("%Y-%m-%d")
+            except:
+                return ""
+        
+        birth_date_formatted = format_optional_date(member.birth_date)
+        register_date_formatted = format_optional_date(member.register_date)
+        member_since_formatted = format_optional_date(member.member_since_date)
         
         status = "inactive" if member.is_pending else "active"
         rows.append(
@@ -2428,12 +2438,8 @@ def _build_member_payload(member: Member):
         "member_name": member.member_name,
         "member_email": member.member_email or "",
         "member_type_name": member_type.member_type_name if member_type else "-",
-        "register_date": member.register_date.strftime("%d %b %Y")
-        if member.register_date
-        else "-",
-        "expire_date": member.expire_date.strftime("%d %b %Y")
-        if member.expire_date
-        else "-",
+        "register_date": _format_date(member.register_date, "%d %b %Y", "-"),
+        "expire_date": _format_date(member.expire_date, "%d %b %Y", "-"),
         "fine_each_day": member_type.fine_each_day if member_type else 0,
     }
 
