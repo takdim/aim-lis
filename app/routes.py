@@ -42,6 +42,40 @@ from .models import (
 
 bp = Blueprint("main", __name__)
 
+
+def _normalize_member_id(member_id: str) -> str:
+    return (member_id or "").strip().upper()
+
+
+def _get_member_by_id(member_id: str):
+    normalized = _normalize_member_id(member_id)
+    if not normalized:
+        return None
+    member = Member.query.get(normalized)
+    if member:
+        return member
+    return Member.query.filter(
+        func.lower(func.trim(Member.member_id)) == normalized.lower()
+    ).first()
+
+
+def _parse_form_date(value: str):
+    value = (value or "").strip()
+    if not value or value == "0000-00-00":
+        return None
+    return datetime.strptime(value, "%Y-%m-%d").date()
+
+
+def _format_date(value, fmt="%d %b %Y", fallback="-"):
+    if not value or str(value) == "0000-00-00":
+        return fallback
+    if isinstance(value, str):
+        try:
+            value = datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return fallback
+    return value.strftime(fmt)
+
 _PRIV_MAP = {
     "biblio": {
         "admin_biblio",
@@ -2282,6 +2316,11 @@ def admin_member_create():
     if not member_id or not member_name or not expire_date_raw:
         return jsonify({"ok": False, "error": "ID, Nama, dan Berlaku Hingga wajib diisi."}), 400
 
+    # Validate expire_date format
+    expire_date = _parse_form_date(expire_date_raw)
+    if not expire_date:
+        return jsonify({"ok": False, "error": "Format Berlaku Hingga tidak valid (gunakan YYYY-MM-DD)."}), 400
+
     exists = Member.query.filter_by(member_id=member_id).first()
     if exists:
         return jsonify({"ok": False, "error": "ID anggota sudah digunakan."}), 400
@@ -2289,23 +2328,19 @@ def admin_member_create():
     today = datetime.utcnow().date()
     
     # Parse optional date fields
-    birth_date_raw = (data.get("birth_date") or "").strip()
-    birth_date = None
-    if birth_date_raw:
-        try:
-            birth_date = datetime.strptime(birth_date_raw, "%Y-%m-%d").date()
-        except:
-            pass
+    birth_date = _parse_form_date(data.get("birth_date"))
+    register_date = _parse_form_date(data.get("register_date"))
+    member_since_date = _parse_form_date(data.get("member_since_date"))
     
     member = Member(
         member_id=member_id,
         member_name=member_name,
         member_type_id=data.get("member_type_id") or None,
-        expire_date=expire_date_raw,
+        expire_date=expire_date,
         inst_name=data.get("inst_name"),
         birth_date=birth_date,
-        register_date=today,
-        member_since_date=today,
+        register_date=register_date or today,
+        member_since_date=member_since_date or today,
         input_date=today,
         last_update=today,
         gender=int(data.get("gender") or 0),
@@ -2326,34 +2361,30 @@ def admin_member_update(member_id: str):
     if not name or not expire_date_raw:
         return jsonify({"ok": False, "error": "Nama dan Berlaku Hingga wajib diisi."}), 400
 
+    # Validate expire_date format
+    expire_date = _parse_form_date(expire_date_raw)
+    if not expire_date:
+        return jsonify({"ok": False, "error": "Format Berlaku Hingga tidak valid (gunakan YYYY-MM-DD)."}), 400
+
     member.member_name = name
     member.member_type_id = data.get("member_type_id") or None
-    member.expire_date = expire_date_raw
+    member.expire_date = expire_date
     member.inst_name = data.get("inst_name")
     member.gender = int(data.get("gender") or 0)
     member.is_pending = 1 if data.get("status") == "inactive" else 0
     
     # Update optional date fields
-    birth_date_raw = (data.get("birth_date") or "").strip()
-    if birth_date_raw:
-        try:
-            member.birth_date = datetime.strptime(birth_date_raw, "%Y-%m-%d").date()
-        except:
-            pass
+    birth_date = _parse_form_date(data.get("birth_date"))
+    if birth_date:
+        member.birth_date = birth_date
     
-    register_date_raw = (data.get("register_date") or "").strip()
-    if register_date_raw:
-        try:
-            member.register_date = datetime.strptime(register_date_raw, "%Y-%m-%d").date()
-        except:
-            pass
+    register_date = _parse_form_date(data.get("register_date"))
+    if register_date:
+        member.register_date = register_date
     
-    member_since_raw = (data.get("member_since_date") or "").strip()
-    if member_since_raw:
-        try:
-            member.member_since_date = datetime.strptime(member_since_raw, "%Y-%m-%d").date()
-        except:
-            pass
+    member_since_date = _parse_form_date(data.get("member_since_date"))
+    if member_since_date:
+        member.member_since_date = member_since_date
     
     member.last_update = datetime.utcnow().date()
     db.session.commit()
