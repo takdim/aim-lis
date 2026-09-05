@@ -54,7 +54,13 @@ with app.app_context():
                 print("\n✗ Dibatalkan.")
         
         elif choice == "2":
-            new_expire_date = datetime.utcnow().date() + timedelta(days=365)
+            years_input = input("\nBerapa tahun expire_date? (default 1 tahun, contoh: 5): ").strip()
+            try:
+                years = int(years_input) if years_input else 1
+            except ValueError:
+                years = 1
+            
+            new_expire_date = datetime.utcnow().date() + timedelta(days=365 * years)
             count = 0
             
             for member in members_with_invalid_dates:
@@ -62,7 +68,7 @@ with app.app_context():
                 count += 1
             
             db.session.commit()
-            print(f"\n✓ Berhasil update expire_date untuk {count} member ke: {new_expire_date}")
+            print(f"\n✓ Berhasil update expire_date untuk {count} member ke: {new_expire_date} ({years} tahun)")
         
         else:
             print("\n✗ Dibatalkan.")
