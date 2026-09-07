@@ -1300,13 +1300,35 @@ h1, h2, h3, .brand-title, .page-title, .panel-title, .section-title, .form-title
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+.label-barcode {
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 225px;
+}
+
+.label-barcode-rot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 28px;
+  transform: rotate(-90deg) scale(2);
+  transform-origin: center center;
 }
 
 .label-barcode svg {
-  width: 100%;
-  max-width: 120px;
-  height: 36px;
+  width: 150px;
+  height: 28px;
+  max-width: none;
   shape-rendering: crispEdges;
+  display: block;
+  transform: none !important;
 }
 
 .label-code {
@@ -1316,15 +1338,6 @@ h1, h2, h3, .brand-title, .page-title, .panel-title, .section-title, .form-title
   margin-top: 2px;
   align-items: center;
   justify-content: center;
-}
-
-.label-barcode {
-  margin-top: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 36px;
 }
 
 

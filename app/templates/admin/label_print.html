@@ -170,13 +170,21 @@
                   // Buat elemen SVG baru
                   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
                   JsBarcode(svg, code, {
-                      displayValue: false, // Karena kita sudah punya codeTextEl
-                      height: 40,
+                      displayValue: false,
+                      height: 150,
                       width: 2,
                       margin: 0,
+                      quite: 0,
                   });
+
+                  const rotator = document.createElement('div');
+                  rotator.className = 'label-barcode-rot';
+                  rotator.style.transform = 'rotate(-90deg) scale(2)';
+                  rotator.style.transformOrigin = 'center center';
+                  rotator.appendChild(svg);
+
                   barcodeContainer.innerHTML = ""; // Bersihkan placeholder
-                  barcodeContainer.appendChild(svg);
+                  barcodeContainer.appendChild(rotator);
               } catch (err) {
                   console.error("JsBarcode error", code, err);
                   barcodeContainer.textContent = "FORMAT ERROR";
