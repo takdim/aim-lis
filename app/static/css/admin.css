@@ -1161,11 +1161,23 @@ h1, h2, h3, .brand-title, .page-title, .panel-title, .section-title, .form-title
   border: 1px solid #1c1c1c;
   padding: 10px;
   font-size: 11px;
+  width: 100%;
+  max-width: 250px;
+  min-height: 210px;
+  box-sizing: border-box;
+  page-break-inside: avoid;
+}
+
+.slip-barcode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .slip-barcode svg {
   max-width: 100%;
-  height: 40px;
+  height: 38px;
+  width: 100%;
 }
 
 .slip-title {
@@ -1225,34 +1237,38 @@ h1, h2, h3, .brand-title, .page-title, .panel-title, .section-title, .form-title
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 4px;
+  gap: 6px;
+  box-sizing: border-box;
+  page-break-inside: avoid;
 }
 
 .label-body {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   justify-content: space-between;
-  align-items: stretch;
+  align-items: center;
 }
 
 .label-info {
   flex: 1;
-  margin-left: 30px;
+  margin-left: 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
 }
 
 .label-bar {
-  width: 54px;
+  width: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   border-right: 2px solid #1c1c1c;
-  padding-right: 6px;
+  padding-right: 8px;
 }
 
 .label-top {
@@ -1269,71 +1285,163 @@ h1, h2, h3, .brand-title, .page-title, .panel-title, .section-title, .form-title
 }
 
 .label-call {
-  font-size: 40px;
+  font-size: 36px;
   font-weight: 800;
+  line-height: 1;
 }
 
 .label-call-small {
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.1;
 }
 
-
+.label-barcode-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 
 .label-barcode svg {
-  width: 120px;
+  width: 100%;
+  max-width: 120px;
   height: 36px;
-  transform-origin: center;
-  shape-rendering: crispEdges; 
+  shape-rendering: crispEdges;
 }
 
 .label-code {
-  height: 10px;
+  height: 12px;
   display: flex;
   font-size: 10px;
-  margin-top: 5px;
-  transform-origin: center;
+  margin-top: 2px;
   align-items: center;
   justify-content: center;
 }
-
 
 .label-barcode {
-  margin-top: 4px;
-  height: 120px;
+  margin-top: 2px;
   display: flex;
-  transform: rotate(-90deg);
-  transform-origin: center;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-height: 36px;
 }
 
 
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
 @media print {
+  html, body {
+    width: 100%;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+
   body * {
     visibility: hidden;
   }
 
   .print-area,
-  .print-area * {
-    visibility: visible;
+  .print-area *,
+  .print-area-label,
+  .print-area-label *,
+  .print-area-slip,
+  .print-area-slip * {
+    visibility: visible !important;
   }
 
-  body.print-label .print-area-slip {
-    display: none !important;
-  }
-
+  body.print-label .print-area-slip,
   body.print-slip .print-area-label {
     display: none !important;
   }
 
+  body.print-label .print-area-label,
+  body.print-slip .print-area-slip {
+    display: block !important;
+  }
+
+  .sidebar,
+  .page-header,
+  .search-bar,
+  .pagination,
+  .table,
+  .print-area:not(.print-area-label):not(.print-area-slip),
+  .preview-title,
+  .page-sub,
+  .btn-group {
+    display: none !important;
+  }
+
   .print-area {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    padding: 0;
-    border: none;
-    background: white;
+    position: static !important;
+    display: block !important;
+    width: 84mm !important;
+    max-width: 84mm !important;
+    min-width: 84mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: white !important;
+    float: left !important;
+    clear: left !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .preview-panel {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: white !important;
+    width: 84mm !important;
+    float: left !important;
+    clear: left !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .preview-grid,
+  .slip-grid {
+    display: block !important;
+    width: 84mm !important;
+    max-width: 84mm !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    float: left !important;
+    clear: left !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .label-card,
+  .slip-card {
+    display: block !important;
+    width: 70mm !important;
+    max-width: 70mm !important;
+    min-width: 70mm !important;
+    margin: 0 0 8mm 0 !important;
+    float: left !important;
+    clear: left !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+
+  .label-card {
+    height: auto !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 8mm 8mm 8mm 8mm;
   }
 }
 
