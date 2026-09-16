@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import Blueprint, abort, jsonify, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, session, url_for
 from datetime import date, datetime, timedelta
 import json
 
@@ -41,6 +41,38 @@ from .models import (
 )
 
 bp = Blueprint("main", __name__)
+
+
+def _parse_iso_datetime(value: str | None):
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+@bp.before_app_request
+def _handle_idle_session_timeout():
+    endpoint = request.endpoint or ""
+    if endpoint.startswith("static"):
+        return
+    if endpoint in ("main.login", "main.logout"):
+        return
+    if not session.get("user_id"):
+        return
+
+    timeout_minutes = max(int(current_app.config.get("SESSION_IDLE_TIMEOUT_MINUTES", 120)), 1)
+    now = datetime.utcnow()
+    last_activity = _parse_iso_datetime(session.get("_last_activity_at"))
+
+    if last_activity and (now - last_activity) > timedelta(minutes=timeout_minutes):
+        session.clear()
+        return redirect(url_for("main.login"))
+
+    session.permanent = True
+    session["_last_activity_at"] = now.isoformat()
+    session.modified = True
 
 
 def _normalize_member_id(member_id: str) -> str:
@@ -248,7 +280,10 @@ def login():
         if not user or not check_password_hash(user.passwd, password):
             message = "Username atau password salah."
         else:
+            session.clear()
             session["user_id"] = user.user_id
+            session.permanent = True
+            session["_last_activity_at"] = datetime.utcnow().isoformat()
             return redirect(url_for("main.admin_dashboard"))
 
     return render_template("login.html", message=message)
