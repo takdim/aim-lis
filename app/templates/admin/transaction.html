@@ -19,8 +19,9 @@
 <div class="transaction-grid hidden" id="transaction-panel">
   <div class="transaction-left">
     <div class="panel">
-      <div class="panel-header">
+      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div class="panel-title">Detail Keanggotaan</div>
+        <button class="btn danger" id="trigger-fine-btn" type="button" style="padding: 4px 10px; font-size: 12px;">+ Kena Denda</button>
       </div>
       <div class="panel-body detail-grid" id="member-detail"></div>
     </div>
@@ -59,6 +60,53 @@
   <div class="empty-title">Masukkan NIM/ID anggota untuk mulai transaksi</div>
 </div>
 
+<!-- Modal Tambah Denda -->
+<div class="modal" id="fine-modal" aria-hidden="true">
+  <div class="modal-card" style="max-width: 480px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Tandai Denda Anggota</div>
+        <div class="modal-sub" id="fine-modal-sub">-</div>
+      </div>
+      <button class="btn ghost" type="button" id="close-fine-modal">Tutup</button>
+    </div>
+    <div class="modal-body">
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <label class="field">
+          <span>Nominal Denda (Rp) *</span>
+          <input type="number" id="fine-amount-input" min="1" step="500" placeholder="Contoh: 5000" />
+        </label>
+        <label class="field">
+          <span>Keterangan / Alasan Denda</span>
+          <input type="text" id="fine-desc-input" placeholder="Contoh: Keterlambatan / Buku rusak / Ganti barcode" />
+        </label>
+        <div class="hint danger" id="fine-error-hint" style="color: #ef4444; font-size: 13px; display: none;"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-fine-modal">Batal</button>
+      <button class="btn danger" type="button" id="submit-fine-modal">Simpan Denda</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi (Perpanjang & Kembali) -->
+<div class="modal" id="confirm-modal" aria-hidden="true">
+  <div class="modal-card" style="max-width: 480px;">
+    <div class="modal-header">
+      <div class="modal-title" id="confirm-modal-title">Konfirmasi</div>
+      <button class="btn ghost" type="button" id="close-confirm-modal">Tutup</button>
+    </div>
+    <div class="modal-body" id="confirm-modal-body">
+      <!-- Diisi secara dinamis -->
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="cancel-confirm-modal">Batal</button>
+      <button class="btn primary" type="button" id="proceed-confirm-modal">Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const memberInput = document.getElementById("member-search");
   const transactionPanel = document.getElementById("transaction-panel");
@@ -71,8 +119,50 @@
   const tabCurrent = document.getElementById("tab-current");
   const tabFine = document.getElementById("tab-fine");
   const tabHistory = document.getElementById("tab-history");
+  const finishBtn = document.getElementById("finish-btn");
+
+  // Fine Modal Elements
+  const fineModal = document.getElementById("fine-modal");
+  const fineModalSub = document.getElementById("fine-modal-sub");
+  const fineAmountInput = document.getElementById("fine-amount-input");
+  const fineDescInput = document.getElementById("fine-desc-input");
+  const fineErrorHint = document.getElementById("fine-error-hint");
+  const closeFineModal = document.getElementById("close-fine-modal");
+  const cancelFineModal = document.getElementById("cancel-fine-modal");
+  const submitFineModal = document.getElementById("submit-fine-modal");
+  const triggerFineBtn = document.getElementById("trigger-fine-btn");
+
+  // Confirm Modal Elements
+  const confirmModal = document.getElementById("confirm-modal");
+  const confirmModalTitle = document.getElementById("confirm-modal-title");
+  const confirmModalBody = document.getElementById("confirm-modal-body");
+  const closeConfirmModal = document.getElementById("close-confirm-modal");
+  const cancelConfirmModal = document.getElementById("cancel-confirm-modal");
+  const proceedConfirmModal = document.getElementById("proceed-confirm-modal");
 
   let activeMember = null;
+  let currentLoans = [];
+  let pendingAction = null;
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function openModal(modalEl) {
+    modalEl.setAttribute("aria-hidden", "false");
+    modalEl.classList.add("show");
+  }
+
+  function closeModal(modalEl) {
+    modalEl.setAttribute("aria-hidden", "true");
+    modalEl.classList.remove("show");
+  }
 
   function renderDetail(member) {
     const rows = [
@@ -87,30 +177,31 @@
       .map(
         ([label, value]) => `
           <div class="detail-row">
-            <div class="detail-label">${label}</div>
-            <div class="detail-value">${value}</div>
+            <div class="detail-label">${escapeHtml(label)}</div>
+            <div class="detail-value">${escapeHtml(value)}</div>
           </div>`
       )
       .join("");
   }
 
   function renderCurrent(loans) {
-    currentCount.textContent = loans.length;
-    if (!loans.length) {
+    currentLoans = loans || [];
+    currentCount.textContent = currentLoans.length;
+    if (!currentLoans.length) {
       tabCurrent.innerHTML = '<div class="empty-mini">Belum ada pinjaman aktif.</div>';
       return;
     }
-    tabCurrent.innerHTML = loans
+    tabCurrent.innerHTML = currentLoans
       .map(
         (loan) => `
         <div class="loan-card">
           <div>
-            <div class="loan-title">${loan.title}</div>
-            <div class="loan-meta">${loan.item_code}</div>
+            <div class="loan-title">${escapeHtml(loan.title)}</div>
+            <div class="loan-meta">${escapeHtml(loan.item_code)}</div>
             <div class="loan-meta">Pinjam: ${loan.loan_date} · Kembali: ${loan.due_date}</div>
             ${
               loan.fine_amount && loan.fine_amount > 0
-                ? `<div class="loan-meta danger">Denda: Rp ${loan.fine_amount}</div>`
+                ? `<div class="loan-meta danger">Denda: Rp ${Number(loan.fine_amount).toLocaleString("id-ID")}</div>`
                 : ""
             }
           </div>
@@ -124,8 +215,17 @@
   }
 
   function renderFines(fines) {
-    if (!fines.items.length) {
-      tabFine.innerHTML = '<div class="empty-mini">Tidak ada denda.</div>';
+    const totalAmount = Number(fines.total || 0);
+    const hasItems = fines.items && fines.items.length > 0;
+    const headerHtml = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap;">
+        <div class="fine-total" style="margin-bottom: 0;">Total Denda: Rp ${totalAmount.toLocaleString("id-ID")}</div>
+        <button class="btn danger" id="tab-add-fine-btn" type="button" style="padding: 6px 12px; font-size: 13px;">+ Tambah Denda</button>
+      </div>
+    `;
+
+    if (!hasItems) {
+      tabFine.innerHTML = headerHtml + '<div class="empty-mini">Tidak ada denda.</div>';
       return;
     }
     const items = fines.items
@@ -133,18 +233,18 @@
         (fine) => `
         <div class="loan-card">
           <div>
-            <div class="loan-title">${fine.title || "Denda"}</div>
-            <div class="loan-meta">${fine.item_code || "-"}</div>
+            <div class="loan-title">${escapeHtml(fine.title || "Denda")}</div>
+            <div class="loan-meta">${escapeHtml(fine.item_code || "-")}</div>
             <div class="loan-meta">${
               fine.days_late !== null && fine.days_late !== undefined
-                ? `Terlambat ${fine.days_late} hari · Rp ${fine.amount}`
-                : `Total denda · Rp ${fine.amount}`
+                ? `Terlambat ${fine.days_late} hari · Rp ${Number(fine.amount).toLocaleString("id-ID")}`
+                : `Denda · Rp ${Number(fine.amount).toLocaleString("id-ID")}`
             }</div>
           </div>
         </div>`
       )
       .join("");
-    tabFine.innerHTML = `<div class="fine-total">Total Denda: Rp ${fines.total}</div>${items}`;
+    tabFine.innerHTML = headerHtml + items;
   }
 
   function renderHistory(history) {
@@ -157,11 +257,11 @@
         (loan) => `
         <div class="loan-card">
           <div>
-            <div class="loan-title">${loan.title}</div>
-            <div class="loan-meta">${loan.item_code}</div>
+            <div class="loan-title">${escapeHtml(loan.title)}</div>
+            <div class="loan-meta">${escapeHtml(loan.item_code)}</div>
             <div class="loan-meta">Pinjam: ${loan.loan_date} · Kembali: ${loan.return_date || '-'} </div>
           </div>
-          <div class="badge ${loan.status}">${loan.status_label}</div>
+          <div class="badge ${loan.status}">${escapeHtml(loan.status_label)}</div>
         </div>`
       )
       .join("");
@@ -222,6 +322,35 @@
     setActiveTab("current");
   }
 
+  // Konfirmasi Pengembalian
+  function askConfirmReturn(loanId) {
+    const loan = currentLoans.find((l) => String(l.loan_id) === String(loanId));
+    const title = loan ? loan.title : "Buku ini";
+    const code = loan ? loan.item_code : "-";
+    const loanDate = loan ? loan.loan_date : "-";
+    const dueDate = loan ? loan.due_date : "-";
+    const fineNotice = (loan && loan.fine_amount > 0)
+      ? `<div style="margin-top: 12px; padding: 10px 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; color: #ef4444; font-size: 13px;">
+          <strong>Perhatian:</strong> Peminjaman ini memiliki denda keterlambatan sebesar <strong>Rp ${Number(loan.fine_amount).toLocaleString("id-ID")}</strong>.
+        </div>`
+      : "";
+
+    confirmModalTitle.textContent = "Konfirmasi Pengembalian";
+    confirmModalBody.innerHTML = `
+      <p style="margin-bottom: 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin memproses <strong>pengembalian</strong> untuk eksemplar berikut?</p>
+      <div style="background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+        <div style="font-weight: 600; font-size: 14px; color: var(--text);">${escapeHtml(title)}</div>
+        <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Kode Eksemplar: <code>${escapeHtml(code)}</code></div>
+        <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">Tgl Pinjam: ${loanDate} · Jatuh Tempo: ${dueDate}</div>
+      </div>
+      ${fineNotice}
+    `;
+    proceedConfirmModal.textContent = "Ya, Kembalikan";
+    proceedConfirmModal.className = "btn primary";
+    pendingAction = () => returnItem(loanId);
+    openModal(confirmModal);
+  }
+
   async function returnItem(loanId) {
     const res = await fetch("/admin/transaksi/return", {
       method: "POST",
@@ -238,34 +367,27 @@
     renderHistory(data.history);
   }
 
-  memberInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      loadMember();
-    }
-  });
-  borrowBtn.addEventListener("click", borrowItem);
-  itemCodeInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      borrowItem();
-    }
-  });
+  // Konfirmasi Perpanjang
+  function askConfirmRenew(loanId) {
+    const loan = currentLoans.find((l) => String(l.loan_id) === String(loanId));
+    const title = loan ? loan.title : "Buku ini";
+    const code = loan ? loan.item_code : "-";
+    const dueDate = loan ? loan.due_date : "-";
 
-  document.addEventListener("click", (event) => {
-    const tabBtn = event.target.closest(".tab");
-    if (tabBtn) {
-      setActiveTab(tabBtn.dataset.tab);
-    }
-    const returnBtn = event.target.closest("[data-return]");
-    if (returnBtn) {
-      returnItem(returnBtn.dataset.return);
-    }
-    const renewBtn = event.target.closest("[data-renew]");
-    if (renewBtn) {
-      renewItem(renewBtn.dataset.renew);
-    }
-  });
+    confirmModalTitle.textContent = "Konfirmasi Perpanjangan";
+    confirmModalBody.innerHTML = `
+      <p style="margin-bottom: 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin <strong>memperpanjang</strong> masa peminjaman eksemplar berikut?</p>
+      <div style="background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+        <div style="font-weight: 600; font-size: 14px; color: var(--text);">${escapeHtml(title)}</div>
+        <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Kode Eksemplar: <code>${escapeHtml(code)}</code></div>
+        <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">Jatuh Tempo Saat Ini: ${dueDate}</div>
+      </div>
+    `;
+    proceedConfirmModal.textContent = "Ya, Perpanjang";
+    proceedConfirmModal.className = "btn primary";
+    pendingAction = () => renewItem(loanId);
+    openModal(confirmModal);
+  }
 
   async function renewItem(loanId) {
     const res = await fetch("/admin/transaksi/renew", {
@@ -282,5 +404,146 @@
     renderHistory(data.history);
     renderFines(data.fines);
   }
+
+  // Denda Anggota
+  function openFineModal() {
+    if (!activeMember) {
+      alert("Pilih/cari anggota terlebih dahulu.");
+      return;
+    }
+    fineModalSub.textContent = `Anggota: ${activeMember.member_name} (${activeMember.member_id})`;
+    fineAmountInput.value = "";
+    fineDescInput.value = "";
+    fineErrorHint.style.display = "none";
+    fineErrorHint.textContent = "";
+    openModal(fineModal);
+    setTimeout(() => fineAmountInput.focus(), 100);
+  }
+
+  async function submitFine() {
+    if (!activeMember) return;
+    const amountVal = fineAmountInput.value.trim();
+    const descVal = fineDescInput.value.trim();
+    fineErrorHint.style.display = "none";
+    fineErrorHint.textContent = "";
+
+    const amount = parseInt(amountVal, 10);
+    if (!amount || amount <= 0) {
+      fineErrorHint.textContent = "Nominal denda harus berupa angka lebih dari 0.";
+      fineErrorHint.style.display = "block";
+      fineAmountInput.focus();
+      return;
+    }
+
+    const res = await fetch("/admin/transaksi/fine", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        member_id: activeMember.member_id,
+        amount: amount,
+        description: descVal || "Denda",
+      }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      fineErrorHint.textContent = data.error || "Gagal menambahkan denda.";
+      fineErrorHint.style.display = "block";
+      return;
+    }
+    closeModal(fineModal);
+    renderCurrent(data.current);
+    renderFines(data.fines);
+    renderHistory(data.history);
+    setActiveTab("fine");
+  }
+
+  // Event Listeners
+  memberInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      loadMember();
+    }
+  });
+
+  borrowBtn.addEventListener("click", borrowItem);
+  itemCodeInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      borrowItem();
+    }
+  });
+
+  if (finishBtn) {
+    finishBtn.addEventListener("click", () => {
+      if (!activeMember) return;
+      if (!confirm("Selesaikan transaksi untuk anggota saat ini?")) return;
+      activeMember = null;
+      currentLoans = [];
+      memberInput.value = "";
+      itemCodeInput.value = "";
+      transactionPanel.classList.add("hidden");
+      emptyState.classList.remove("hidden");
+    });
+  }
+
+  // Trigger Denda Buttons
+  if (triggerFineBtn) {
+    triggerFineBtn.addEventListener("click", openFineModal);
+  }
+
+  // Fine Modal Actions
+  closeFineModal.addEventListener("click", () => closeModal(fineModal));
+  cancelFineModal.addEventListener("click", () => closeModal(fineModal));
+  submitFineModal.addEventListener("click", submitFine);
+  fineAmountInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submitFine();
+    }
+  });
+  fineDescInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submitFine();
+    }
+  });
+
+  // Confirm Modal Actions
+  closeConfirmModal.addEventListener("click", () => {
+    closeModal(confirmModal);
+    pendingAction = null;
+  });
+  cancelConfirmModal.addEventListener("click", () => {
+    closeModal(confirmModal);
+    pendingAction = null;
+  });
+  proceedConfirmModal.addEventListener("click", () => {
+    if (pendingAction) {
+      const act = pendingAction;
+      pendingAction = null;
+      closeModal(confirmModal);
+      act();
+    }
+  });
+
+  // Delegated clicks for Tabs, Return, Renew, and Tab Add Fine
+  document.addEventListener("click", (event) => {
+    const tabBtn = event.target.closest(".tab");
+    if (tabBtn) {
+      setActiveTab(tabBtn.dataset.tab);
+    }
+    const returnBtn = event.target.closest("[data-return]");
+    if (returnBtn) {
+      askConfirmReturn(returnBtn.dataset.return);
+    }
+    const renewBtn = event.target.closest("[data-renew]");
+    if (renewBtn) {
+      askConfirmRenew(renewBtn.dataset.renew);
+    }
+    const tabAddFineBtn = event.target.closest("#tab-add-fine-btn");
+    if (tabAddFineBtn) {
+      openFineModal();
+    }
+  });
 </script>
 {% endblock %}

@@ -122,7 +122,7 @@ _PRIV_MAP = {
         "admin_item_delete_bulk",
     },
     "labels": {"admin_labels"},
-    "transaction": {"admin_transaksi", "admin_transaksi_member", "admin_transaksi_loan", "admin_transaksi_return", "admin_transaksi_renew"},
+    "transaction": {"admin_transaksi", "admin_transaksi_member", "admin_transaksi_loan", "admin_transaksi_return", "admin_transaksi_renew", "admin_transaksi_fine"},
     "quick_return": {"admin_quick_return", "admin_quick_return_post"},
     "loan_rules": {"admin_loan_rules", "admin_loan_rules_create", "admin_loan_rules_update", "admin_loan_rules_delete"},
     "members": {"admin_members", "admin_member_create", "admin_member_update", "admin_member_delete"},
@@ -2723,6 +2723,43 @@ def admin_transaksi_renew():
     db.session.commit()
 
     current, history, fines = _get_loan_data(loan.member_id)
+    return jsonify({"ok": True, "current": current, "history": history, "fines": fines})
+
+
+@bp.post("/admin/transaksi/fine")
+@login_required
+def admin_transaksi_fine():
+    data = request.get_json(silent=True) or {}
+    member_id = (data.get("member_id") or "").strip()
+    amount_raw = data.get("amount")
+    description = (data.get("description") or "").strip()
+
+    if not member_id:
+        return jsonify({"ok": False, "error": "ID anggota wajib diisi."}), 400
+
+    member = Member.query.get(member_id)
+    if not member:
+        return jsonify({"ok": False, "error": "Anggota tidak ditemukan."}), 404
+
+    try:
+        amount = int(amount_raw)
+        if amount <= 0:
+            return jsonify({"ok": False, "error": "Nominal denda harus lebih dari 0."}), 400
+    except (ValueError, TypeError):
+        return jsonify({"ok": False, "error": "Nominal denda harus berupa angka yang valid."}), 400
+
+    today = datetime.utcnow().date()
+    fine = Fines(
+        fines_date=today,
+        member_id=member_id,
+        debet=amount,
+        credit=0,
+        description=description or "Denda",
+    )
+    db.session.add(fine)
+    db.session.commit()
+
+    current, history, fines = _get_loan_data(member_id)
     return jsonify({"ok": True, "current": current, "history": history, "fines": fines})
 
 
