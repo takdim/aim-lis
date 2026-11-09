@@ -142,6 +142,7 @@
 
   let activeMember = null;
   let currentLoans = [];
+  let currentFines = [];
   let pendingAction = null;
 
   function escapeHtml(str) {
@@ -215,8 +216,9 @@
   }
 
   function renderFines(fines) {
+    currentFines = (fines && fines.items) || [];
     const totalAmount = Number(fines.total || 0);
-    const hasItems = fines.items && fines.items.length > 0;
+    const hasItems = currentFines.length > 0;
     const headerHtml = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap;">
         <div class="fine-total" style="margin-bottom: 0;">Total Denda: Rp ${totalAmount.toLocaleString("id-ID")}</div>
@@ -228,18 +230,30 @@
       tabFine.innerHTML = headerHtml + '<div class="empty-mini">Tidak ada denda.</div>';
       return;
     }
-    const items = fines.items
+    const items = currentFines
       .map(
         (fine) => `
-        <div class="loan-card">
+        <div class="loan-card" style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
           <div>
-            <div class="loan-title">${escapeHtml(fine.title || "Denda")}</div>
-            <div class="loan-meta">${escapeHtml(fine.item_code || "-")}</div>
-            <div class="loan-meta">${
-              fine.days_late !== null && fine.days_late !== undefined
-                ? `Terlambat ${fine.days_late} hari · Rp ${Number(fine.amount).toLocaleString("id-ID")}`
-                : `Denda · Rp ${Number(fine.amount).toLocaleString("id-ID")}`
-            }</div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-weight: 700; font-size: 15px; color: #ef4444;">Rp ${Number(fine.amount).toLocaleString("id-ID")}</span>
+              <span class="badge ${fine.source === 'overdue' ? 'danger' : 'active'}" style="font-size: 11px; padding: 2px 8px;">
+                ${fine.source === 'overdue' ? 'Keterlambatan' : 'Denda Manual'}
+              </span>
+            </div>
+            <div class="loan-meta" style="margin-top: 6px; font-size: 13px; color: var(--text);">
+              <strong>Keterangan:</strong> ${escapeHtml(fine.description || "-")}
+            </div>
+            <div class="loan-meta" style="margin-top: 3px; font-size: 12px; color: var(--muted);">
+              Tanggal: ${fine.date || "-"} ${fine.item_code && fine.item_code !== '-' ? `· Eksemplar: <code>${escapeHtml(fine.item_code)}</code>` : ''}
+            </div>
+          </div>
+          <div class="loan-actions">
+            ${
+              fine.can_delete && fine.fine_id
+                ? `<button class="btn ghost danger" type="button" data-delete-fine="${fine.fine_id}" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Hapus</button>`
+                : ""
+            }
           </div>
         </div>`
       )
@@ -457,6 +471,42 @@
     setActiveTab("fine");
   }
 
+  // Hapus Denda
+  function askConfirmDeleteFine(fineId) {
+    const fine = currentFines.find((f) => String(f.fine_id) === String(fineId));
+    const amountStr = fine ? `Rp ${Number(fine.amount).toLocaleString("id-ID")}` : "denda ini";
+    const desc = fine && fine.description ? fine.description : "-";
+
+    confirmModalTitle.textContent = "Konfirmasi Hapus Denda";
+    confirmModalBody.innerHTML = `
+      <p style="margin-bottom: 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin <strong>menghapus</strong> catatan denda ini?</p>
+      <div style="background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+        <div style="font-weight: 700; font-size: 15px; color: #ef4444;">${amountStr}</div>
+        <div style="font-size: 13px; color: var(--text); margin-top: 4px;"><strong>Keterangan:</strong> ${escapeHtml(desc)}</div>
+      </div>
+    `;
+    proceedConfirmModal.textContent = "Ya, Hapus";
+    proceedConfirmModal.className = "btn danger";
+    pendingAction = () => deleteFine(fineId);
+    openModal(confirmModal);
+  }
+
+  async function deleteFine(fineId) {
+    const res = await fetch("/admin/transaksi/fine/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fine_id: fineId }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "Gagal menghapus denda.");
+      return;
+    }
+    renderCurrent(data.current);
+    renderFines(data.fines);
+    renderHistory(data.history);
+  }
+
   // Event Listeners
   memberInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
@@ -543,6 +593,10 @@
     const tabAddFineBtn = event.target.closest("#tab-add-fine-btn");
     if (tabAddFineBtn) {
       openFineModal();
+    }
+    const deleteFineBtn = event.target.closest("[data-delete-fine]");
+    if (deleteFineBtn) {
+      askConfirmDeleteFine(deleteFineBtn.dataset.deleteFine);
     }
   });
 </script>

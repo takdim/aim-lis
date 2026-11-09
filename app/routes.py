@@ -122,7 +122,7 @@ _PRIV_MAP = {
         "admin_item_delete_bulk",
     },
     "labels": {"admin_labels"},
-    "transaction": {"admin_transaksi", "admin_transaksi_member", "admin_transaksi_loan", "admin_transaksi_return", "admin_transaksi_renew", "admin_transaksi_fine"},
+    "transaction": {"admin_transaksi", "admin_transaksi_member", "admin_transaksi_loan", "admin_transaksi_return", "admin_transaksi_renew", "admin_transaksi_fine", "admin_transaksi_fine_delete"},
     "quick_return": {"admin_quick_return", "admin_quick_return_post"},
     "loan_rules": {"admin_loan_rules", "admin_loan_rules_create", "admin_loan_rules_update", "admin_loan_rules_delete"},
     "members": {"admin_members", "admin_member_create", "admin_member_update", "admin_member_delete"},
@@ -2538,11 +2538,15 @@ def _get_loan_data(member_id: str):
                 entry["fine_amount"] = amount
                 fines_items.append(
                     {
+                        "fine_id": None,
                         "title": title,
                         "item_code": item_code,
                         "days_late": days_late,
                         "amount": amount,
+                        "description": f"Keterlambatan {days_late} hari ({title})",
+                        "date": loan.due_date.strftime("%d %b %Y") if loan.due_date else "-",
                         "source": "overdue",
+                        "can_delete": False,
                     }
                 )
 
@@ -2562,11 +2566,15 @@ def _get_loan_data(member_id: str):
         fines_total += amount
         fines_items.append(
             {
-                "title": fine.description or "Denda",
+                "fine_id": fine.fines_id,
+                "title": "Denda Manual",
                 "item_code": "-",
                 "days_late": None,
                 "amount": amount,
+                "description": fine.description or "Denda",
+                "date": fine.fines_date.strftime("%d %b %Y") if fine.fines_date else "-",
                 "source": "table",
+                "can_delete": True,
             }
         )
 
@@ -2757,6 +2765,26 @@ def admin_transaksi_fine():
         description=description or "Denda",
     )
     db.session.add(fine)
+    db.session.commit()
+
+    current, history, fines = _get_loan_data(member_id)
+    return jsonify({"ok": True, "current": current, "history": history, "fines": fines})
+
+
+@bp.post("/admin/transaksi/fine/delete")
+@login_required
+def admin_transaksi_fine_delete():
+    data = request.get_json(silent=True) or {}
+    fine_id = data.get("fine_id")
+    if not fine_id:
+        return jsonify({"ok": False, "error": "ID denda tidak valid."}), 400
+
+    fine = Fines.query.get(fine_id)
+    if not fine:
+        return jsonify({"ok": False, "error": "Data denda tidak ditemukan."}), 404
+
+    member_id = fine.member_id
+    db.session.delete(fine)
     db.session.commit()
 
     current, history, fines = _get_loan_data(member_id)
