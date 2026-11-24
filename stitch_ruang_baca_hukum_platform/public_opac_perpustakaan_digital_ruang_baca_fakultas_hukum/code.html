@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-secondary":"#ffffff","surface":"#f8f9ff","on-tertiary-fixed":"#002113","on-secondary-fixed-variant":"#3f465c","on-tertiary-container":"#60eeb1","on-surface-variant":"#434654","primary-fixed-dim":"#b4c5ff","error":"#ba1a1a","outline":"#737686","inverse-on-surface":"#eaf1ff","primary":"#003ca3","surface-dim":"#cbdbf5","secondary-fixed":"#dae2fd","tertiary":"#004f35","tertiary-container":"#006a48","tertiary-fixed":"#6ffbbe","on-error-container":"#93000a","secondary":"#565e74","error-container":"#ffdad6","on-background":"#0b1c30","on-error":"#ffffff","primary-fixed":"#dbe1ff","secondary-fixed-dim":"#bec6e0","surface-container-low":"#eff4ff","primary-container":"#0051d5","on-primary-fixed":"#00174b","on-primary-container":"#c8d4ff","on-primary":"#ffffff","secondary-container":"#dae2fd","on-tertiary-fixed-variant":"#005236","on-surface":"#0b1c30","background":"#f8f9ff","surface-container":"#e5eeff","on-tertiary":"#ffffff","on-primary-fixed-variant":"#003ea7","surface-variant":"#d3e4fe","surface-container-high":"#dce9ff","surface-container-highest":"#d3e4fe","on-secondary-fixed":"#131b2e","tertiary-fixed-dim":"#4edea3","inverse-surface":"#213145","on-secondary-container":"#5c647a","surface-bright":"#f8f9ff","surface-tint":"#0854d7","surface-container-lowest":"#ffffff","outline-variant":"#c3c6d7","inverse-primary":"#b4c5ff"},"borderRadius":{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},"spacing":{"space-xs":"0.25rem","gutter":"1.5rem","space-xl":"2rem","space-md":"1rem","margin":"2.5rem","space-lg":"1.5rem","space-sm":"0.5rem"},"fontFamily":{"label-md":["Inter"],"display-md":["Outfit"],"body-sm":["Inter"],"body-md":["Inter"],"display-lg":["Outfit"],"label-sm":["Inter"],"headline-lg":["Outfit"],"title-md":["Inter"],"label-lg":["Inter"],"body-lg":["Inter"],"headline-md":["Outfit"],"headline-sm":["Outfit"]},"fontSize":{"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],"display-md":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}],"display-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"600"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"title-md":["16px",{"lineHeight":"24px","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"26px","fontWeight":"400"}],"headline-md":["20px",{"lineHeight":"28px","fontWeight":"600"}],"headline-sm":["16px",{"lineHeight":"24px","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased relative min-h-screen"><div class="pointer-events-none fixed inset-0 z-0 overflow-hidden"><div class="absolute -top-32 -right-32 w-[540px] h-[540px] rounded-full bg-primary-fixed-dim/30 blur-[120px]"></div><div class="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-secondary-fixed/35 blur-[140px]"></div></div><header class="fixed top-0 inset-x-0 z-50 bg-surface/75 backdrop-blur-xl shadow-[0_8px_32px_-4px_rgba(15,23,42,0.04)]"><div class="h-20 w-full px-margin flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="w-11 h-11 rounded-full bg-surface-container-low flex items-center justify-center text-primary shadow-[0_2px_8px_rgba(0,60,163,0.08)]"><span class="material-symbols-outlined text-[22px]">balance</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none">Perpustakaan Digital</span><span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mt-space-xs">Ruang Baca Fakultas Hukum · OPAC</span></div></div><div class="flex items-center gap-space-lg"><nav class="flex items-center gap-space-xs bg-surface-container-low/80 p-1.5 rounded-full backdrop-blur-md" data-active-classes="bg-primary-container text-on-primary font-label-lg rounded-full px-space-md py-space-xs shadow-[0_4px_16px_-2px_rgba(0,81,213,0.25)]"><a aria-current="page" class="transition-all bg-primary-container text-on-primary font-label-lg rounded-full px-space-md py-space-xs shadow-[0_4px_16px_-2px_rgba(0,81,213,0.25)]" data-path="katalog" href="#">Katalog</a><a class="px-space-md py-space-xs rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="buku-tamu" href="#">Buku Tamu</a><a class="px-space-md py-space-xs rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="reservasi-bilik" href="#">Reservasi Bilik</a><a class="px-space-md py-space-xs rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" data-path="yurisprudensi" href="#">Yurisprudensi</a></nav><div class="flex items-center gap-space-sm pl-space-xs"><a class="px-space-md py-space-xs rounded-full font-label-lg text-label-lg text-primary bg-surface-container-lowest/90 hover:bg-surface-container hover:text-on-surface transition-all shadow-[0_2px_8px_rgba(0,60,163,0.06)]" data-path="login-pustakawan" href="#">Login Pustakawan</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="relative z-10 w-full pt-20 px-margin pb-space-xl"><div class="flex flex-col w-full">
+<!-- Top Ambient Glow Enhancer -->
+<div class="relative w-full">
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 w-[720px] h-[280px] bg-gradient-to-b from-primary-fixed-dim/40 via-surface-container-low/20 to-transparent blur-3xl pointer-events-none -z-10"></div>
+<!-- Centered Editorial Hero Section -->
+<section class="w-full max-w-5xl mx-auto pt-6 pb-12 flex flex-col items-center text-center">
+<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md shadow-sm mb-space-md">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest">Sistem Temu Kembali Informasi Yuridis</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface tracking-tight max-w-3xl font-semibold">
+        Selamat Datang di OPAC
+      </h1>
+<p class="font-body-lg text-body-lg text-secondary max-w-2xl mt-space-xs">
+        Temukan koleksi buku, jurnal, naskah akademik, dan yurisprudensi hukum secara komprehensif dan terverifikasi.
+      </p>
+<!-- Floating Pill-Shaped Glass Search Bar -->
+<div class="w-full max-w-4xl mt-space-xl relative">
+<div class="relative p-2 rounded-full bg-surface-container-lowest/90 backdrop-blur-2xl shadow-xl flex flex-col md:flex-row items-center gap-2">
+<!-- Magnifying Icon -->
+<div class="pl-space-md flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</div>
+<!-- Main Input -->
+<input class="w-full bg-transparent px-space-sm py-2 font-body-md text-body-md text-on-surface placeholder:text-secondary/70 focus:outline-none" id="opac-search-input" placeholder="Cari judul, pengarang, ISBN, atau no. panggil..." type="text"/>
+<div class="flex items-center gap-2 w-full md:w-auto pr-1">
+<!-- Filter Dropdown Pill -->
+<div class="relative">
+<select class="appearance-none font-label-md text-label-md bg-surface-container-low/90 text-on-surface-variant hover:text-on-surface px-space-md py-2.5 pr-8 rounded-full focus:outline-none cursor-pointer shadow-sm transition-all">
+<option value="all">Semua Bidang Hukum</option>
+<option value="pidana">Hukum Pidana</option>
+<option value="perdata">Hukum Perdata</option>
+<option value="htn">Hukum Tata Negara (HTN)</option>
+<option value="bisnis">Hukum Bisnis &amp; Dagang</option>
+<option value="internasional">Hukum Internasional</option>
+<option value="yurisprudensi">Yurisprudensi MA / MK</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[18px] text-secondary pointer-events-none">expand_more</span>
+</div>
+<!-- Solid Technical Cobalt Button -->
+<button class="group flex items-center gap-space-xs bg-primary-container hover:bg-primary text-on-primary font-label-lg text-label-lg px-space-xl py-2.5 rounded-full shadow-md hover:shadow-lg transition-all transform active:scale-95 whitespace-nowrap" onclick="triggerSearchPulse()" type="button">
+<span>Cari</span>
+<span class="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Quick Access Indicators & Filter Chips -->
+<div class="flex flex-wrap items-center justify-center gap-space-sm mt-space-md">
+<div class="inline-flex items-center gap-1.5 px-space-md py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md shadow-sm font-label-sm text-label-sm text-primary">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+<span>Koleksi Terbaru (2025/2026)</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-space-md py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md shadow-sm font-label-sm text-label-sm text-tertiary">
+<span class="material-symbols-outlined text-[14px]">public</span>
+<span>Terbuka untuk Umum &amp; Sivitas Akademika</span>
+</div>
+<div class="hidden lg:flex items-center text-outline-variant font-label-sm">·</div>
+<div class="flex flex-wrap items-center justify-center gap-1.5">
+<button class="px-3 py-1 rounded-full bg-surface-container/60 hover:bg-surface-container-high font-label-sm text-label-sm text-secondary hover:text-on-surface transition-all" onclick="setQuery('Hukum Pidana')">
+              Hukum Pidana
+            </button>
+<button class="px-3 py-1 rounded-full bg-surface-container/60 hover:bg-surface-container-high font-label-sm text-label-sm text-secondary hover:text-on-surface transition-all" onclick="setQuery('Hukum Perdata')">
+              Hukum Perdata
+            </button>
+<button class="px-3 py-1 rounded-full bg-surface-container/60 hover:bg-surface-container-high font-label-sm text-label-sm text-secondary hover:text-on-surface transition-all" onclick="setQuery('Hukum Tata Negara')">
+              Hukum Tata Negara
+            </button>
+<button class="px-3 py-1 rounded-full bg-surface-container/60 hover:bg-surface-container-high font-label-sm text-label-sm text-secondary hover:text-on-surface transition-all" onclick="setQuery('Hukum Bisnis')">
+              Hukum Bisnis
+            </button>
+<button class="px-3 py-1 rounded-full bg-surface-container/60 hover:bg-surface-container-high font-label-sm text-label-sm text-secondary hover:text-on-surface transition-all" onclick="setQuery('Yurisprudensi MA')">
+              Yurisprudensi MA
+            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Content: 2-Column Split Grid -->
+<section class="w-full max-w-7xl mx-auto mt-2">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-xl items-start">
+<!-- Left Column: 10 Koleksi Terbaru -->
+<div class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[20px]">library_add</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Koleksi Terbaru</h2>
+<p class="font-body-sm text-body-sm text-secondary">Buku literatur &amp; manuskrip terbitan anyar</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm px-space-md py-1 rounded-full bg-primary-fixed-dim/30 text-primary font-semibold">
+              10 Judul
+            </span>
+</div>
+<!-- Vertical Stack of Clean Liquid Glass Cards -->
+<div class="flex flex-col gap-space-md">
+<!-- Book 1 (Primary Item that opens preview) -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm">Teks</span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Tahun 2025</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility</span> 245x
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Hukum Acara Pidana Kontemporer: Teori &amp; Praktik Peradilan
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Prof. Dr. Andi Hamzah, S.H.</p>
+<div class="flex items-center gap-2 mt-3 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">bookmark</span>
+<span>No. Panggil: <span class="font-mono text-on-surface">345.598 HAM h</span></span>
+</div>
+</div>
+<div class="w-16 h-22 rounded-lg bg-surface-container flex-shrink-0 flex items-center justify-center shadow-inner text-secondary overflow-hidden">
+<span class="material-symbols-outlined text-[36px] text-primary/40">menu_book</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-ping"></span>
+<span>2 dari 3 Eksemplar Tersedia</span>
+</div>
+<button class="inline-flex items-center gap-1 px-space-md py-1.5 rounded-full bg-primary-container text-on-primary font-label-md text-label-md hover:bg-primary shadow-sm hover:shadow transition-all" onclick="openModal()" type="button">
+<span>Detail &amp; Eksemplar</span>
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+</div>
+</article>
+<!-- Book 2 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">Tesis/Kajian</span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Tahun 2025</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility</span> 189x
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Analisis Putusan Mahkamah Konstitusi terkait Pengujian UU Cipta Kerja
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Dr. Saldi Isra, S.H., M.P.A.</p>
+<div class="flex items-center gap-2 mt-3 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">bookmark</span>
+<span>No. Panggil: <span class="font-mono text-on-surface">342.598 ISR a</span></span>
+</div>
+</div>
+<div class="w-16 h-22 rounded-lg bg-surface-container flex-shrink-0 flex items-center justify-center shadow-inner text-secondary overflow-hidden">
+<span class="material-symbols-outlined text-[36px] text-secondary/40">article</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+<span>1 Eksemplar Tersedia</span>
+</div>
+<button class="inline-flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all" onclick="openModal()" type="button">
+<span>Detail &amp; Eksemplar</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</article>
+<!-- Book 3 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm">Teks</span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Tahun 2024</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility</span> 312x
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Prinsip-Prinsip Hukum Bisnis Internasional di Era Digital
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Dr. Mariam Darus Badrulzaman, S.H.</p>
+<div class="flex items-center gap-2 mt-3 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">bookmark</span>
+<span>No. Panggil: <span class="font-mono text-on-surface">346.07 BAD p</span></span>
+</div>
+</div>
+<div class="w-16 h-22 rounded-lg bg-surface-container flex-shrink-0 flex items-center justify-center shadow-inner text-secondary overflow-hidden">
+<span class="material-symbols-outlined text-[36px] text-primary/40">menu_book</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+<span>4 Eksemplar Tersedia</span>
+</div>
+<button class="inline-flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all" onclick="openModal()" type="button">
+<span>Detail &amp; Eksemplar</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</article>
+<!-- Book 4 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm">Teks</span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Tahun 2024</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility</span> 154x
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Hukum Pajak dan Kebijakan Fiskal Indonesia Pasca Harmonisasi
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Dr. Rochmat Soemitro, S.H.</p>
+<div class="flex items-center gap-2 mt-3 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">bookmark</span>
+<span>No. Panggil: <span class="font-mono text-on-surface">343.04 SOE h</span></span>
+</div>
+</div>
+<div class="w-16 h-22 rounded-lg bg-surface-container flex-shrink-0 flex items-center justify-center shadow-inner text-secondary overflow-hidden">
+<span class="material-symbols-outlined text-[36px] text-secondary/40">menu_book</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+<span>2 Eksemplar Tersedia</span>
+</div>
+<button class="inline-flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all" onclick="openModal()" type="button">
+<span>Detail &amp; Eksemplar</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</article>
+<!-- Book 5 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm">Teks</span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Tahun 2024</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility</span> 420x
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Pertanggungjawaban Pidana Korporasi dalam Tindak Pidana Korupsi
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Prof. Dr. Eddy O.S. Hiariej, S.H., M.Hum.</p>
+<div class="flex items-center gap-2 mt-3 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">bookmark</span>
+<span>No. Panggil: <span class="font-mono text-on-surface">345.023 HIA p</span></span>
+</div>
+</div>
+<div class="w-16 h-22 rounded-lg bg-surface-container flex-shrink-0 flex items-center justify-center shadow-inner text-secondary overflow-hidden">
+<span class="material-symbols-outlined text-[36px] text-primary/40">menu_book</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-secondary">
+<span class="material-symbols-outlined text-[16px] text-outline">schedule</span>
+<span>Semua Sedang Dipinjam (3 Eks.)</span>
+</div>
+<button class="inline-flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all" onclick="openModal()" type="button">
+<span>Detail &amp; Eksemplar</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</article>
+</div>
+</div>
+<!-- Right Column: 10 Terbanyak Dipinjam -->
+<div class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[20px]">trending_up</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Terbanyak Dipinjam</h2>
+<p class="font-body-sm text-body-sm text-secondary">Rujukan primer silabus kurikulum hukum</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm px-space-md py-1 rounded-full bg-surface-container-highest text-on-surface font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">local_fire_department</span>
+<span>Populer</span>
+</span>
+</div>
+<!-- Vertical Stack of Top Borrowed Books -->
+<div class="flex flex-col gap-space-md">
+<!-- Rank #1 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-container to-primary text-on-primary flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0 shadow-md">
+                  #1
+                </div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm">Teks Wajib</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[14px]">sync_alt</span> 142x Dipinjam
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Pengantar Ilmu Hukum Indonesia (PIHI)
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Prof. Dr. Peter Mahmud Marzuki, S.H., M.S., LL.M.</p>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-3 py-1 rounded-full bg-tertiary-container/15 text-tertiary font-medium">
+                      3 Eksemplar Tersedia
+                    </span>
+<button class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1" onclick="openModal()" type="button">
+<span>Cek Posisi Rak</span>
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Rank #2 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0 shadow-sm">
+                  #2
+                </div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Teks Pokok</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">sync_alt</span> 128x Dipinjam
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Hukum Perdata Indonesia: Asas-Asas &amp; Kaidah Perikatan
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Prof. Subekti, S.H.</p>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-3 py-1 rounded-full bg-tertiary-container/15 text-tertiary font-medium">
+                      1 Eksemplar Tersedia
+                    </span>
+<button class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1" onclick="openModal()" type="button">
+<span>Cek Posisi Rak</span>
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Rank #3 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container text-on-surface-variant flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0 shadow-sm">
+                  #3
+                </div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Metodologi</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">sync_alt</span> 115x Dipinjam
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Teori dan Metodologi Penelitian Hukum Normatif
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Prof. Dr. Soerjono Soekanto, S.H.</p>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-3 py-1 rounded-full bg-tertiary-container/15 text-tertiary font-medium">
+                      2 Eksemplar Tersedia
+                    </span>
+<button class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1" onclick="openModal()" type="button">
+<span>Cek Posisi Rak</span>
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Rank #4 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low text-secondary flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0">
+                  #4
+                </div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Teks Hukum</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">sync_alt</span> 98x Dipinjam
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Hukum Tata Negara Positif Indonesia Kontemporer
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Prof. Dr. Jimly Asshiddiqie, S.H.</p>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-3 py-1 rounded-full bg-tertiary-container/15 text-tertiary font-medium">
+                      Tersedia di Rak 02
+                    </span>
+<button class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1" onclick="openModal()" type="button">
+<span>Cek Posisi Rak</span>
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Rank #5 -->
+<article class="p-space-lg rounded-2xl bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-6px_rgba(0,60,163,0.08)] hover:-translate-y-0.5 transition-all">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low text-secondary flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0">
+                  #5
+                </div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2 mb-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-secondary">Teks Hukum</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">sync_alt</span> 84x Dipinjam
+                    </span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold hover:text-primary transition-colors line-clamp-2">
+                    Asas-Asas Hukum Pidana di Indonesia
+                  </h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Prof. Moeljatno, S.H.</p>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-3 py-1 rounded-full bg-tertiary-container/15 text-tertiary font-medium">
+                      Tersedia di Rak 01
+                    </span>
+<button class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1" onclick="openModal()" type="button">
+<span>Cek Posisi Rak</span>
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Detail Eksemplar Modal Overlay -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 overflow-y-auto" id="eksemplar-modal">
+<!-- Backdrop Blur -->
+<div class="fixed inset-0 bg-on-surface/30 backdrop-blur-md transition-opacity" onclick="closeModal()"></div>
+<!-- Modal Card -->
+<div class="relative w-full max-w-4xl bg-surface-container-lowest/95 backdrop-blur-2xl rounded-2xl shadow-2xl p-space-lg sm:p-space-xl z-10 my-8">
+<!-- Top Modal Bar -->
+<div class="flex items-start justify-between gap-space-md pb-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span>Koleksi Terverifikasi Fakultas Hukum</span>
+</span>
+<span class="font-label-sm text-label-sm text-secondary">ID Dokumen: #LIB-2025-098</span>
+</div>
+<button class="w-9 h-9 rounded-full bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-secondary hover:text-on-surface transition-all" onclick="closeModal()" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Book Overview Section -->
+<div class="flex flex-col md:flex-row gap-space-lg mt-space-sm pb-space-lg">
+<!-- Thumbnail Mockup -->
+<div class="w-full md:w-44 h-60 rounded-xl bg-gradient-to-tr from-surface-container to-surface-container-high p-4 flex flex-col justify-between shadow-inner flex-shrink-0 relative overflow-hidden">
+<div class="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-primary-fixed-dim/30 blur-xl"></div>
+<div class="flex items-center justify-between">
+<span class="font-mono text-label-sm text-primary font-bold">FH-UNDIP</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">local_library</span>
+</div>
+<div class="relative z-10">
+<p class="font-headline-sm text-headline-sm text-on-surface leading-tight font-semibold line-clamp-3">
+              Hukum Acara Pidana
+            </p>
+<p class="font-label-sm text-label-sm text-secondary mt-1">Andi Hamzah</p>
+</div>
+<div class="font-mono text-label-sm bg-surface-container-lowest/80 px-2 py-0.5 rounded text-center text-on-surface-variant font-medium">
+            345.598 HAM
+          </div>
+</div>
+<!-- Metadata Grid -->
+<div class="flex-1 min-w-0">
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">
+            Hukum Acara Pidana Kontemporer: Teori &amp; Praktik Peradilan
+          </h2>
+<p class="font-body-md text-body-md text-secondary mt-1">
+            Penulis: <span class="text-on-surface font-medium">Prof. Dr. Andi Hamzah, S.H.</span>
+</p>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-space-md p-space-md rounded-xl bg-surface-container-low/70">
+<div>
+<span class="block font-label-sm text-label-sm text-secondary">Tahun Terbit</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">2025</span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary">Edisi</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Cetakan Ke-3 (Revisi)</span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary">ISBN / ISSN</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold font-mono">978-623-01-2940-5</span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary">No. Panggil</span>
+<span class="font-body-md text-body-md text-primary font-bold font-mono">345.598 HAM h</span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary">Bahasa</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Bahasa Indonesia</span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary">Klasifikasi DDC</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Dewey 345 (Pidana)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Eksemplar Table Section -->
+<div class="mt-space-md">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">inventory_2</span>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">Daftar Eksemplar &amp; Ketersediaan Fisik</h3>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">3 Eksemplar Terdaftar</span>
+</div>
+<div class="overflow-x-auto rounded-xl shadow-sm bg-surface-container-lowest">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low font-label-sm text-label-sm text-secondary uppercase tracking-wider">
+<th class="py-3 px-4">No</th>
+<th class="py-3 px-4">Barcode / Kode Item</th>
+<th class="py-3 px-4">No. Panggil</th>
+<th class="py-3 px-4">Lokasi Rak</th>
+<th class="py-3 px-4">Status</th>
+<th class="py-3 px-4">Aksi / Sirkulasi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container font-body-sm text-body-sm text-on-surface">
+<!-- Item 1 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-4 font-mono font-medium">#1</td>
+<td class="py-3 px-4 font-mono text-on-surface-variant">FH-B-2025-0012</td>
+<td class="py-3 px-4 font-mono">345.598 HAM h (c.1)</td>
+<td class="py-3 px-4">Ruang Baca Lt. 2 - Rak Pidana 04</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-container/20 text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>
+<span>Tersedia</span>
+</span>
+</td>
+<td class="py-3 px-4 text-secondary font-label-sm">Dapat Dipinjam di Sirkulasi</td>
+</tr>
+<!-- Item 2 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-4 font-mono font-medium">#2</td>
+<td class="py-3 px-4 font-mono text-on-surface-variant">FH-B-2025-0013</td>
+<td class="py-3 px-4 font-mono">345.598 HAM h (c.2)</td>
+<td class="py-3 px-4">Ruang Baca Lt. 2 - Rak Pidana 04</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-container/20 text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>
+<span>Tersedia</span>
+</span>
+</td>
+<td class="py-3 px-4 text-secondary font-label-sm">Dapat Dipinjam</td>
+</tr>
+<!-- Item 3 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors bg-surface-container-low/20">
+<td class="py-3 px-4 font-mono font-medium">#3</td>
+<td class="py-3 px-4 font-mono text-on-surface-variant">FH-B-2025-0014</td>
+<td class="py-3 px-4 font-mono">345.598 HAM h (c.3)</td>
+<td class="py-3 px-4">Ruang Baca Lt. 2 - Rak Pidana 04</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-error-container/40 text-error font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span>Dipinjam</span>
+</span>
+</td>
+<td class="py-3 px-4 text-error font-label-sm">Kembali: 18 Maret 2026</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Action Buttons Footer -->
+<div class="mt-space-lg pt-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<button class="px-space-md py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-all shadow-sm" id="citation-btn" onclick="copyCitation()" type="button">
+<span class="material-symbols-outlined text-[18px]">format_quote</span>
+<span id="citation-label">Salin Sitasi (APA/Chicago)</span>
+</button>
+<button class="px-space-md py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-all shadow-sm" id="bookmark-btn" onclick="toggleBookmark()" type="button">
+<span class="material-symbols-outlined text-[18px]" id="bookmark-icon">bookmark_border</span>
+<span id="bookmark-label">Tandai Koleksi</span>
+</button>
+</div>
+<button class="px-space-lg py-2 rounded-full bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md shadow-md transition-all" onclick="closeModal()" type="button">
+          Tutup
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function openModal() {
+    const modal = document.getElementById('eksemplar-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('eksemplar-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+
+  function setQuery(text) {
+    const input = document.getElementById('opac-search-input');
+    if (input) {
+      input.value = text;
+      input.focus();
+    }
+  }
+
+  function triggerSearchPulse() {
+    const input = document.getElementById('opac-search-input');
+    if (!input.value.trim()) {
+      input.placeholder = 'Ketik kata kunci pencarian hukum di sini...';
+      input.focus();
+    } else {
+      openModal();
+    }
+  }
+
+  function copyCitation() {
+    const citation = 'Hamzah, A. (2025). Hukum Acara Pidana Kontemporer: Teori & Praktik Peradilan (Cetakan ke-3). Ruang Baca Fakultas Hukum.';
+    navigator.clipboard.writeText(citation).then(() => {
+      const label = document.getElementById('citation-label');
+      label.innerText = 'Sitasi Tersalin!';
+      setTimeout(() => {
+        label.innerText = 'Salin Sitasi (APA/Chicago)';
+      }, 2000);
+    });
+  }
+
+  let isBookmarked = false;
+  function toggleBookmark() {
+    isBookmarked = !isBookmarked;
+    const label = document.getElementById('bookmark-label');
+    const icon = document.getElementById('bookmark-icon');
+    if (isBookmarked) {
+      label.innerText = 'Tersimpan';
+      icon.innerText = 'bookmark';
+      icon.style.fontVariationSettings = "'FILL' 1";
+    } else {
+      label.innerText = 'Tandai Koleksi';
+      icon.innerText = 'bookmark_border';
+      icon.style.fontVariationSettings = "'FILL' 0";
+    }
+  }
+
+  // Close modal on Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+</script></main><footer class="relative z-10 w-full bg-surface-container-low/60 backdrop-blur-lg py-space-lg shadow-[0_-1px_12px_rgba(0,0,0,0.02)]"><div class="w-full px-margin flex flex-col md:flex-row items-center justify-between gap-space-sm font-body-sm text-body-sm text-secondary"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-primary">local_library</span><span>Perpustakaan Digital Ruang Baca Fakultas Hukum</span></div><div>© AIM 2026 · AIM – Archipelago Innovation Management</div></div></footer></body></html>

@@ -6,103 +6,175 @@
     <title>{{ title or "Buku Tamu" }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/opac.css') }}" />
   </head>
   <body>
     <header class="opac-header">
-      <div class="brand">
-        <div class="brand-icon">W</div>
-        <div>
-          <div class="brand-title">Perpustakaan Digital</div>
-          <div class="brand-sub">Online Public Access Catalogue</div>
+      <div class="opac-header-inner">
+        <a class="brand" href="{{ url_for('main.opac_home') }}">
+          <div class="brand-icon">
+            <span class="material-symbols-outlined">balance</span>
+          </div>
+          <div>
+            <div class="brand-title">Perpustakaan Digital</div>
+            <div class="brand-sub">Ruang Baca Fakultas Hukum · OPAC</div>
+          </div>
+        </a>
+
+        <div class="header-nav-group">
+          <nav class="pill-nav">
+            <a href="{{ url_for('main.opac_home') }}">Katalog</a>
+            <a class="active" href="{{ url_for('main.guestbook_form') }}">Buku Tamu</a>
+          </nav>
         </div>
       </div>
     </header>
 
     <main class="opac-main guestbook-page">
-      <section class="hero">
+      <section class="hero" style="margin-bottom: 28px;">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          <span>Sistem Presensi &amp; Kunjungan Elektronik</span>
+        </div>
         <h1>Buku Tamu Perpustakaan</h1>
-        <p>Silakan isi data kunjungan Anda untuk keperluan administrasi.</p>
+        <p>Silakan isi data kunjungan Anda untuk keperluan administrasi dan statistik layanan Ruang Baca Fakultas Hukum.</p>
       </section>
 
       <section class="promo-banner">
         <div class="promo-content">
-          <div class="promo-icon">🎁</div>
-          <div class="promo-text">
-            <h3>Kesempatan Menarik Menanti Anda!</h3>
-            <p>Semakin sering Anda mengisi buku tamu harian, semakin besar peluang Anda memenangkan <strong>doorpize seru-seruan</strong> dari Ruang Baca Fak. Hukum UH! 🌟</p>
-            <p class="promo-detail">Setiap pengisian buku tamu adalah satu kesempatan emas untuk meraih hadiah spesial. Jangan lewatkan!</p>
+          <div class="promo-left">
+            <div class="promo-icon">
+              <span class="material-symbols-outlined" style="font-size: 28px;">featured_seasonal_and_gifts</span>
+            </div>
+            <div class="promo-text">
+              <h3>Kesempatan Menarik Menanti Anda!</h3>
+              <p>Semakin sering Anda mengisi buku tamu harian, semakin besar peluang Anda memenangkan <strong>doorprize seru-seruan</strong> dari Ruang Baca Fak. Hukum UH!</p>
+            </div>
           </div>
+          <span class="promo-pill">
+            <span class="material-symbols-outlined" style="font-size: 16px;">verified</span>
+            Program Apresiasi Pemustaka Aktif
+          </span>
         </div>
       </section>
 
-      {% if winners %}
-      <section class="winner-section">
-        {% for winner in winners %}
-        <div class="winner-card">
-          <div class="winner-header">⭐ Pemenang {{ winner.period }} ⭐</div>
-          <div class="winner-content">
-            <div class="winner-name">{{ winner.name }}</div>
-            <div class="winner-meta">
-              <span class="winner-stat">NIM: <strong>{{ winner.nim }}</strong></span>
-              <span class="winner-stat">Berkunjung: <strong>{{ winner.visit_count }}x</strong></span>
+      <div class="guestbook-layout {% if not winners %}single-col{% endif %}">
+        <section class="guestbook-card">
+          <div class="guestbook-card-head">
+            <div class="guestbook-card-icon">
+              <span class="material-symbols-outlined" style="font-size: 24px;">history_edu</span>
             </div>
-            <div class="winner-message">🎉 Selamat! Anda menang doorpize menarik! 🎉</div>
+            <div>
+              <h2>Form Buku Tamu</h2>
+              <div class="guestbook-card-sub">Lengkapi formulir presensi mandiri kunjungan perpustakaan</div>
+            </div>
           </div>
-        </div>
-        {% endfor %}
-      </section>
-      {% endif %}
 
-      <section class="guestbook-card">
-        <h2>Form Buku Tamu</h2>
-
-        {% if message %}
-          <div class="notice success" id="success-notice">{{ message }}</div>
-        {% endif %}
-        {% if error %}
-          <div class="notice error">{{ error }}</div>
-        {% endif %}
-
-        <form method="post" class="guestbook-form" id="guestbook-form">
-          <fieldset>
-            <legend>Tipe Pengunjung *</legend>
-            <div class="form-radio-group">
-              <label class="radio-label">
-                <input type="radio" name="visitor_type" value="umum" checked onchange="toggleVisitorFields()" />
-                <span class="radio-text">Umum</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" name="visitor_type" value="mahasiswa" onchange="toggleVisitorFields()" />
-                <span class="radio-text">Mahasiswa</span>
-              </label>
+          {% if message %}
+            <div class="notice success" id="success-notice">
+              <span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span>
+              <span>{{ message }}</span>
             </div>
-          </fieldset>
+          {% endif %}
+          {% if error %}
+            <div class="notice error">
+              <span class="material-symbols-outlined" style="font-size: 20px;">error</span>
+              <span>{{ error }}</span>
+            </div>
+          {% endif %}
 
-          <label>
-            <span>Nama Lengkap *</span>
-            <input type="text" name="member_name" placeholder="Nama lengkap" required />
-          </label>
+          <form method="post" class="guestbook-form" id="guestbook-form">
+            <fieldset>
+              <legend>Tipe Pengunjung *</legend>
+              <div class="form-radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="visitor_type" value="umum" checked onchange="toggleVisitorFields()" />
+                  <span class="radio-text">Umum</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="visitor_type" value="mahasiswa" onchange="toggleVisitorFields()" />
+                  <span class="radio-text">Mahasiswa</span>
+                </label>
+              </div>
+            </fieldset>
 
-          <label id="nim-field" style="display: none;">
-            <span>NIM *</span>
-            <input type="text" name="member_id" placeholder="Contoh: B022252039" />
-          </label>
+            <label>
+              <span>Nama Lengkap *</span>
+              <div class="input-wrap">
+                <span class="material-symbols-outlined">person_outline</span>
+                <input type="text" name="member_name" placeholder="Masukkan nama lengkap" required />
+              </div>
+            </label>
 
-          <label id="instansi-field" style="display: none;">
-            <span>Instansi *</span>
-            <input type="text" name="institution" placeholder="Contoh: Fakultas Hukum" />
-          </label>
+            <label id="nim-field" style="display: none;">
+              <span>NIM *</span>
+              <div class="input-wrap">
+                <span class="material-symbols-outlined">badge</span>
+                <input type="text" name="member_id" placeholder="Contoh: B022252039" />
+              </div>
+            </label>
 
-          <label id="instansi-umum-field">
-            <span>Instansi/Organisasi</span>
-            <input type="text" name="institution_general" placeholder="Opsional" />
-          </label>
+            <label id="instansi-field" style="display: none;">
+              <span>Instansi *</span>
+              <div class="input-wrap">
+                <span class="material-symbols-outlined">account_balance</span>
+                <input type="text" name="institution" placeholder="Contoh: Fakultas Hukum" />
+              </div>
+            </label>
 
-          <button class="btn primary" type="submit">Simpan Buku Tamu</button>
-        </form>
-      </section>
+            <label id="instansi-umum-field">
+              <span>Instansi / Organisasi</span>
+              <div class="input-wrap">
+                <span class="material-symbols-outlined">apartment</span>
+                <input type="text" name="institution_general" placeholder="Opsional" />
+              </div>
+            </label>
+
+            <button class="btn primary" type="submit" style="margin-top: 6px; padding: 13px 24px;">
+              <span>Simpan Buku Tamu</span>
+              <span class="material-symbols-outlined" style="font-size: 18px;">how_to_reg</span>
+            </button>
+          </form>
+        </section>
+
+        {% if winners %}
+        <aside class="winner-aside">
+          <div class="winner-section-head">
+            <h2>
+              <span class="material-symbols-outlined" style="color: var(--primary);">emoji_events</span>
+              Pemenang Buku Tamu
+            </h2>
+          </div>
+
+          {% for winner in winners %}
+          <div class="winner-card">
+            <div class="winner-top">
+              <span class="winner-badge">
+                <span class="material-symbols-outlined" style="font-size: 15px;">military_tech</span>
+                Pemenang {{ winner.period }}
+              </span>
+              <span class="winner-visits">
+                <span class="material-symbols-outlined" style="font-size: 14px;">local_fire_department</span>
+                {{ winner.visit_count }}x Berkunjung
+              </span>
+            </div>
+            <div class="winner-person">
+              <div class="winner-avatar">{{ (winner.name[:2] if winner.name else 'PM')|upper }}</div>
+              <div>
+                <div class="winner-name">{{ winner.name }}</div>
+                <div class="winner-nim">NIM: {{ winner.nim }}</div>
+              </div>
+            </div>
+            <div class="winner-message">
+              Selamat! Anda terpilih sebagai pemenang doorprize pemustaka aktif Ruang Baca Fakultas Hukum.
+            </div>
+          </div>
+          {% endfor %}
+        </aside>
+        {% endif %}
+      </div>
     </main>
 
     <footer class="app-footer">
@@ -110,7 +182,6 @@
       <div>AIM – Archipelago Innovation Management</div>
     </footer>
 
-    {% if message %}
     <script>
       function toggleVisitorFields() {
         const visitorType = document.querySelector('input[name="visitor_type"]:checked').value;
@@ -119,77 +190,48 @@
         const instansiGeneralField = document.getElementById('instansi-umum-field');
         const nimInput = document.querySelector('#nim-field input');
         const instansiInput = document.querySelector('#instansi-field input');
-        
+
         if (visitorType === 'mahasiswa') {
-          nimField.style.display = 'block';
-          instansiField.style.display = 'block';
+          nimField.style.display = 'grid';
+          instansiField.style.display = 'grid';
           instansiGeneralField.style.display = 'none';
           nimInput.required = true;
           instansiInput.required = true;
         } else {
           nimField.style.display = 'none';
           instansiField.style.display = 'none';
-          instansiGeneralField.style.display = 'block';
+          instansiGeneralField.style.display = 'grid';
           nimInput.required = false;
           instansiInput.required = false;
         }
       }
 
-      // Call on page load
       document.addEventListener('DOMContentLoaded', toggleVisitorFields);
-      
-      // Text-to-speech functionality
+    </script>
+
+    {% if message %}
+    <script>
       (function () {
         const text = {{ message|tojson }};
         if (!("speechSynthesis" in window) || !text) return;
-        
-        // Wait a bit for page to load
+
         setTimeout(() => {
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.lang = "id-ID";
           utterance.rate = 0.9;
           utterance.pitch = 1;
           utterance.volume = 1;
-          
-          // After speech ends, return to a clean form page.
+
           utterance.onend = () => {
             setTimeout(() => {
               window.location.replace({{ url_for('main.guestbook_form')|tojson }});
             }, 2000);
           };
-          
+
           window.speechSynthesis.cancel();
           window.speechSynthesis.speak(utterance);
         }, 500);
       })();
-    </script>
-    {% else %}
-    <script>
-      function toggleVisitorFields() {
-        const visitorType = document.querySelector('input[name="visitor_type"]:checked').value;
-        const nimField = document.getElementById('nim-field');
-        const instansiField = document.getElementById('instansi-field');
-        const instansiGeneralField = document.getElementById('instansi-umum-field');
-        const nimInput = document.querySelector('#nim-field input');
-        const instansiInput = document.querySelector('#instansi-field input');
-        
-        if (visitorType === 'mahasiswa') {
-          nimField.style.display = 'block';
-          instansiField.style.display = 'block';
-          instansiGeneralField.style.display = 'none';
-          nimInput.required = true;
-          instansiInput.required = true;
-        } else {
-          nimField.style.display = 'none';
-          instansiField.style.display = 'none';
-          instansiGeneralField.style.display = 'block';
-          nimInput.required = false;
-          instansiInput.required = false;
-        }
-      }
-
-      // Call on page load
-      document.addEventListener('DOMContentLoaded', toggleVisitorFields);
     </script>
     {% endif %}
   </body>

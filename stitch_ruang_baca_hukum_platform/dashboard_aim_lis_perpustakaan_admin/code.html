@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Outfit:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-variant":"#d3e4fe","outline-variant":"#c3c6d7","surface-dim":"#cbdbf5","tertiary-fixed":"#6ffbbe","on-error-container":"#93000a","on-secondary-fixed-variant":"#3f465c","inverse-on-surface":"#eaf1ff","tertiary":"#004f35","inverse-primary":"#b4c5ff","on-tertiary-container":"#60eeb1","primary":"#003ca3","surface-container-high":"#dce9ff","on-secondary":"#ffffff","surface-container-highest":"#d3e4fe","on-secondary-fixed":"#131b2e","primary-fixed":"#dbe1ff","surface-container-low":"#eff4ff","surface-container-lowest":"#ffffff","surface":"#f8f9ff","secondary":"#565e74","on-surface":"#0b1c30","outline":"#737686","tertiary-container":"#006a48","on-secondary-container":"#5c647a","primary-container":"#0051d5","on-primary":"#ffffff","on-primary-fixed-variant":"#003ea7","background":"#f8f9ff","on-background":"#0b1c30","surface-bright":"#f8f9ff","secondary-fixed":"#dae2fd","on-tertiary":"#ffffff","surface-tint":"#0854d7","tertiary-fixed-dim":"#4edea3","surface-container":"#e5eeff","on-tertiary-fixed-variant":"#005236","on-error":"#ffffff","on-tertiary-fixed":"#002113","on-surface-variant":"#434654","inverse-surface":"#213145","secondary-container":"#dae2fd","on-primary-container":"#c8d4ff","primary-fixed-dim":"#b4c5ff","secondary-fixed-dim":"#bec6e0","error-container":"#ffdad6","on-primary-fixed":"#00174b","error":"#ba1a1a"},borderRadius:{DEFAULT:"1rem",lg:"2rem",xl:"3rem",full:"9999px"},spacing:{gutter:"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","space-xl":"2rem","space-lg":"1.5rem","space-md":"1rem",margin:"2.5rem"},fontFamily:{"label-md":["Inter"],"headline-lg":["Outfit"],"label-sm":["Inter"],"display-md":["Outfit"],"body-lg":["Inter"],"body-md":["Inter"],"headline-md":["Outfit"],"display-lg":["Outfit"],"label-lg":["Inter"],"headline-sm":["Outfit"],"title-md":["Inter"],"body-sm":["Inter"]},fontSize:{"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.04em",fontWeight:"600"}],"headline-lg":["24px",{lineHeight:"32px",letterSpacing:"-0.01em",fontWeight:"600"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.05em",fontWeight:"600"}],"display-md":["32px",{lineHeight:"40px",letterSpacing:"-0.015em",fontWeight:"600"}],"body-lg":["16px",{lineHeight:"26px",fontWeight:"400"}],"body-md":["14px",{lineHeight:"22px",fontWeight:"400"}],"headline-md":["20px",{lineHeight:"28px",fontWeight:"600"}],"display-lg":["40px",{lineHeight:"48px",letterSpacing:"-0.02em",fontWeight:"600"}],"label-lg":["14px",{lineHeight:"20px",letterSpacing:"0.01em",fontWeight:"500"}],"headline-sm":["16px",{lineHeight:"24px",fontWeight:"600"}],"title-md":["16px",{lineHeight:"24px",fontWeight:"600"}],"body-sm":["13px",{lineHeight:"18px",fontWeight:"400"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-[260px] bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between overflow-hidden"><div class="flex flex-col h-full overflow-hidden"><div class="h-16 px-space-md flex items-center gap-space-sm shrink-0 bg-surface-container-lowest/40 backdrop-blur-md"><div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0"><span class="material-symbols-outlined text-[20px]">balance</span></div><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-on-surface truncate">AIM-LIS Admin</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate uppercase">Perpustakaan</span></div></div><div class="flex-1 overflow-y-auto px-space-sm py-space-sm space-y-space-xs"><nav class="space-y-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded-full transition-all bg-primary-container text-on-primary font-semibold" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">space_dashboard</span><span class="font-label-lg text-label-lg">Dashboard</span></a></nav><div class="pt-space-xs"><details class="group" open=""><summary class="flex items-center justify-between px-space-md py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface cursor-pointer select-none transition-all list-none [&amp;::-webkit-details-marker]:none"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">menu_book</span><span class="font-label-lg text-label-lg">Bibliografi</span></div><span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-open:rotate-180">expand_more</span></summary><nav class="mt-space-xs pl-space-md space-y-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="daftar-bibliografi" href="#">Daftar Bibliografi</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="daftar-eksemplar" href="#">Daftar Eksemplar</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="cetak-label-dan-barcode" href="#">Cetak Label &amp; Barcode</a></nav></details></div><div class="pt-space-xs"><details class="group"><summary class="flex items-center justify-between px-space-md py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface cursor-pointer select-none transition-all list-none [&amp;::-webkit-details-marker]:none"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">swap_horizontal_circle</span><span class="font-label-lg text-label-lg">Sirkulasi</span></div><span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-open:rotate-180">expand_more</span></summary><nav class="mt-space-xs pl-space-md space-y-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="mulai-transaksi" href="#">Mulai Transaksi</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="pengembalian-kilat" href="#">Pengembalian Kilat</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="aturan-peminjaman" href="#">Aturan Peminjaman</a></nav></details></div><div class="pt-space-xs"><details class="group"><summary class="flex items-center justify-between px-space-md py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface cursor-pointer select-none transition-all list-none [&amp;::-webkit-details-marker]:none"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">group</span><span class="font-label-lg text-label-lg">Keanggotaan</span></div><span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-open:rotate-180">expand_more</span></summary><nav class="mt-space-xs pl-space-md space-y-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="daftar-anggota" href="#">Daftar Anggota</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="tipe-keanggotaan" href="#">Tipe Keanggotaan</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="buku-tamu" href="#">Buku Tamu</a></nav></details></div><div class="pt-space-xs"><details class="group"><summary class="flex items-center justify-between px-space-md py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface cursor-pointer select-none transition-all list-none [&amp;::-webkit-details-marker]:none"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">folder_copy</span><span class="font-label-lg text-label-lg">Masterfile</span></div><span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-open:rotate-180">expand_more</span></summary><nav class="mt-space-xs pl-space-md space-y-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="masterfile-gmd" href="#">GMD</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="masterfile-tipe-isi" href="#">Tipe Isi</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="masterfile-tipe-media" href="#">Tipe Media</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="masterfile-pengarang" href="#">Pengarang</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="masterfile-penerbit" href="#">Penerbit</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="masterfile-bahasa" href="#">Bahasa</a></nav></details></div><div class="pt-space-xs"><details class="group"><summary class="flex items-center justify-between px-space-md py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface cursor-pointer select-none transition-all list-none [&amp;::-webkit-details-marker]:none"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">query_stats</span><span class="font-label-lg text-label-lg">Pelaporan</span></div><span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-open:rotate-180">expand_more</span></summary><nav class="mt-space-xs pl-space-md space-y-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="statistik-koleksi" href="#">Statistik Koleksi</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="laporan-peminjaman" href="#">Laporan Peminjaman</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="laporan-anggota" href="#">Laporan Anggota</a></nav></details></div><div class="pt-space-xs pb-space-sm"><details class="group"><summary class="flex items-center justify-between px-space-md py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface cursor-pointer select-none transition-all list-none [&amp;::-webkit-details-marker]:none"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-label-lg text-label-lg">Sistem</span></div><span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-open:rotate-180">expand_more</span></summary><nav class="mt-space-xs pl-space-md space-y-space-xs" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="sistem-hari-libur" href="#">Hari Libur</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="sistem-kelompok-pengguna" href="#">Kelompok Pengguna</a><a class="flex items-center px-space-md py-space-xs rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="sistem-pengguna-sistem" href="#">Pengguna Sistem</a></nav></details></div></div><div class="p-space-sm shrink-0 bg-surface-container-lowest/60 backdrop-blur-md"><div class="bg-surface-container-low/70 rounded-lg p-space-sm flex flex-col gap-space-xs shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center justify-between"><div class="flex items-center gap-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col min-w-0"><span class="font-headline-sm text-body-sm font-semibold text-on-surface truncate">Administrator</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">admin</span></div></div><span class="bg-surface-variant text-on-secondary-fixed font-label-sm text-label-sm px-space-xs py-0.5 rounded-full uppercase">admin</span></div><div class="pt-space-xs"><a class="flex items-center justify-center gap-space-xs w-full py-1.5 px-space-sm rounded-full bg-surface-container-lowest/80 text-on-surface hover:bg-surface-container-highest hover:text-on-surface transition-all font-label-md text-label-md" data-path="login" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Keluar</span></a></div></div></div></div></aside><div class="pl-[260px]"><header class="fixed top-0 left-[260px] right-0 h-16 bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm"><span class="material-symbols-outlined text-[18px] text-primary">account_balance</span><span>/</span><span class="font-label-lg text-label-lg text-on-surface">Dashboard</span></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs bg-surface-container-low px-space-md py-1.5 rounded-full text-on-surface-variant font-label-md text-label-md"><span class="material-symbols-outlined text-[16px]">calendar_today</span><span>Kamis, 16 April 2026</span></div><a class="flex items-center gap-space-xs px-space-md py-2 rounded-full bg-primary-container text-on-primary hover:bg-primary transition-all font-label-md text-label-md shadow-[0_8px_24px_-4px_rgba(0,81,213,0.35)]" data-path="mulai-transaksi" href="#"><span class="material-symbols-outlined text-[18px]">add</span><span>+ Transaksi Baru</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-64px)]"><div class="flex flex-col w-full relative overflow-hidden">
+<!-- Subtle Ambient Atmospheric Glow Orbs -->
+<div class="absolute -top-32 right-12 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-96 -left-20 w-80 h-80 bg-tertiary-fixed-dim/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="p-space-lg md:p-space-xl space-y-space-xl max-w-[1440px] mx-auto w-full">
+<!-- Hero / Title Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="space-y-space-xs">
+<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md shadow-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-secondary tracking-widest uppercase">Ruang Baca Fakultas Hukum • AIM-LIS</span>
+</div>
+<h1 class="font-display-md text-display-md text-on-surface tracking-tight">Ringkasan Eksekutif</h1>
+<p class="font-body-md text-body-md text-secondary">Aktivitas sirkulasi, reservasi yuridis, dan presensi literatur hukum hari ini.</p>
+</div>
+<!-- Quick Action Badges / Meta Info -->
+<div class="flex items-center gap-space-sm">
+<div class="px-space-md py-space-sm rounded-full bg-surface-container-lowest/80 backdrop-blur-xl shadow-sm flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-tertiary">verified_user</span>
+<span class="font-label-md text-label-md text-on-surface">Katalog Terindeks: <strong class="text-primary font-semibold">100% Sahih</strong></span>
+</div>
+<button class="p-space-sm rounded-full bg-surface-container-lowest/80 backdrop-blur-xl hover:bg-surface-container-highest transition-all shadow-sm text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('quick-filter-toast').classList.toggle('hidden')" title="Segarkan Data">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+</div>
+</div>
+<!-- 4-Column KPI Metric Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-lg">
+<!-- Card 1: Total Bibliografi -->
+<div class="relative group rounded-lg p-space-lg bg-surface-container-lowest/75 backdrop-blur-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+<div class="flex items-center justify-between mb-space-md">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[24px]">library_books</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-fixed/40 text-tertiary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+            +24 minggu ini
+          </span>
+</div>
+<div class="space-y-space-xs">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider block">Total Bibliografi</span>
+<div class="font-display-lg text-display-lg text-on-surface font-semibold tracking-tight">12.480</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 pt-1">
+<span class="material-symbols-outlined text-[15px] text-primary">auto_stories</span>
+            Termasuk 3.420 naskah yurisprudensi
+          </p>
+</div>
+</div>
+<!-- Card 2: Eksemplar Tersedia -->
+<div class="relative group rounded-lg p-space-lg bg-surface-container-lowest/75 backdrop-blur-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+<div class="flex items-center justify-between mb-space-md">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/15 flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[24px]">shelves</span>
+</div>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+            Stok sehat
+          </span>
+</div>
+<div class="space-y-space-xs">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider block">Eksemplar Tersedia</span>
+<div class="font-display-lg text-display-lg text-on-surface font-semibold tracking-tight">28.910</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 pt-1">
+<span class="material-symbols-outlined text-[15px] text-tertiary">check_circle</span>
+            95,8% koleksi siap di rak baca
+          </p>
+</div>
+</div>
+<!-- Card 3: Peminjaman Aktif -->
+<div class="relative group rounded-lg p-space-lg bg-surface-container-lowest/75 backdrop-blur-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+<div class="flex items-center justify-between mb-space-md">
+<div class="w-12 h-12 rounded-full bg-error-container/60 flex items-center justify-center text-error group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[24px]">swap_horizontal_circle</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+            8 Terlambat
+          </span>
+</div>
+<div class="space-y-space-xs">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider block">Peminjaman Aktif</span>
+<div class="font-display-lg text-display-lg text-on-surface font-semibold tracking-tight">142</div>
+<p class="font-body-sm text-body-sm text-error flex items-center gap-1 pt-1">
+<span class="material-symbols-outlined text-[15px]">notification_important</span>
+            Perlu peringatan batas waktu kembali
+          </p>
+</div>
+</div>
+<!-- Card 4: Anggota Baru -->
+<div class="relative group rounded-lg p-space-lg bg-surface-container-lowest/75 backdrop-blur-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+<div class="flex items-center justify-between mb-space-md">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[24px]">group_add</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-container/80 text-on-secondary-fixed-variant font-label-sm text-label-sm">
+            7 hari terakhir
+          </span>
+</div>
+<div class="space-y-space-xs">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider block">Anggota Baru</span>
+<div class="font-display-lg text-display-lg text-on-surface font-semibold tracking-tight">36</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 pt-1">
+<span class="material-symbols-outlined text-[15px] text-primary">school</span>
+            Dominasi Magister Ilmu Hukum S2
+          </p>
+</div>
+</div>
+</section>
+<!-- Main Content Split: Recent Visitors & Circulation Dynamics -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left Panel: Recent Visitors (8 Columns) -->
+<section class="lg:col-span-8 rounded-lg bg-surface-container-lowest/80 backdrop-blur-xl shadow-md p-space-lg space-y-space-lg">
+<!-- Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs">
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">badge</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Pengunjung Perpustakaan Terbaru</h2>
+</div>
+<p class="font-body-sm text-body-sm text-secondary">Presensi waktu-nyata tercatat dari Buku Tamu Kiosk &amp; OPAC hari ini</p>
+</div>
+<a class="self-start sm:self-auto inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface transition-all font-label-md text-label-md shadow-sm" data-path="buku-tamu" href="#">
+<span>Lihat Semua</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<!-- Visitor Rows -->
+<div class="divide-y-0 space-y-space-xs">
+<!-- Visitor 1 -->
+<div class="group flex flex-col md:flex-row md:items-center justify-between gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low/40 hover:bg-surface-container-high/60 transition-all duration-200">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center font-headline-sm text-headline-sm shrink-0 shadow-inner">
+                AF
+              </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Ahmad Fauzi Rahman</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary">Mahasiswa S1</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">24 Nov 2026 09:30 · Fakultas Hukum (NIM: B022252039)</span>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-md shrink-0 pt-2 md:pt-0">
+<span class="font-label-md text-label-md px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant">
+                Referensi Tesis &amp; Jurnal
+              </span>
+<div class="flex items-center gap-1.5 min-w-[130px] justify-end">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
+<span class="w-2 h-2 rounded-full bg-tertiary -ml-3.5"></span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">Sedang Berkunjung</span>
+</div>
+</div>
+</div>
+<!-- Visitor 2 -->
+<div class="group flex flex-col md:flex-row md:items-center justify-between gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low/40 hover:bg-surface-container-high/60 transition-all duration-200">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-11 h-11 rounded-full bg-tertiary-container/20 text-tertiary flex items-center justify-center font-headline-sm text-headline-sm shrink-0 shadow-inner">
+                SN
+              </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Siti Nurhaliza Putri</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary">Mahasiswa S1</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">24 Nov 2026 09:18 · Fakultas Hukum (NIM: B011221182)</span>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-md shrink-0 pt-2 md:pt-0">
+<span class="font-label-md text-label-md px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant">
+                Peminjaman Buku Teks
+              </span>
+<div class="flex items-center gap-1.5 min-w-[130px] justify-end">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">Sedang Berkunjung</span>
+</div>
+</div>
+</div>
+<!-- Visitor 3 -->
+<div class="group flex flex-col md:flex-row md:items-center justify-between gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low/40 hover:bg-surface-container-high/60 transition-all duration-200">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-11 h-11 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-headline-sm text-headline-sm shrink-0 shadow-inner">
+                MR
+              </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Muhammad Rizky Pratama</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-primary-fixed-dim/60 text-primary">Peneliti S2</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">24 Nov 2026 09:05 · Pascasarjana Magister Hukum</span>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-md shrink-0 pt-2 md:pt-0">
+<span class="font-label-md text-label-md px-3 py-1 rounded-full bg-surface-container-highest text-primary">
+                Akses Bilik Riset
+              </span>
+<div class="flex items-center gap-1.5 min-w-[130px] justify-end">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">Sedang Berkunjung</span>
+</div>
+</div>
+</div>
+<!-- Visitor 4 -->
+<div class="group flex flex-col md:flex-row md:items-center justify-between gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low/40 hover:bg-surface-container-high/60 transition-all duration-200 opacity-80 hover:opacity-100">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-11 h-11 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-headline-sm text-headline-sm shrink-0 shadow-inner">
+                DW
+              </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Dr. Dewi Sartika, S.H., M.H.</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-variant text-on-secondary-fixed-variant">Akademisi Tamu</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">24 Nov 2026 08:42 · Dosen &amp; Peneliti Luar</span>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-md shrink-0 pt-2 md:pt-0">
+<span class="font-label-md text-label-md px-3 py-1 rounded-full bg-surface-container-low text-secondary">
+                Konsultasi Naskah Akademik
+              </span>
+<div class="flex items-center gap-1.5 min-w-[130px] justify-end">
+<span class="w-2 h-2 rounded-full bg-secondary/40"></span>
+<span class="font-label-sm text-label-sm text-secondary">Selesai</span>
+</div>
+</div>
+</div>
+<!-- Visitor 5 -->
+<div class="group flex flex-col md:flex-row md:items-center justify-between gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low/40 hover:bg-surface-container-high/60 transition-all duration-200 opacity-80 hover:opacity-100">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-11 h-11 rounded-full bg-surface-container-highest text-primary flex items-center justify-center font-headline-sm text-headline-sm shrink-0 shadow-inner">
+                BA
+              </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Bagas Adi Wicaksono</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary">Mahasiswa S1</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">24 Nov 2026 08:20 · Fakultas Hukum (NIM: B022251012)</span>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-md shrink-0 pt-2 md:pt-0">
+<span class="font-label-md text-label-md px-3 py-1 rounded-full bg-surface-container-low text-secondary">
+                Studi Mandiri
+              </span>
+<div class="flex items-center gap-1.5 min-w-[130px] justify-end">
+<span class="w-2 h-2 rounded-full bg-secondary/40"></span>
+<span class="font-label-sm text-label-sm text-secondary">Selesai</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Ambient Bottom Note -->
+<div class="flex items-center justify-between pt-space-xs text-secondary font-body-sm text-body-sm">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary">sensor_occupied</span>
+            Kapasitas kursi terisi: <strong>42 / 90 Meja Belajar</strong>
+</span>
+<span class="font-label-sm text-label-sm text-primary hover:underline cursor-pointer">Buka Denah Bilik Riset →</span>
+</div>
+</section>
+<!-- Right Panel: Circulation Status & Study Cubicles (4 Columns) -->
+<div class="lg:col-span-4 space-y-space-lg">
+<!-- Circulation Status Card -->
+<section class="rounded-lg bg-surface-container-lowest/80 backdrop-blur-xl shadow-md p-space-lg space-y-space-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="space-y-0.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Status Sirkulasi Hari Ini</h3>
+<p class="font-body-sm text-body-sm text-secondary">Total 50 transaksi sirkulasi tervalidasi</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+</div>
+</div>
+<!-- Progress Item 1: Peminjaman Baru -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+                Peminjaman Baru
+              </span>
+<span class="text-on-surface font-semibold">24 berkas</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 48%"></div>
+</div>
+<div class="flex justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Target harian: ~50</span>
+<span>48% terpenuhi</span>
+</div>
+</div>
+<!-- Progress Item 2: Pengembalian -->
+<div class="space-y-1.5 pt-space-xs">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+                Pengembalian Eksemplar
+              </span>
+<span class="text-on-surface font-semibold">19 buku</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 76%"></div>
+</div>
+<div class="flex justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Bebas denda: 17</span>
+<span>2 kena sanksi ringan</span>
+</div>
+</div>
+<!-- Progress Item 3: Perpanjangan Online -->
+<div class="space-y-1.5 pt-space-xs">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                Perpanjangan Mandiri (OPAC)
+              </span>
+<span class="text-on-surface font-semibold">7 kali</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 28%"></div>
+</div>
+<div class="flex justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Masa pinjam: +7 hari</span>
+<span>Maksimal 2x perpanjang</span>
+</div>
+</div>
+<!-- Action Pill Button -->
+<div class="pt-space-sm">
+<a class="w-full py-2.5 px-space-md rounded-full bg-surface-container-low hover:bg-surface-container-high text-primary hover:text-on-surface font-label-md text-label-md flex items-center justify-center gap-2 transition-all" data-path="pengembalian-kilat" href="#">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span>Buka Terminal Pengembalian Kilat</span>
+</a>
+</div>
+</section>
+<!-- Bilik Riset Pod Status (Interactive Micro-Component) -->
+<section class="rounded-lg bg-surface-container-lowest/80 backdrop-blur-xl shadow-md p-space-lg space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="space-y-0.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Bilik Riset Magister &amp; S3</h3>
+<p class="font-body-sm text-body-sm text-secondary">Reservasi bilik hening Lantai 2</p>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm font-semibold">4 / 6 Terisi</span>
+</div>
+<!-- Visual Pod Grid -->
+<div class="grid grid-cols-3 gap-space-xs pt-space-xs">
+<div class="p-space-sm rounded-DEFAULT bg-primary-container text-on-primary flex flex-col items-center justify-center text-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="font-label-sm text-label-sm mt-1">Bilik 01</span>
+<span class="font-label-sm text-label-sm opacity-80 text-[10px]">Prof. Arifin</span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-primary-container text-on-primary flex flex-col items-center justify-center text-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="font-label-sm text-label-sm mt-1">Bilik 02</span>
+<span class="font-label-sm text-label-sm opacity-80 text-[10px]">M. Rizky</span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high text-tertiary flex flex-col items-center justify-center text-center cursor-pointer transition-all">
+<span class="material-symbols-outlined text-[18px]">meeting_room</span>
+<span class="font-label-sm text-label-sm text-on-surface mt-1">Bilik 03</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold text-[10px]">Kosong</span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-primary-container text-on-primary flex flex-col items-center justify-center text-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="font-label-sm text-label-sm mt-1">Bilik 04</span>
+<span class="font-label-sm text-label-sm opacity-80 text-[10px]">S3 Pidana</span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-primary-container text-on-primary flex flex-col items-center justify-center text-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="font-label-sm text-label-sm mt-1">Bilik 05</span>
+<span class="font-label-sm text-label-sm opacity-80 text-[10px]">S3 Perdata</span>
+</div>
+<div class="p-space-sm rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high text-tertiary flex flex-col items-center justify-center text-center cursor-pointer transition-all">
+<span class="material-symbols-outlined text-[18px]">meeting_room</span>
+<span class="font-label-sm text-label-sm text-on-surface mt-1">Bilik 06</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold text-[10px]">Kosong</span>
+</div>
+</div>
+<div class="pt-space-xs text-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Sesi reservasi maksimal 4 jam per mahasiswa peneliti</span>
+</div>
+</section>
+</div>
+</div>
+<!-- Jurisprudence Quick Access / Archival Spotlight Banner -->
+<section class="rounded-lg p-space-lg bg-surface-container-lowest/80 backdrop-blur-xl shadow-md relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-space-lg">
+<div class="space-y-space-xs max-w-2xl">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-primary">gavel</span>
+          Koleksi Khusus Hukum Positif &amp; Traktat
+        </div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Katalog Putusan Mahkamah Agung &amp; Lembaran Negara</h3>
+<p class="font-body-md text-body-md text-secondary">
+          Tersedia 4.290 anotasi yuridis resmi dan dokumen himpunan undang-undang Republik Indonesia yang siap diakses di ruang referensi khusus lantai 1.
+        </p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<a class="px-space-lg py-2.5 rounded-full bg-primary-container text-on-primary hover:bg-primary transition-all font-label-md text-label-md shadow-[0_8px_24px_-4px_rgba(0,81,213,0.35)] flex items-center gap-2" data-path="daftar-bibliografi" href="#">
+<span class="material-symbols-outlined text-[18px]">manage_search</span>
+<span>Buka Arsip Bibliografi</span>
+</a>
+</div>
+</section>
+</div>
+<!-- Micro-interaction Toast -->
+<div class="hidden fixed bottom-6 right-6 z-50 p-space-md rounded-lg bg-inverse-surface text-inverse-on-surface shadow-xl flex items-center gap-space-sm animate-bounce" id="quick-filter-toast">
+<span class="material-symbols-outlined text-tertiary-fixed text-[20px]">check_circle</span>
+<span class="font-body-sm text-body-sm">Data sinkronisasi katalog diperbarui secara langsung.</span>
+<button class="ml-2 text-inverse-on-surface/60 hover:text-inverse-on-surface" onclick="document.getElementById('quick-filter-toast').classList.add('hidden')">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div></main><footer class="w-full bg-surface-container-low/60 py-space-md shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="w-full px-space-lg text-center text-on-surface-variant font-body-sm text-body-sm">© AIM 2026 · AIM – Archipelago Innovation Management</div></footer></div></body></html>

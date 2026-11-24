@@ -3,90 +3,164 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Perpustakaan Digital</title>
+    <title>Perpustakaan Digital — OPAC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/opac.css') }}" />
   </head>
   <body>
     <header class="opac-header">
-      <div class="brand">
-        <div class="logo">📘</div>
-        <div>
-          <div class="brand-title">Perpustakaan Digital</div>
-          <div class="brand-sub">Online Public Access Catalogue</div>
+      <div class="opac-header-inner">
+        <a class="brand" href="{{ url_for('main.opac_home') }}">
+          <div class="brand-icon">
+            <span class="material-symbols-outlined">balance</span>
+          </div>
+          <div>
+            <div class="brand-title">Perpustakaan Digital</div>
+            <div class="brand-sub">Ruang Baca Fakultas Hukum · OPAC</div>
+          </div>
+        </a>
+
+        <div class="header-nav-group">
+          <nav class="pill-nav">
+            <a class="active" href="{{ url_for('main.opac_home') }}">Katalog</a>
+            <a href="{{ url_for('main.guestbook_form') }}">Buku Tamu</a>
+          </nav>
         </div>
       </div>
     </header>
 
     <main class="opac-main">
       <section class="hero">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          <span>Sistem Temu Kembali Informasi Perpustakaan</span>
+        </div>
         <h1>Selamat Datang di OPAC</h1>
-        <p>Temukan koleksi buku dan referensi perpustakaan kami secara online</p>
+        <p>Temukan koleksi buku, jurnal, dan referensi perpustakaan kami secara online dengan cepat dan akurat.</p>
 
         <form class="hero-search" id="opac-search">
           <div class="search-input">
-            <span class="icon">🔍</span>
+            <span class="material-symbols-outlined">search</span>
             <input type="text" id="opac-q" placeholder="Cari judul, pengarang, ISBN, atau no. panggil..." />
           </div>
-          <button class="btn primary" type="submit">Cari</button>
+          <button class="btn primary" type="submit">
+            <span>Cari</span>
+            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+          </button>
         </form>
 
         <div class="hero-meta">
-          <span>📘 Koleksi Terbaru</span>
-          <span>👥 Terbuka untuk Umum</span>
+          <span class="hero-chip">
+            <span class="material-symbols-outlined" style="font-size: 15px;">auto_awesome</span>
+            Koleksi Terbaru
+          </span>
+          <span class="hero-chip emerald">
+            <span class="material-symbols-outlined" style="font-size: 15px;">public</span>
+            Terbuka untuk Umum
+          </span>
+          <button class="topic-chip" type="button" data-quick-q="Hukum Pidana">Hukum Pidana</button>
+          <button class="topic-chip" type="button" data-quick-q="Hukum Perdata">Hukum Perdata</button>
+          <button class="topic-chip" type="button" data-quick-q="Hukum Tata Negara">Hukum Tata Negara</button>
+          <button class="topic-chip" type="button" data-quick-q="Hukum Bisnis">Hukum Bisnis</button>
         </div>
       </section>
 
       <section class="search-result hidden" id="search-section" style="display:none;">
         <div class="result-header">
           <div id="search-title">Hasil pencarian</div>
-          <button class="close" id="close-search">✕ Tutup</button>
+          <button class="close" id="close-search" type="button">✕ Tutup</button>
         </div>
         <div class="book-grid" id="search-grid"></div>
         <div class="pagination">
           <div class="page-info" id="search-page"></div>
           <div class="page-actions">
-            <button class="btn ghost" id="prev-page">Sebelumnya</button>
-            <button class="btn ghost" id="next-page">Berikutnya</button>
+            <button class="btn ghost" id="prev-page" type="button">Sebelumnya</button>
+            <button class="btn ghost" id="next-page" type="button">Berikutnya</button>
           </div>
         </div>
       </section>
 
       <section class="split" id="default-section">
         <div>
-          <h2>10 Koleksi Terbaru</h2>
+          <div class="section-head">
+            <div class="section-head-left">
+              <div class="section-icon">
+                <span class="material-symbols-outlined" style="font-size: 20px;">library_add</span>
+              </div>
+              <div>
+                <h2>10 Koleksi Terbaru</h2>
+                <p>Literatur &amp; referensi yang baru ditambahkan</p>
+              </div>
+            </div>
+            <span class="section-pill">Terbaru</span>
+          </div>
           <div class="list">
             {% for row in latest_rows %}
-            <button class="book-row" data-biblio="{{ row.biblio_id }}">
-              <div class="book-icon">📘</div>
-              <div>
-                <div class="book-title">{{ row.title }}</div>
-                <div class="book-author">{{ row.author }}</div>
+            <button class="book-row" data-biblio="{{ row.biblio_id }}" type="button">
+              <div class="book-body">
                 <div class="book-meta">
                   <span class="tag">{{ row.gmd }}</span>
-                  <span>{{ row.year }}</span>
-                  <span>👁 {{ row.views }}</span>
+                  <span class="meta-pill">{{ row.year }}</span>
+                  <span class="meta-pill">
+                    <span class="material-symbols-outlined" style="font-size: 13px;">visibility</span>
+                    {{ row.views }}
+                  </span>
                 </div>
+                <div class="book-title">{{ row.title }}</div>
+                <div class="book-author">{{ row.author }}</div>
+                <div class="book-footer">
+                  <span class="book-action-pill">
+                    <span>Detail &amp; Eksemplar</span>
+                    <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
+                  </span>
+                </div>
+              </div>
+              <div class="book-thumb">
+                <span class="material-symbols-outlined" style="font-size: 28px;">menu_book</span>
               </div>
             </button>
             {% endfor %}
           </div>
         </div>
+
         <div>
-          <h2>10 Terbanyak Dipinjam</h2>
+          <div class="section-head">
+            <div class="section-head-left">
+              <div class="section-icon popular">
+                <span class="material-symbols-outlined" style="font-size: 20px;">trending_up</span>
+              </div>
+              <div>
+                <h2>10 Terbanyak Dipinjam</h2>
+                <p>Rujukan utama yang paling diminati pemustaka</p>
+              </div>
+            </div>
+            <span class="section-pill">Populer</span>
+          </div>
           <div class="list">
             {% for row in popular_rows %}
-            <button class="book-row" data-biblio="{{ row.biblio_id }}">
-              <div class="book-icon">📘</div>
-              <div>
-                <div class="book-title">{{ row.title }}</div>
-                <div class="book-author">{{ row.author }}</div>
+            <button class="book-row" data-biblio="{{ row.biblio_id }}" type="button">
+              <div class="book-rank {% if loop.index == 1 %}top-1{% elif loop.index == 2 %}top-2{% elif loop.index == 3 %}top-3{% endif %}">
+                #{{ loop.index }}
+              </div>
+              <div class="book-body">
                 <div class="book-meta">
                   <span class="tag">{{ row.gmd }}</span>
-                  <span>{{ row.year }}</span>
-                  <span>👁 {{ row.views }}</span>
+                  <span class="meta-pill">{{ row.year }}</span>
+                  <span class="meta-pill">
+                    <span class="material-symbols-outlined" style="font-size: 13px;">visibility</span>
+                    {{ row.views }}
+                  </span>
+                </div>
+                <div class="book-title">{{ row.title }}</div>
+                <div class="book-author">{{ row.author }}</div>
+                <div class="book-footer">
+                  <span class="book-action-pill">
+                    <span>Cek Ketersediaan Rak</span>
+                    <span class="material-symbols-outlined" style="font-size: 15px;">pin_drop</span>
+                  </span>
                 </div>
               </div>
             </button>
@@ -105,23 +179,25 @@
       <div class="modal-card opac-modal">
         <div class="modal-header">
           <div class="modal-title" id="modal-title"></div>
-          <button class="icon-btn" id="close-modal">✕</button>
+          <button class="icon-btn" id="close-modal" type="button" aria-label="Tutup">
+            <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+          </button>
         </div>
         <div class="modal-body">
           <div class="modal-info">
-            <div class="book-icon large">📘</div>
-            <div>
-              <div class="info-row"><span>Pengarang:</span> <b id="modal-author"></b></div>
-              <div class="info-row"><span>Tahun:</span> <b id="modal-year"></b></div>
-              <div class="info-row"><span>ISBN/ISSN:</span> <b id="modal-isbn"></b></div>
-              <div class="info-row"><span>No. Panggil:</span> <b id="modal-call"></b></div>
-              <div class="info-row"><span>Eksemplar:</span> <b id="modal-copies"></b></div>
-              <div class="info-row"><span>Dikunjungi:</span> <b id="modal-views"></b></div>
-            </div>
+            <div class="info-row"><span>Pengarang</span> <b id="modal-author"></b></div>
+            <div class="info-row"><span>Tahun</span> <b id="modal-year"></b></div>
+            <div class="info-row"><span>ISBN/ISSN</span> <b id="modal-isbn"></b></div>
+            <div class="info-row"><span>No. Panggil</span> <b id="modal-call"></b></div>
+            <div class="info-row"><span>Eksemplar</span> <b id="modal-copies"></b></div>
+            <div class="info-row"><span>Dikunjungi</span> <b id="modal-views"></b></div>
           </div>
           <div class="divider"></div>
           <div class="items">
-            <h3>Daftar Eksemplar</h3>
+            <h3>
+              <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">inventory_2</span>
+              Daftar Eksemplar
+            </h3>
             <div class="item-table" id="modal-items"></div>
           </div>
           <div class="foot">Ditambahkan <span id="modal-date"></span></div>
@@ -188,6 +264,11 @@
         if (card) {
           loadDetail(card.dataset.biblio);
         }
+        const quickBtn = event.target.closest("[data-quick-q]");
+        if (quickBtn) {
+          searchInput.value = quickBtn.dataset.quickQ;
+          doSearch(1);
+        }
       });
       closeModal.addEventListener("click", hideModal);
       modal.addEventListener("click", (event) => {
@@ -210,20 +291,27 @@
 
       function renderSearch(rows) {
         if (!rows.length) {
-          searchGrid.innerHTML = "<div>Tidak ada hasil.</div>";
+          searchGrid.innerHTML = "<div style='color: var(--secondary); padding: 12px 0;'>Tidak ada hasil yang cocok.</div>";
           return;
         }
         searchGrid.innerHTML = rows
           .map(
             (row) => `
-            <button class="book-card" data-biblio="${row.biblio_id}">
-              <div class="book-icon">📘</div>
-              <div class="book-title">${row.title}</div>
-              <div class="book-author">${row.author}</div>
-              <div class="book-meta">
-                <span class="tag">${row.gmd}</span>
-                <span>${row.year}</span>
-                <span>👁 ${row.views}</span>
+            <button class="book-card" data-biblio="${row.biblio_id}" type="button">
+              <div class="book-body">
+                <div class="book-meta">
+                  <span class="tag">${row.gmd}</span>
+                  <span class="meta-pill">${row.year}</span>
+                  <span class="meta-pill">
+                    <span class="material-symbols-outlined" style="font-size: 13px;">visibility</span>
+                    ${row.views}
+                  </span>
+                </div>
+                <div class="book-title">${row.title}</div>
+                <div class="book-author">${row.author}</div>
+              </div>
+              <div class="book-thumb">
+                <span class="material-symbols-outlined" style="font-size: 26px;">menu_book</span>
               </div>
             </button>`
           )

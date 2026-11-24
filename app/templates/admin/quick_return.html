@@ -2,26 +2,67 @@
 
 {% block content %}
 <div class="page-header center">
-  <div>
-    <div class="page-title">Pengembalian Kilat</div>
-    <div class="page-sub">Scan atau masukkan kode eksemplar untuk pengembalian cepat</div>
+  <div class="page-eyebrow">
+    <span class="page-eyebrow-dot"></span>
+    <span>Terminal Sirkulasi · Pengembalian Cepat</span>
   </div>
+  <div class="page-title">Pengembalian Kilat</div>
+  <div class="page-sub">Scan atau masukkan kode eksemplar untuk pengembalian cepat tanpa memilih anggota</div>
 </div>
 
 <div class="return-card">
-  <div class="return-title">↩︎ Kembalikan Buku</div>
-  <div class="return-form">
-    <input type="text" id="return-code" placeholder="Masukkan kode eksemplar..." />
-    <button class="btn primary" id="return-btn" type="button">Kembalikan</button>
+  <div class="return-card-head">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div class="card-icon" style="width: 42px; height: 42px;">
+        <span class="material-symbols-outlined">assignment_returned</span>
+      </div>
+      <div>
+        <div class="return-title">Kembalikan Buku</div>
+        <div class="return-sub">Proses sirkulasi eksemplar secara instan</div>
+      </div>
+    </div>
+    <span class="scanner-pill">
+      <span class="material-symbols-outlined" style="font-size: 15px;">barcode_scanner</span>
+      <span>Mode Scanner</span>
+    </span>
   </div>
-  <div class="return-hint">Tekan Enter untuk mempercepat proses pengembalian</div>
+
+  <div class="return-form">
+    <span class="material-symbols-outlined" style="color: var(--outline); font-size: 21px;">qr_code_scanner</span>
+    <input type="text" id="return-code" placeholder="Masukkan atau scan kode eksemplar..." autofocus />
+    <button class="btn primary" id="return-btn" type="button">
+      <span class="material-symbols-outlined" style="font-size: 18px;">keyboard_return</span>
+      <span>Kembalikan</span>
+    </button>
+  </div>
+
+  <div class="return-hint">
+    <span>Tekan <strong>Enter</strong> untuk mempercepat proses pengembalian</span>
+    <span>Mendukung Barcode Scanner USB</span>
+  </div>
+
   <div class="return-result" id="return-result"></div>
+</div>
+
+<div class="panel hidden" id="session-log-panel" style="max-width: 640px; margin: 20px auto 0;">
+  <div class="panel-header">
+    <div class="panel-title">
+      <span class="material-symbols-outlined">history</span>
+      <span>Riwayat Pengembalian Sesi Ini</span>
+    </div>
+    <span class="pill" id="session-log-count">0 diproses</span>
+  </div>
+  <div class="panel-body" id="session-log-list"></div>
 </div>
 
 <script>
   const codeInput = document.getElementById("return-code");
   const returnBtn = document.getElementById("return-btn");
   const resultEl = document.getElementById("return-result");
+  const logPanel = document.getElementById("session-log-panel");
+  const logList = document.getElementById("session-log-list");
+  const logCount = document.getElementById("session-log-count");
+  let sessionCount = 0;
 
   async function doReturn() {
     const code = codeInput.value.trim();
@@ -38,11 +79,32 @@
     }
     resultEl.innerHTML = `
       <div class="success">
-        <div><b>${data.member_name}</b> (${data.member_id})</div>
-        <div>Buku <b>${data.item_code}</b> berhasil dikembalikan.</div>
+        <div style="font-weight: 700; margin-bottom: 2px;">Pengembalian Berhasil Divalidasi</div>
+        <div><b>${data.member_name}</b> (<span class="mono">${data.member_id}</span>)</div>
+        <div>Buku <b class="mono">${data.item_code}</b> berhasil dikembalikan.</div>
       </div>
     `;
+    sessionCount += 1;
+    logPanel.classList.remove("hidden");
+    logCount.textContent = `${sessionCount} diproses`;
+    const nowTime = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const row = document.createElement("div");
+    row.className = "activity";
+    row.innerHTML = `
+      <div class="activity-left">
+        <div class="activity-avatar">
+          <span class="material-symbols-outlined" style="font-size: 18px;">menu_book</span>
+        </div>
+        <div>
+          <div class="activity-title mono">${data.item_code}</div>
+          <div class="activity-meta">${data.member_name} (${data.member_id}) · ${nowTime}</div>
+        </div>
+      </div>
+      <span class="badge returned">Dikembalikan</span>
+    `;
+    logList.prepend(row);
     codeInput.value = "";
+    codeInput.focus();
   }
 
   returnBtn.addEventListener("click", doReturn);

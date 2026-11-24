@@ -3,29 +3,41 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ title or "SLiMS Admin" }}</title>
+    <title>{{ title or "AIM-LIS Admin" }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
   </head>
   <body>
     <div class="layout">
       <aside class="sidebar">
         <div class="brand">
-          <div class="brand-icon">S</div>
+          <div class="brand-icon">
+            <span class="material-symbols-outlined" style="font-size: 20px;">balance</span>
+          </div>
           <div class="brand-text">
-            <div class="brand-title">SLiMS Admin</div>
+            <div class="brand-title">AIM-LIS Admin</div>
             <div class="brand-sub">Perpustakaan</div>
           </div>
         </div>
 
         <nav class="nav">
-          <a class="nav-item {{ 'active' if active == 'dashboard' else '' }}" href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
+          <a class="nav-item top-link {{ 'active' if active == 'dashboard' else '' }}" href="{{ url_for('main.admin_dashboard') }}">
+            <span class="material-symbols-outlined">space_dashboard</span>
+            <span>Dashboard</span>
+          </a>
 
           {% if has_priv('biblio','items','labels') %}
           <div class="nav-group {{ 'open' if active in ['biblio','items','labels'] else '' }}">
-            <button class="nav-group-toggle" type="button">Bibliografi</button>
+            <button class="nav-group-toggle" type="button">
+              <span class="nav-group-label">
+                <span class="material-symbols-outlined">menu_book</span>
+                <span>Bibliografi</span>
+              </span>
+              <span class="material-symbols-outlined nav-chevron">expand_more</span>
+            </button>
             <div class="nav-group-items">
               {% if has_priv('biblio') %}
               <a class="nav-item {{ 'active' if active == 'biblio' else '' }}" href="{{ url_for('main.admin_biblio') }}">
@@ -37,7 +49,7 @@
               <a class="nav-item" href="#">Eksemplar Keluar</a>
               {% endif %}
               {% if has_priv('labels') %}
-              <a class="nav-item {{ 'active' if active == 'labels' else '' }}" href="{{ url_for('main.admin_labels') }}">Cetak Label & Barcode</a>
+              <a class="nav-item {{ 'active' if active == 'labels' else '' }}" href="{{ url_for('main.admin_labels') }}">Cetak Label &amp; Barcode</a>
               {% endif %}
             </div>
           </div>
@@ -45,7 +57,13 @@
 
           {% if has_priv('transaction','quick_return','loan_rules') %}
           <div class="nav-group {{ 'open' if active in ['transaction','quick_return','loan_rules'] else '' }}">
-            <button class="nav-group-toggle" type="button">Sirkulasi</button>
+            <button class="nav-group-toggle" type="button">
+              <span class="nav-group-label">
+                <span class="material-symbols-outlined">swap_horizontal_circle</span>
+                <span>Sirkulasi</span>
+              </span>
+              <span class="material-symbols-outlined nav-chevron">expand_more</span>
+            </button>
             <div class="nav-group-items">
               {% if has_priv('transaction') %}
               <a class="nav-item {{ 'active' if active == 'transaction' else '' }}" href="{{ url_for('main.admin_transaksi') }}">Mulai Transaksi</a>
@@ -62,7 +80,13 @@
 
           {% if has_priv('members','member_type','guestbook') %}
           <div class="nav-group {{ 'open' if active in ['members','member_type','guestbook'] else '' }}">
-            <button class="nav-group-toggle" type="button">Keanggotaan</button>
+            <button class="nav-group-toggle" type="button">
+              <span class="nav-group-label">
+                <span class="material-symbols-outlined">group</span>
+                <span>Keanggotaan</span>
+              </span>
+              <span class="material-symbols-outlined nav-chevron">expand_more</span>
+            </button>
             <div class="nav-group-items">
               {% if has_priv('members') %}
               <a class="nav-item {{ 'active' if active == 'members' else '' }}" href="{{ url_for('main.admin_members') }}">Daftar Anggota</a>
@@ -79,7 +103,13 @@
 
           {% if has_priv('masterfile') %}
           <div class="nav-group {{ 'open' if active in ['master_gmd','master_content','master_media','master_author','master_publisher','master_language'] else '' }}">
-            <button class="nav-group-toggle" type="button">Masterfile</button>
+            <button class="nav-group-toggle" type="button">
+              <span class="nav-group-label">
+                <span class="material-symbols-outlined">folder_copy</span>
+                <span>Masterfile</span>
+              </span>
+              <span class="material-symbols-outlined nav-chevron">expand_more</span>
+            </button>
             <div class="nav-group-items">
               <a class="nav-item {{ 'active' if active == 'master_gmd' else '' }}" href="{{ url_for('main.admin_master_gmd') }}">GMD</a>
               <a class="nav-item {{ 'active' if active == 'master_content' else '' }}" href="{{ url_for('main.admin_master_content_type') }}">Tipe Isi</a>
@@ -93,7 +123,13 @@
 
           {% if has_priv('reports') %}
           <div class="nav-group {{ 'open' if active in ['report_collection','report_loans','report_members','report_usage','report_classification','report_guestbook'] else '' }}">
-            <button class="nav-group-toggle" type="button">Pelaporan</button>
+            <button class="nav-group-toggle" type="button">
+              <span class="nav-group-label">
+                <span class="material-symbols-outlined">query_stats</span>
+                <span>Pelaporan</span>
+              </span>
+              <span class="material-symbols-outlined nav-chevron">expand_more</span>
+            </button>
             <div class="nav-group-items">
               <a class="nav-item {{ 'active' if active == 'report_collection' else '' }}" href="{{ url_for('main.admin_report_collection') }}">Statistik Koleksi</a>
               <a class="nav-item {{ 'active' if active == 'report_loans' else '' }}" href="{{ url_for('main.admin_report_loans') }}">Laporan Peminjaman</a>
@@ -107,11 +143,17 @@
 
           {% if has_priv('system') %}
           <div class="nav-group {{ 'open' if active in ['system_holidays','system_groups','system_users'] else '' }}">
-            <button class="nav-group-toggle" type="button">Sistem</button>
+            <button class="nav-group-toggle" type="button">
+              <span class="nav-group-label">
+                <span class="material-symbols-outlined">settings</span>
+                <span>Sistem</span>
+              </span>
+              <span class="material-symbols-outlined nav-chevron">expand_more</span>
+            </button>
             <div class="nav-group-items">
               <a class="nav-item {{ 'active' if active == 'system_holidays' else '' }}" href="{{ url_for('main.admin_system_holidays') }}">Setelan Hari Libur</a>
               <a class="nav-item {{ 'active' if active == 'system_groups' else '' }}" href="{{ url_for('main.admin_system_groups') }}">Kelompok Pengguna</a>
-              <a class="nav-item {{ 'active' if active == 'system_users' else '' }}" href="{{ url_for('main.admin_system_users') }}">Pustakawan & Pengguna Sistem</a>
+              <a class="nav-item {{ 'active' if active == 'system_users' else '' }}" href="{{ url_for('main.admin_system_users') }}">Pustakawan &amp; Pengguna Sistem</a>
             </div>
           </div>
           {% endif %}
@@ -119,18 +161,47 @@
 
         <div class="sidebar-footer">
           <div class="user-card">
-            <div class="user-name">Administrator</div>
-            <div class="user-role">admin</div>
-          </div>
-          <div class="footer-actions">
-            <a class="btn ghost" href="{{ url_for('main.logout') }}">Keluar</a>
+            <div class="user-card-row">
+              <div class="user-card-info">
+                <div class="user-avatar">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">person</span>
+                </div>
+                <div style="min-width: 0;">
+                  <div class="user-name">Administrator</div>
+                  <div class="user-role">admin</div>
+                </div>
+              </div>
+              <span class="user-role-pill">admin</span>
+            </div>
+            <div class="footer-actions">
+              <a class="btn ghost" href="{{ url_for('main.logout') }}">
+                <span class="material-symbols-outlined" style="font-size: 16px;">logout</span>
+                <span>Keluar</span>
+              </a>
+            </div>
           </div>
         </div>
       </aside>
 
       <main class="content">
         <div class="topbar">
-          <div class="crumbs">{{ crumbs or "" }}</div>
+          <div class="crumbs">
+            <span class="material-symbols-outlined">account_balance</span>
+            <span style="color: var(--outline-variant); font-weight: 400;">/</span>
+            <span>{{ crumbs or "Dashboard" }}</span>
+          </div>
+          <div class="topbar-right">
+            <div class="topbar-date" id="topbar-date-pill">
+              <span class="material-symbols-outlined" style="font-size: 15px;">calendar_today</span>
+              <span id="topbar-date-text">Hari ini</span>
+            </div>
+            {% if has_priv('transaction') %}
+            <a class="topbar-cta" href="{{ url_for('main.admin_transaksi') }}">
+              <span class="material-symbols-outlined" style="font-size: 17px;">add</span>
+              <span>Transaksi Baru</span>
+            </a>
+            {% endif %}
+          </div>
         </div>
 
         <div class="page">
@@ -150,6 +221,18 @@
           btn.parentElement.classList.toggle("open");
         });
       });
+
+      const dateTextEl = document.getElementById("topbar-date-text");
+      if (dateTextEl) {
+        try {
+          dateTextEl.textContent = new Date().toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+        } catch (e) {}
+      }
     </script>
   </body>
 </html>

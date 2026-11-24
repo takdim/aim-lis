@@ -3,37 +3,63 @@
 {% block content %}
 <div class="page-header">
   <div>
+    <div class="page-eyebrow">
+      <span class="page-eyebrow-dot"></span>
+      <span>Sirkulasi · Meja Layanan</span>
+    </div>
     <div class="page-title">Mulai Transaksi Sirkulasi</div>
-    <div class="page-sub">Cari anggota untuk memulai transaksi peminjaman</div>
+    <div class="page-sub">Cari anggota untuk memulai transaksi peminjaman, pengembalian, atau denda</div>
   </div>
 </div>
 
 <div class="search-bar transaction-search">
   <div class="search-input">
-    <span class="icon">🔎</span>
-    <input type="text" id="member-search" placeholder="Masukkan NIM/ID anggota..." />
+    <span class="material-symbols-outlined" style="color: var(--primary); font-size: 21px;">qr_code_scanner</span>
+    <input type="text" id="member-search" placeholder="Scan kartu atau masukkan NIM/ID anggota..." />
   </div>
-  <button class="btn danger" id="finish-btn" type="button">Selesai Transaksi</button>
+  <button class="btn primary" id="member-search-btn" type="button">
+    <span class="material-symbols-outlined" style="font-size: 18px;">search</span>
+    <span>Cari Anggota</span>
+  </button>
+  <button class="btn danger" id="finish-btn" type="button">
+    <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span>
+    <span>Selesai Transaksi</span>
+  </button>
 </div>
 
 <div class="transaction-grid hidden" id="transaction-panel">
   <div class="transaction-left">
     <div class="panel">
-      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="panel-title">Detail Keanggotaan</div>
-        <button class="btn danger" id="trigger-fine-btn" type="button" style="padding: 4px 10px; font-size: 12px;">+ Kena Denda</button>
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="material-symbols-outlined">badge</span>
+          <span>Detail Keanggotaan</span>
+        </div>
+        <button class="btn danger-soft small" id="trigger-fine-btn" type="button">
+          <span class="material-symbols-outlined" style="font-size: 15px;">add_circle</span>
+          <span>Kena Denda</span>
+        </button>
       </div>
-      <div class="panel-body detail-grid" id="member-detail"></div>
+      <div class="panel-body">
+        <div class="detail-grid" id="member-detail"></div>
+      </div>
     </div>
 
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title">Peminjaman</div>
+        <div class="panel-title">
+          <span class="material-symbols-outlined">add_task</span>
+          <span>Input Peminjaman Eksemplar</span>
+        </div>
       </div>
       <div class="panel-body">
         <div class="borrow-bar">
-          <input type="text" id="item-code" placeholder="Masukkan kode eksemplar..." />
-          <button class="btn primary" id="borrow-btn" type="button">Pinjam</button>
+          <span class="material-symbols-outlined" style="color: var(--outline); font-size: 20px;">barcode_scanner</span>
+          <input type="text" id="item-code" placeholder="Masukkan atau scan kode eksemplar..." />
+          <button class="btn primary small" id="borrow-btn" type="button">
+            <span class="material-symbols-outlined" style="font-size: 16px;">add</span>
+            <span>Pinjam</span>
+          </button>
         </div>
         <div class="hint" id="borrow-hint"></div>
       </div>
@@ -43,9 +69,9 @@
   <div class="transaction-right">
     <div class="panel">
       <div class="panel-header tabs">
-        <button class="tab active" data-tab="current">Pinjaman Saat Ini (<span id="current-count">0</span>)</button>
-        <button class="tab" data-tab="fine">Denda</button>
-        <button class="tab" data-tab="history">Sejarah</button>
+        <button class="tab active" data-tab="current" type="button">Pinjaman Saat Ini (<span id="current-count">0</span>)</button>
+        <button class="tab" data-tab="fine" type="button">Denda</button>
+        <button class="tab" data-tab="history" type="button">Sejarah</button>
       </div>
       <div class="panel-body">
         <div class="tab-content" id="tab-current"></div>
@@ -57,7 +83,9 @@
 </div>
 
 <div class="empty-state" id="empty-state">
+  <span class="material-symbols-outlined" style="font-size: 40px; color: var(--primary); opacity: 0.7;">qr_code_scanner</span>
   <div class="empty-title">Masukkan NIM/ID anggota untuk mulai transaksi</div>
+  <div style="font-size: 13px; margin-top: 4px;">Tekan Enter atau klik Cari Anggota untuk memuat detail peminjaman dan denda</div>
 </div>
 
 <!-- Modal Tambah Denda -->
@@ -68,7 +96,7 @@
         <div class="modal-title">Tandai Denda Anggota</div>
         <div class="modal-sub" id="fine-modal-sub">-</div>
       </div>
-      <button class="btn ghost" type="button" id="close-fine-modal">Tutup</button>
+      <button class="btn ghost small" type="button" id="close-fine-modal">Tutup</button>
     </div>
     <div class="modal-body">
       <div style="display: flex; flex-direction: column; gap: 14px;">
@@ -80,7 +108,7 @@
           <span>Keterangan / Alasan Denda</span>
           <input type="text" id="fine-desc-input" placeholder="Contoh: Keterlambatan / Buku rusak / Ganti barcode" />
         </label>
-        <div class="hint danger" id="fine-error-hint" style="color: #ef4444; font-size: 13px; display: none;"></div>
+        <div class="hint danger" id="fine-error-hint" style="color: var(--error); font-size: 13px; display: none;"></div>
       </div>
     </div>
     <div class="modal-actions">
@@ -95,11 +123,9 @@
   <div class="modal-card" style="max-width: 480px;">
     <div class="modal-header">
       <div class="modal-title" id="confirm-modal-title">Konfirmasi</div>
-      <button class="btn ghost" type="button" id="close-confirm-modal">Tutup</button>
+      <button class="btn ghost small" type="button" id="close-confirm-modal">Tutup</button>
     </div>
-    <div class="modal-body" id="confirm-modal-body">
-      <!-- Diisi secara dinamis -->
-    </div>
+    <div class="modal-body" id="confirm-modal-body"></div>
     <div class="modal-actions">
       <button class="btn ghost" type="button" id="cancel-confirm-modal">Batal</button>
       <button class="btn primary" type="button" id="proceed-confirm-modal">Lanjutkan</button>
@@ -109,6 +135,7 @@
 
 <script>
   const memberInput = document.getElementById("member-search");
+  const memberSearchBtn = document.getElementById("member-search-btn");
   const transactionPanel = document.getElementById("transaction-panel");
   const emptyState = document.getElementById("empty-state");
   const memberDetail = document.getElementById("member-detail");
@@ -121,7 +148,6 @@
   const tabHistory = document.getElementById("tab-history");
   const finishBtn = document.getElementById("finish-btn");
 
-  // Fine Modal Elements
   const fineModal = document.getElementById("fine-modal");
   const fineModalSub = document.getElementById("fine-modal-sub");
   const fineAmountInput = document.getElementById("fine-amount-input");
@@ -132,7 +158,6 @@
   const submitFineModal = document.getElementById("submit-fine-modal");
   const triggerFineBtn = document.getElementById("trigger-fine-btn");
 
-  // Confirm Modal Elements
   const confirmModal = document.getElementById("confirm-modal");
   const confirmModalTitle = document.getElementById("confirm-modal-title");
   const confirmModalBody = document.getElementById("confirm-modal-body");
@@ -168,8 +193,8 @@
   function renderDetail(member) {
     const rows = [
       ["Nama Anggota", member.member_name],
-      ["Email", member.member_email || "-"],
       ["ID Anggota", member.member_id],
+      ["Email", member.member_email || "-"],
       ["Tipe Keanggotaan", member.member_type_name || "-"],
       ["Tanggal Registrasi", member.register_date || "-"],
       ["Berlaku Hingga", member.expire_date || "-"],
@@ -198,8 +223,8 @@
         <div class="loan-card">
           <div>
             <div class="loan-title">${escapeHtml(loan.title)}</div>
-            <div class="loan-meta">${escapeHtml(loan.item_code)}</div>
-            <div class="loan-meta">Pinjam: ${loan.loan_date} · Kembali: ${loan.due_date}</div>
+            <div class="loan-meta"><span class="pill mono" style="padding: 2px 9px; font-size: 11px;">${escapeHtml(loan.item_code)}</span></div>
+            <div class="loan-meta">Pinjam: ${loan.loan_date} · Jatuh Tempo: ${loan.due_date}</div>
             ${
               loan.fine_amount && loan.fine_amount > 0
                 ? `<div class="loan-meta danger">Denda: Rp ${Number(loan.fine_amount).toLocaleString("id-ID")}</div>`
@@ -207,8 +232,8 @@
             }
           </div>
           <div class="loan-actions">
-            ${loan.can_renew ? `<button class="btn ghost" data-renew="${loan.loan_id}">Perpanjang</button>` : ""}
-            <button class="btn ghost" data-return="${loan.loan_id}">Kembalikan</button>
+            ${loan.can_renew ? `<button class="btn ghost small" data-renew="${loan.loan_id}" type="button">Perpanjang</button>` : ""}
+            <button class="btn primary small" data-return="${loan.loan_id}" type="button">Kembalikan</button>
           </div>
         </div>`
       )
@@ -222,7 +247,7 @@
     const headerHtml = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap;">
         <div class="fine-total" style="margin-bottom: 0;">Total Denda: Rp ${totalAmount.toLocaleString("id-ID")}</div>
-        <button class="btn danger" id="tab-add-fine-btn" type="button" style="padding: 6px 12px; font-size: 13px;">+ Tambah Denda</button>
+        <button class="btn danger-soft small" id="tab-add-fine-btn" type="button">+ Tambah Denda</button>
       </div>
     `;
 
@@ -233,25 +258,25 @@
     const items = currentFines
       .map(
         (fine) => `
-        <div class="loan-card" style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <div class="loan-card">
           <div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <span style="font-weight: 700; font-size: 15px; color: #ef4444;">Rp ${Number(fine.amount).toLocaleString("id-ID")}</span>
-              <span class="badge ${fine.source === 'overdue' ? 'danger' : 'active'}" style="font-size: 11px; padding: 2px 8px;">
+              <span style="font-weight: 700; font-size: 15px; color: var(--error);">Rp ${Number(fine.amount).toLocaleString("id-ID")}</span>
+              <span class="badge ${fine.source === 'overdue' ? 'danger' : 'active'}">
                 ${fine.source === 'overdue' ? 'Keterlambatan' : 'Denda Manual'}
               </span>
             </div>
             <div class="loan-meta" style="margin-top: 6px; font-size: 13px; color: var(--text);">
               <strong>Keterangan:</strong> ${escapeHtml(fine.description || "-")}
             </div>
-            <div class="loan-meta" style="margin-top: 3px; font-size: 12px; color: var(--muted);">
-              Tanggal: ${fine.date || "-"} ${fine.item_code && fine.item_code !== '-' ? `· Eksemplar: <code>${escapeHtml(fine.item_code)}</code>` : ''}
+            <div class="loan-meta">
+              Tanggal: ${fine.date || "-"} ${fine.item_code && fine.item_code !== '-' ? `· Eksemplar: <code class="mono">${escapeHtml(fine.item_code)}</code>` : ''}
             </div>
           </div>
           <div class="loan-actions">
             ${
               fine.can_delete && fine.fine_id
-                ? `<button class="btn ghost danger" type="button" data-delete-fine="${fine.fine_id}" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Hapus</button>`
+                ? `<button class="btn danger-soft small" type="button" data-delete-fine="${fine.fine_id}">Hapus</button>`
                 : ""
             }
           </div>
@@ -272,7 +297,7 @@
         <div class="loan-card">
           <div>
             <div class="loan-title">${escapeHtml(loan.title)}</div>
-            <div class="loan-meta">${escapeHtml(loan.item_code)}</div>
+            <div class="loan-meta mono">${escapeHtml(loan.item_code)}</div>
             <div class="loan-meta">Pinjam: ${loan.loan_date} · Kembali: ${loan.return_date || '-'} </div>
           </div>
           <div class="badge ${loan.status}">${escapeHtml(loan.status_label)}</div>
@@ -336,7 +361,6 @@
     setActiveTab("current");
   }
 
-  // Konfirmasi Pengembalian
   function askConfirmReturn(loanId) {
     const loan = currentLoans.find((l) => String(l.loan_id) === String(loanId));
     const title = loan ? loan.title : "Buku ini";
@@ -344,17 +368,17 @@
     const loanDate = loan ? loan.loan_date : "-";
     const dueDate = loan ? loan.due_date : "-";
     const fineNotice = (loan && loan.fine_amount > 0)
-      ? `<div style="margin-top: 12px; padding: 10px 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; color: #ef4444; font-size: 13px;">
+      ? `<div style="margin-top: 12px; padding: 10px 14px; background: var(--error-container); border-radius: 12px; color: var(--error); font-size: 13px;">
           <strong>Perhatian:</strong> Peminjaman ini memiliki denda keterlambatan sebesar <strong>Rp ${Number(loan.fine_amount).toLocaleString("id-ID")}</strong>.
         </div>`
       : "";
 
     confirmModalTitle.textContent = "Konfirmasi Pengembalian";
     confirmModalBody.innerHTML = `
-      <p style="margin-bottom: 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin memproses <strong>pengembalian</strong> untuk eksemplar berikut?</p>
-      <div style="background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+      <p style="margin: 0 0 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin memproses <strong>pengembalian</strong> untuk eksemplar berikut?</p>
+      <div style="background: var(--surface-container-low); border-radius: 12px; padding: 12px;">
         <div style="font-weight: 600; font-size: 14px; color: var(--text);">${escapeHtml(title)}</div>
-        <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Kode Eksemplar: <code>${escapeHtml(code)}</code></div>
+        <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Kode Eksemplar: <code class="mono">${escapeHtml(code)}</code></div>
         <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">Tgl Pinjam: ${loanDate} · Jatuh Tempo: ${dueDate}</div>
       </div>
       ${fineNotice}
@@ -381,7 +405,6 @@
     renderHistory(data.history);
   }
 
-  // Konfirmasi Perpanjang
   function askConfirmRenew(loanId) {
     const loan = currentLoans.find((l) => String(l.loan_id) === String(loanId));
     const title = loan ? loan.title : "Buku ini";
@@ -390,10 +413,10 @@
 
     confirmModalTitle.textContent = "Konfirmasi Perpanjangan";
     confirmModalBody.innerHTML = `
-      <p style="margin-bottom: 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin <strong>memperpanjang</strong> masa peminjaman eksemplar berikut?</p>
-      <div style="background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+      <p style="margin: 0 0 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin <strong>memperpanjang</strong> masa peminjaman eksemplar berikut?</p>
+      <div style="background: var(--surface-container-low); border-radius: 12px; padding: 12px;">
         <div style="font-weight: 600; font-size: 14px; color: var(--text);">${escapeHtml(title)}</div>
-        <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Kode Eksemplar: <code>${escapeHtml(code)}</code></div>
+        <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Kode Eksemplar: <code class="mono">${escapeHtml(code)}</code></div>
         <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">Jatuh Tempo Saat Ini: ${dueDate}</div>
       </div>
     `;
@@ -419,7 +442,6 @@
     renderFines(data.fines);
   }
 
-  // Denda Anggota
   function openFineModal() {
     if (!activeMember) {
       alert("Pilih/cari anggota terlebih dahulu.");
@@ -471,7 +493,6 @@
     setActiveTab("fine");
   }
 
-  // Hapus Denda
   function askConfirmDeleteFine(fineId) {
     const fine = currentFines.find((f) => String(f.fine_id) === String(fineId));
     const amountStr = fine ? `Rp ${Number(fine.amount).toLocaleString("id-ID")}` : "denda ini";
@@ -479,9 +500,9 @@
 
     confirmModalTitle.textContent = "Konfirmasi Hapus Denda";
     confirmModalBody.innerHTML = `
-      <p style="margin-bottom: 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin <strong>menghapus</strong> catatan denda ini?</p>
-      <div style="background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
-        <div style="font-weight: 700; font-size: 15px; color: #ef4444;">${amountStr}</div>
+      <p style="margin: 0 0 12px; font-size: 14px; color: var(--text);">Apakah Anda yakin ingin <strong>menghapus</strong> catatan denda ini?</p>
+      <div style="background: var(--surface-container-low); border-radius: 12px; padding: 12px;">
+        <div style="font-weight: 700; font-size: 15px; color: var(--error);">${amountStr}</div>
         <div style="font-size: 13px; color: var(--text); margin-top: 4px;"><strong>Keterangan:</strong> ${escapeHtml(desc)}</div>
       </div>
     `;
@@ -507,13 +528,15 @@
     renderHistory(data.history);
   }
 
-  // Event Listeners
   memberInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
       loadMember();
     }
   });
+  if (memberSearchBtn) {
+    memberSearchBtn.addEventListener("click", loadMember);
+  }
 
   borrowBtn.addEventListener("click", borrowItem);
   itemCodeInput.addEventListener("keydown", (event) => {
@@ -536,12 +559,10 @@
     });
   }
 
-  // Trigger Denda Buttons
   if (triggerFineBtn) {
     triggerFineBtn.addEventListener("click", openFineModal);
   }
 
-  // Fine Modal Actions
   closeFineModal.addEventListener("click", () => closeModal(fineModal));
   cancelFineModal.addEventListener("click", () => closeModal(fineModal));
   submitFineModal.addEventListener("click", submitFine);
@@ -558,7 +579,6 @@
     }
   });
 
-  // Confirm Modal Actions
   closeConfirmModal.addEventListener("click", () => {
     closeModal(confirmModal);
     pendingAction = null;
@@ -576,7 +596,6 @@
     }
   });
 
-  // Delegated clicks for Tabs, Return, Renew, and Tab Add Fine
   document.addEventListener("click", (event) => {
     const tabBtn = event.target.closest(".tab");
     if (tabBtn) {

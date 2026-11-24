@@ -3,109 +3,127 @@
 {% block content %}
 <div class="page-header">
   <div>
+    <div class="page-eyebrow">
+      <span class="page-eyebrow-dot"></span>
+      <span>Pelaporan · Analitika Koleksi</span>
+    </div>
     <div class="page-title">Statistik Koleksi</div>
-    <div class="page-sub">Ringkasan statistik koleksi</div>
+    <div class="page-sub">Ringkasan statistik dan distribusi koleksi perpustakaan</div>
   </div>
-  <button class="btn ghost">Unduh Laporan</button>
+  <button class="btn ghost" type="button" onclick="window.print()">
+    <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+    <span>Unduh / Cetak Laporan</span>
+  </button>
 </div>
 
-<div class="report-summary">
-  <div class="report-row">
-    <div class="report-label">Total Judul</div>
-    <div class="report-value">{{ total_titles }}</div>
+<div class="stats-grid-5">
+  <div class="stat-card">
+    <div class="stat-label">Total Judul</div>
+    <div class="stat-value">{{ "{:,}".format(total_titles) }}</div>
   </div>
-  <div class="report-row">
-    <div class="report-label">Total Judul dengan eksemplar</div>
-    <div class="report-value">{{ titles_with_items }}</div>
+  <div class="stat-card">
+    <div class="stat-label">Judul Ber-eksemplar</div>
+    <div class="stat-value">{{ "{:,}".format(titles_with_items) }}</div>
   </div>
-  <div class="report-row">
-    <div class="report-label">Total Eksemplar/Kopi</div>
-    <div class="report-value">{{ total_items }}</div>
+  <div class="stat-card">
+    <div class="stat-label">Total Eksemplar</div>
+    <div class="stat-value">{{ "{:,}".format(total_items) }}</div>
   </div>
-  <div class="report-row">
-    <div class="report-label">Total Eksemplar Dipinjam</div>
-    <div class="report-value">{{ items_on_loan }}</div>
+  <div class="stat-card">
+    <div class="stat-label">Sedang Dipinjam</div>
+    <div class="stat-value">{{ "{:,}".format(items_on_loan) }}</div>
   </div>
-  <div class="report-row">
-    <div class="report-label">Total Eksemplar Dalam Koleksi</div>
-    <div class="report-value">{{ items_in_collection }}</div>
+  <div class="stat-card">
+    <div class="stat-label">Dalam Koleksi</div>
+    <div class="stat-value">{{ "{:,}".format(items_in_collection) }}</div>
   </div>
-  <div class="report-row">
-    <div class="report-label">Total Judul Menurut Media/GMD</div>
-    <div class="report-value">
-      <button class="btn primary small">Tunjukkan dalam grafik</button>
-      <div class="report-list">
-        {% for name, count in by_gmd %}
-          <span>{{ name or '-' }} ({{ count }})</span>
-        {% else %}
-          <span>-</span>
-        {% endfor %}
+</div>
+
+<div class="report-analytics-grid">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Distribusi Jenis Koleksi</span>
       </div>
+      <span class="pill">{{ by_coll_type|length }} kategori</span>
+    </div>
+    <div class="panel-body">
+      <div class="report-chart" id="coll-chart"></div>
     </div>
   </div>
-  <div class="report-row">
-    <div class="report-label">Total Eksemplar Menurut Jenis Koleksi</div>
-    <div class="report-value">
-      <button class="btn primary small" id="toggle-coll-chart">Tunjukkan dalam grafik</button>
-      <div class="report-chart hidden" id="coll-chart"></div>
-      <div class="report-list">
-        {% for name, count in by_coll_type %}
-          <span>{{ name or '-' }} ({{ count }})</span>
-        {% else %}
-          <span>-</span>
-        {% endfor %}
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="material-symbols-outlined">category</span>
+        <span>Distribusi Media / GMD</span>
       </div>
+      <span class="pill">{{ by_gmd|length }} format</span>
+    </div>
+    <div class="panel-body">
+      <div class="report-chart" id="gmd-chart"></div>
     </div>
   </div>
-  <div class="report-row">
-    <div class="report-label">10 Judul Terpopuler</div>
-    <div class="report-value">
-      <ol class="report-list ordered">
-        {% for title, _count in popular_titles %}
-          <li>{{ title }}</li>
-        {% else %}
-          <li>-</li>
-        {% endfor %}
-      </ol>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">
+      <span class="material-symbols-outlined">emoji_events</span>
+      <span>10 Judul Terpopuler</span>
     </div>
+    <span class="pill">Top 10</span>
+  </div>
+  <div class="panel-body">
+    {% if popular_titles %}
+    <div class="ranked-list">
+      {% for title, count in popular_titles %}
+      <div class="ranked-item">
+        <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+          <div class="ranked-num {% if loop.index <= 3 %}top{% endif %}">{{ loop.index }}</div>
+          <div class="title" style="overflow: hidden; text-overflow: ellipsis;">{{ title }}</div>
+        </div>
+        <span class="pill">{{ count }}x dipinjam</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-mini">Belum ada data peminjaman.</div>
+    {% endif %}
   </div>
 </div>
 
 <script>
   const collData = {{ by_coll_type|tojson }};
-  const chartEl = document.getElementById("coll-chart");
-  const toggleBtn = document.getElementById("toggle-coll-chart");
+  const gmdData = {{ by_gmd|tojson }};
 
-  function renderBars(data) {
-    if (!data.length) {
-      chartEl.innerHTML = '<div class="empty-mini">Belum ada data.</div>';
+  function renderBars(targetEl, data) {
+    if (!targetEl) return;
+    if (!data || !data.length) {
+      targetEl.innerHTML = '<div class="empty-mini">Belum ada data.</div>';
       return;
     }
     const max = Math.max(...data.map((d) => d[1] || 0), 1);
-    chartEl.innerHTML = data
+    targetEl.innerHTML = data
       .map((d) => {
         const label = d[0] || "-";
         const value = d[1] || 0;
-        const width = Math.round((value / max) * 100);
+        const width = Math.max(Math.round((value / max) * 100), 2);
         return `
           <div class="bar-row">
             <div class="bar-label">${label}</div>
             <div class="bar-track">
               <div class="bar-fill" style="width:${width}%"></div>
             </div>
-            <div class="bar-value">${value}</div>
+            <div class="bar-value">${Number(value).toLocaleString("id-ID")}</div>
           </div>
         `;
       })
       .join("");
   }
 
-  toggleBtn.addEventListener("click", () => {
-    chartEl.classList.toggle("hidden");
-    if (!chartEl.dataset.ready) {
-      renderBars(collData);
-      chartEl.dataset.ready = "1";
-    }
-  });
+  renderBars(document.getElementById("coll-chart"), collData);
+  renderBars(document.getElementById("gmd-chart"), gmdData);
 </script>
 {% endblock %}
